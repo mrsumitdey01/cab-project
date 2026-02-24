@@ -5,11 +5,12 @@ const { createApp } = require('./app');
 
 async function startServer() {
   const config = loadConfig();
-  await connectDb(config.mongoUri);
+  await connectDb();
 
   const app = createApp(config);
-  app.listen(config.port, () => {
-    logger.info('Server started', { port: config.port, env: config.nodeEnv });
+  const port = Number(process.env.PORT || config.port || 5000);
+  app.listen(port, () => {
+    logger.info('Server started', { port, env: config.nodeEnv });
   });
 }
 

@@ -15,6 +15,7 @@ Production-grade cab booking platform with React + Express + MongoDB.
 
 ### 1) Server
 ```bash
+npm install
 cd server
 cp .env.example .env
 npm install
