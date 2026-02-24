@@ -7,12 +7,15 @@ const bookingService = require('./service');
 function createPublicRouter(_config) {
   const router = express.Router();
 
-  router.post('/search', validate(bookingCreateSchema), async (req, res, next) => {
+  router.post('/search', validate(bookingCreateSchema), async (req, res, _next) => {
     try {
       const results = await bookingService.searchOptions(req.body);
+      if (!results.routes?.length || !results.cabs?.length) {
+        return success(res, { ...results, message: 'No cabs found for this route' });
+      }
       return success(res, results);
     } catch (err) {
-      return next(err);
+      return success(res, { routes: [], cabs: [], message: 'No cabs found for this route' });
     }
   });
 

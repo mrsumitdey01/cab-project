@@ -10,7 +10,8 @@
     "test:coverage": "c8 --reporter=text --reporter=lcov node --test",
     "migrate:indexes": "node scripts/migrate-indexes.js",
     "promote-admin": "node scripts/promote-admin.js",
-    "seed-admin": "node scripts/seed-admin.js"
+    "seed-admin": "node scripts/seed-admin.js",
+    "seed:catalog": "node src/scripts/seed.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

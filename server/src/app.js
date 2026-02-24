@@ -17,7 +17,8 @@ function createApp(config) {
   app.use(helmet());
   app.use(cors({
     origin(origin, callback) {
-      const allowedOrigins = (process.env.ALLOWED_ORIGINS || config.clientUrls.join(','))
+      const defaultOrigins = ['http://localhost:3000', 'https://cab-project-frontend.onrender.com'];
+      const allowedOrigins = (process.env.ALLOWED_ORIGINS || config.clientUrls.join(',') || defaultOrigins.join(','))
         .split(',')
         .map((url) => url.trim())
         .filter(Boolean);
