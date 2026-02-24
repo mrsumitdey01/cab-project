@@ -12,6 +12,11 @@ jobs:
     defaults:
       run:
         working-directory: server
+    env:
+      NODE_ENV: test
+      JWT_ACCESS_SECRET: test_access
+      JWT_REFRESH_SECRET: test_refresh
+      MONGO_URI: mongodb://localhost:27017/test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

@@ -17,7 +17,12 @@ function createApp(config) {
   app.use(helmet());
   app.use(cors({
     origin(origin, callback) {
-      if (!origin || config.clientUrls.includes(origin)) {
+      const allowedOrigins = (process.env.ALLOWED_ORIGINS || config.clientUrls.join(','))
+        .split(',')
+        .map((url) => url.trim())
+        .filter(Boolean);
+
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
         return;
       }

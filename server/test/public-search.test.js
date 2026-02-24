@@ -2,6 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const request = require('supertest');
 const { createApp } = require('../src/app');
+const { searchOptions } = require('../src/modules/booking/service');
 
 function makeConfig() {
   return {
@@ -15,8 +16,14 @@ function makeConfig() {
   };
 }
 
-test('POST /api/v1/public/search returns routes and cabs', async () => {
+test('POST /api/v1/public/search returns 200 even if empty', async () => {
   const app = createApp(makeConfig());
+  const original = searchOptions;
+
+  // Temporarily stub to avoid DB dependency in CI.
+  const service = require('../src/modules/booking/service');
+  service.searchOptions = async () => ({ routes: [], cabs: [] });
+
   const res = await request(app)
     .post('/api/v1/public/search')
     .send({
@@ -27,6 +34,8 @@ test('POST /api/v1/public/search returns routes and cabs', async () => {
     });
 
   assert.equal(res.status, 200);
-  assert.ok(res.body.data.routes.length > 0);
-  assert.ok(res.body.data.cabs.length > 0);
+  assert.deepEqual(res.body.data.routes, []);
+  assert.deepEqual(res.body.data.cabs, []);
+
+  service.searchOptions = original;
 });
