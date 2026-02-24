@@ -1,0 +1,79 @@
+import axios from 'axios';
+import { API_BASE_URL, API_PREFIX } from '../lib/env';
+
+const ACCESS_TOKEN_KEY = 'cab_access_token';
+const REFRESH_TOKEN_KEY = 'cab_refresh_token';
+
+let refreshing = null;
+
+export const http = axios.create({
+  baseURL: `${API_BASE_URL}${API_PREFIX}`,
+  timeout: 10000,
+});
+
+export function getAccessToken() {
+  return localStorage.getItem(ACCESS_TOKEN_KEY);
+}
+
+export function getRefreshToken() {
+  return localStorage.getItem(REFRESH_TOKEN_KEY);
+}
+
+export function setSessionTokens({ accessToken, refreshToken }) {
+  if (accessToken) localStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+  if (refreshToken) localStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+}
+
+export function clearSessionTokens() {
+  localStorage.removeItem(ACCESS_TOKEN_KEY);
+  localStorage.removeItem(REFRESH_TOKEN_KEY);
+}
+
+http.interceptors.request.use((config) => {
+  const token = getAccessToken();
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+http.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const original = error.config;
+    if (!error.response || error.response.status !== 401 || original._retry) {
+      throw error;
+    }
+
+    const refreshToken = getRefreshToken();
+    if (!refreshToken) {
+      clearSessionTokens();
+      throw error;
+    }
+
+    if (!refreshing) {
+      refreshing = axios.post(`${API_BASE_URL}${API_PREFIX}/auth/refresh`, { refreshToken })
+        .then((res) => {
+          const session = res.data?.data;
+          if (!session?.accessToken || !session?.refreshToken) {
+            throw new Error('Invalid refresh response');
+          }
+          setSessionTokens(session);
+          return session;
+        })
+        .finally(() => {
+          refreshing = null;
+        });
+    }
+
+    try {
+      await refreshing;
+      original._retry = true;
+      original.headers.Authorization = `Bearer ${getAccessToken()}`;
+      return http(original);
+    } catch (refreshError) {
+      clearSessionTokens();
+      throw refreshError;
+    }
+  }
+);

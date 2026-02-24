@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  server:
+    build:
+      context: ./server
+    env_file:
+      - ./server/.env
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/cab_project
+      - CLIENT_URLS=http://localhost:3000
+    depends_on:
+      - mongo
+    ports:
+      - "5000:5000"
+
+  client:
+    build:
+      context: ./client
+    environment:
+      - REACT_APP_API_URL=http://localhost:5000
+      - REACT_APP_API_PREFIX=/api/v1
+    depends_on:
+      - server
+    ports:
+      - "3000:80"
+
+volumes:
+  mongo_data:
