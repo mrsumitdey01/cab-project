@@ -28,7 +28,7 @@ const bookingSchema = new mongoose.Schema({
     fare: {
         totalAmount: { type: Number, required: true, min: 0 }
     },
-    status: { type: String, enum: ['PENDING', 'CONFIRMED', 'CANCELLED'], default: 'PENDING' }
+    status: { type: String, enum: ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'], default: 'PENDING' }
 }, { timestamps: true });
 
 bookingSchema.index({ createdAt: -1 });

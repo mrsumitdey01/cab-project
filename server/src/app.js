@@ -36,6 +36,9 @@ function createApp(config) {
   app.use(metricsMiddleware);
   app.use(morgan(config.nodeEnv === 'production' ? 'combined' : 'dev'));
 
+  app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'UP', message: 'Server is active' });
+  });
   app.get('/api/v1/health', (req, res) => {
     res.status(200).json({ status: 'UP', message: 'Server is active' });
   });

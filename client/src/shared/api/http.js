@@ -1,14 +1,16 @@
 import axios from 'axios';
-import { API_BASE_URL, API_PREFIX } from '../lib/env';
 
 const ACCESS_TOKEN_KEY = 'cab_access_token';
 const REFRESH_TOKEN_KEY = 'cab_refresh_token';
 
 let refreshing = null;
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_PREFIX = '/api/v1';
+
 export const http = axios.create({
   baseURL: `${API_BASE_URL}${API_PREFIX}`,
-  timeout: 10000,
+  timeout: 60000,
 });
 
 export function getAccessToken() {
@@ -33,6 +35,11 @@ http.interceptors.request.use((config) => {
   const token = getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+  if (!config.headers['x-request-id']) {
+    const requestId = crypto.randomUUID();
+    config.headers['x-request-id'] = requestId;
+    console.log(`requestId=${requestId} ${config.method?.toUpperCase()} ${config.baseURL || ''}${config.url || ''}`);
   }
   return config;
 });

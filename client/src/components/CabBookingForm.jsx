@@ -127,7 +127,7 @@ const CabBookingForm = () => {
                         )}
                         {lastBooking && (
                             <p className="mt-4 text-sm font-medium text-emerald-700">
-                                Booking confirmed. Fare: ${lastBooking.fare?.totalAmount}
+                                Booking confirmed. Fare: ₹${lastBooking.fare?.totalAmount}
                             </p>
                         )}
                     </form>

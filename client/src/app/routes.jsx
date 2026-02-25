@@ -21,10 +21,11 @@ function Navbar() {
     <header className="bg-white shadow-sm border-b">
       <div className="max-w-6xl mx-auto p-4 flex items-center justify-between">
         <Link to="/" className="font-bold text-2xl flex items-center gap-3">
-          <span className="brand-logo">
+          <span className="brand-logo" aria-label="Safarexpress Cab">
+            <span className="brand-se">SE</span>
             <span className="brand-road" />
           </span>
-          <span className="brand-name"><span className="se">SE</span>Safarexpress Cab</span>
+          <span className="brand-name">Safarexpress Cab</span>
         </Link>
         <nav className="flex items-center gap-4 text-sm">
           <Link to="/">Search</Link>

@@ -50,9 +50,9 @@ export function PublicSearchPage() {
     setSuccess('');
     try {
       if (warmup.status !== 'ready') {
-        setWarming('pending');
+        setWarming('warming');
         await warmBackend();
-        setError('System is warming up for your first request, please wait...');
+        setError('Connecting to fleet... Please wait 30 seconds.');
         return;
       }
       const data = await searchTrips(formData);
@@ -77,9 +77,9 @@ export function PublicSearchPage() {
     setSuccess('');
     try {
       if (warmup.status !== 'ready') {
-        setWarming('pending');
+        setWarming('warming');
         await warmBackend();
-        setError('System is warming up for your first request, please wait...');
+        setError('Connecting to fleet... Please wait 30 seconds.');
         return;
       }
       const payload = {
@@ -92,7 +92,7 @@ export function PublicSearchPage() {
         ? await createBooking(payload, idempotencyKey)
         : await createPublicBooking(payload, idempotencyKey);
 
-      setSuccess(`Booking confirmed. Fare: $${response.booking.fare.totalAmount}`);
+      setSuccess(`Booking confirmed. Fare: ₹${response.booking.fare.totalAmount}`);
       setBookingFormOpen(false);
     } catch (err) {
       setError(err?.response?.data?.error?.detail || 'Booking failed.');
@@ -187,9 +187,9 @@ export function PublicSearchPage() {
             </div>
             <button
               className="py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all disabled:opacity-50"
-              disabled={loading}
+              disabled={loading || warmup.status !== 'ready'}
             >
-              {loading ? 'Searching...' : 'Book Cab'}
+              {loading ? 'Searching...' : warmup.status !== 'ready' ? 'Connecting...' : 'Book Cab'}
             </button>
           </div>
         </form>

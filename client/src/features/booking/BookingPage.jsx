@@ -4,15 +4,27 @@ import { listBookings } from '../../shared/api/endpoints';
 
 const tabs = ['present', 'planned', 'past'];
 
+function parsePickupDateTime(booking) {
+  const dateValue = booking?.schedule?.pickupDate;
+  if (!dateValue) return null;
+  const timeValue = booking?.schedule?.pickupTime || '00:00';
+  const combined = new Date(`${dateValue}T${timeValue}`);
+  if (Number.isNaN(combined.getTime())) {
+    const fallback = new Date(dateValue);
+    return Number.isNaN(fallback.getTime()) ? null : fallback;
+  }
+  return combined;
+}
+
 function classifyBooking(booking) {
-  const pickupDate = booking?.schedule?.pickupDate ? new Date(booking.schedule.pickupDate) : null;
-  if (!pickupDate || Number.isNaN(pickupDate.getTime())) return 'planned';
+  if (booking?.status === 'COMPLETED' || booking?.status === 'CANCELLED') return 'past';
+  const pickupDateTime = parsePickupDateTime(booking);
+  if (!pickupDateTime) return 'planned';
 
   const now = new Date();
-  const sameDay = pickupDate.toDateString() === now.toDateString();
-
+  const sameDay = pickupDateTime.toDateString() === now.toDateString();
   if (sameDay) return 'present';
-  if (pickupDate > now) return 'planned';
+  if (pickupDateTime > now) return 'planned';
   return 'past';
 }
 
@@ -62,7 +74,7 @@ export function BookingPage() {
                 <p className="text-sm text-slate-500">{booking.tripType} | {booking.status}</p>
                 <p className="text-sm text-slate-500">Route: {booking.selection?.route || 'N/A'} | Cab: {booking.selection?.cabType || 'N/A'} | Model: {booking.selection?.carModel || 'N/A'}</p>
               </div>
-              <p className="font-bold">${booking.fare?.totalAmount}</p>
+              <p className="font-bold">₹{booking.fare?.totalAmount}</p>
             </div>
           </div>
         ))}

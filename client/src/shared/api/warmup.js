@@ -10,7 +10,7 @@ export function getWarmState() {
 export async function warmBackend() {
   if (warming) return warming;
 
-  warmState = { status: 'pending', lastError: null };
+  warmState = { status: 'warming', lastError: null };
   const baseUrl = (() => {
     try {
       // eslint-disable-next-line no-new-func
@@ -25,13 +25,13 @@ export async function warmBackend() {
   }
 
   console.log(`Waking up backend at ${baseUrl}`);
-  warming = axios.get(`${baseUrl}/api/v1/health`, { timeout: 60000 })
+  warming = axios.get(`${baseUrl}/health`, { timeout: 60000 })
     .then((res) => {
       warmState = { status: 'ready', lastError: null };
       return res.data;
     })
     .catch((err) => {
-      warmState = { status: 'pending', lastError: err };
+      warmState = { status: 'warming', lastError: err };
       return null;
     })
     .finally(() => {

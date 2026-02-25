@@ -1,7 +1,7 @@
 const { z } = require('../../middleware/validate');
 
 const tripTypes = ['ONE_WAY', 'ROUND_TRIP', 'AIRPORT', 'HOURLY'];
-const statuses = ['PENDING', 'CONFIRMED', 'CANCELLED'];
+const statuses = ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'];
 
 const bookingCreateSchema = z.object({
   tripType: z.enum(tripTypes),

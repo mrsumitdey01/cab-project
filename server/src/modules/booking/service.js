@@ -8,7 +8,8 @@ const { ApiError } = require('../../lib/errors');
 
 const ALLOWED_TRANSITIONS = {
   PENDING: ['CONFIRMED', 'CANCELLED'],
-  CONFIRMED: ['CANCELLED'],
+  CONFIRMED: ['CANCELLED', 'COMPLETED'],
+  COMPLETED: [],
   CANCELLED: [],
 };
 

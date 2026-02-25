@@ -8,6 +8,7 @@ export function WarmupProvider({ children }) {
 
   useEffect(() => {
     let active = true;
+    setStatus('warming');
     warmBackend().finally(() => {
       if (active) {
         setStatus(getWarmState().status);
