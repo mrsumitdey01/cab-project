@@ -11,14 +11,7 @@ export async function warmBackend() {
   if (warming) return warming;
 
   warmState = { status: 'warming', lastError: null };
-  const baseUrl = (() => {
-    try {
-      // eslint-disable-next-line no-new-func
-      return Function('return import.meta.env && import.meta.env.VITE_API_URL')();
-    } catch (err) {
-      return undefined;
-    }
-  })();
+  const baseUrl = process.env.REACT_APP_API_URL;
   if (!baseUrl) {
     warmState = { status: 'ready', lastError: null };
     return null;

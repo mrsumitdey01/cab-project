@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-export const API_URL = import.meta?.env?.VITE_API_URL;
+export const API_URL = process.env.REACT_APP_API_URL;
 if (!API_URL) {
-  console.error('VITE_API_URL is missing! Production handshake will fail.');
+  console.error('REACT_APP_API_URL is missing! Production handshake will fail.');
 }
 
 export const axiosClient = axios.create({

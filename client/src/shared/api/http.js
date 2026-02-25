@@ -5,9 +5,9 @@ const REFRESH_TOKEN_KEY = 'cab_refresh_token';
 
 let refreshing = null;
 
-const RAW_BASE_URL = import.meta.env.VITE_API_URL;
+const RAW_BASE_URL = process.env.REACT_APP_API_URL;
 if (!RAW_BASE_URL) {
-  console.error('VITE_API_URL is missing! Production handshake will fail.');
+  console.error('REACT_APP_API_URL is missing! Production handshake will fail.');
 }
 const API_PREFIX = '/api/v1';
 const NORMALIZED_BASE = RAW_BASE_URL ? RAW_BASE_URL.replace(/\/+$/, '') : '';
@@ -39,7 +39,7 @@ export function clearSessionTokens() {
 
 http.interceptors.request.use((config) => {
   if (!BASE_URL) {
-    throw new Error('VITE_API_URL is missing! Production handshake will fail.');
+    throw new Error('REACT_APP_API_URL is missing! Production handshake will fail.');
   }
   const token = getAccessToken();
   if (token) {
