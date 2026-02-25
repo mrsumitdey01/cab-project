@@ -70,10 +70,6 @@ export function PublicSearchPage() {
     [formData, selection]
   );
 
-  async function handleBookNow() {
-    setBookingFormOpen(true);
-  }
-
   async function handleBookingSubmit(e) {
     e.preventDefault();
     setLoading(true);
@@ -204,11 +200,7 @@ export function PublicSearchPage() {
         <Alert type="success" message={success} />
       </div>
 
-      {results && !bookingFormOpen && (
-        <div className="mt-8">
-          <button className="p-3 rounded-lg bg-emerald-600 text-white font-semibold" onClick={handleBookNow} disabled={!results.routes?.length || !results.cabs?.length}>Book Cab</button>
-        </div>
-      )}
+
 
       {bookingFormOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 modal-backdrop">
