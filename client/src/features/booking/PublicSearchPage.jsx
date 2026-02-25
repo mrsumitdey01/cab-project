@@ -68,10 +68,14 @@ export function PublicSearchPage() {
     }
   }
 
-  const idempotencyKey = useMemo(
-    () => `${formData.pickup.address}-${formData.dropoff.address}-${formData.schedule.pickupDate}-${formData.schedule.pickupTime}-${formData.tripType}-${selection.route}-${selection.cabType}`,
-    [formData, selection]
-  );
+  const idempotencyKey = useMemo(() => {
+    const raw = `${formData.pickup.address}-${formData.dropoff.address}-${formData.schedule.pickupDate}-${formData.schedule.pickupTime}-${formData.tripType}-${selection.route}-${selection.cabType}`;
+    const base64 = btoa(unescape(encodeURIComponent(raw)))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=+$/, '');
+    return base64.slice(0, 96);
+  }, [formData, selection]);
 
   async function handleBookingSubmit(e) {
     e.preventDefault();

@@ -37,6 +37,14 @@ export function clearSessionTokens() {
   localStorage.removeItem(REFRESH_TOKEN_KEY);
 }
 
+function assertAsciiHeader(name, value) {
+  if (typeof value !== 'string') return;
+  const asciiOnly = /^[\x00-\x7F]*$/.test(value);
+  if (!asciiOnly) {
+    throw new Error(`Header ${name} contains non-ASCII characters.`);
+  }
+}
+
 http.interceptors.request.use((config) => {
   if (!BASE_URL) {
     throw new Error('REACT_APP_API_URL is missing! Production handshake will fail.');
@@ -44,6 +52,11 @@ http.interceptors.request.use((config) => {
   const token = getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+  }
+  if (config.headers) {
+    Object.entries(config.headers).forEach(([name, value]) => {
+      assertAsciiHeader(name, String(value));
+    });
   }
   if (!config.headers['x-request-id']) {
     const requestId = crypto.randomUUID();
