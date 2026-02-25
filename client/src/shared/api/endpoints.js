@@ -1,7 +1,7 @@
 import { http, clearSessionTokens } from './http';
 
 export async function register(payload) {
-  console.log(`Registering user at ${import.meta.env.VITE_API_URL}/auth/register`);
+  console.log(`Registering user at ${process.env.REACT_APP_API_URL}/auth/register`);
   const res = await http.post('/auth/register', payload);
   console.log(`Register response status: ${res.status}`);
   return res.data.data;
