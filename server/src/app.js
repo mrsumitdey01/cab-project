@@ -36,6 +36,10 @@ function createApp(config) {
   app.use(metricsMiddleware);
   app.use(morgan(config.nodeEnv === 'production' ? 'combined' : 'dev'));
 
+  app.get('/api/v1/health', (req, res) => {
+    res.status(200).json({ status: 'UP', message: 'Server is active' });
+  });
+
   app.use('/health', createHealthRouter(config));
   app.use('/api/v1', createV1Router(config));
   app.use('/api/bookings', createLegacyBookingRouter());

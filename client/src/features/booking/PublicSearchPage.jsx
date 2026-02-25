@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { searchTrips, createPublicBooking, createBooking } from '../../shared/api/endpoints';
 import { Alert } from '../../shared/ui/Alert';
 import { useAuth } from '../../shared/contexts/AuthContext';
+import { getWarmState, warmBackend } from '../../shared/api/warmup';
+import { useWarmup } from '../../shared/contexts/WarmupContext';
 
 const TRIP_TYPES = ['ONE_WAY', 'ROUND_TRIP', 'AIRPORT', 'HOURLY'];
 
@@ -20,6 +22,8 @@ export function PublicSearchPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const warmup = useWarmup();
+  const [, setWarming] = useState(getWarmState().status);
 
   useEffect(() => {
     if (bookingFormOpen) {
@@ -45,6 +49,12 @@ export function PublicSearchPage() {
     setError('');
     setSuccess('');
     try {
+      if (warmup.status !== 'ready') {
+        setWarming('pending');
+        await warmBackend();
+        setError('System is warming up for your first request, please wait...');
+        return;
+      }
       const data = await searchTrips(formData);
       setResults(data);
       setBookingFormOpen(true);
@@ -70,6 +80,12 @@ export function PublicSearchPage() {
     setError('');
     setSuccess('');
     try {
+      if (warmup.status !== 'ready') {
+        setWarming('pending');
+        await warmBackend();
+        setError('System is warming up for your first request, please wait...');
+        return;
+      }
       const payload = {
         ...formData,
         selection,

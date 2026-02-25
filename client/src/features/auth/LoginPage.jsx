@@ -2,14 +2,23 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../shared/contexts/AuthContext';
 import { Alert } from '../../shared/ui/Alert';
+import { getWarmState, warmBackend } from '../../shared/api/warmup';
+import { useWarmup } from '../../shared/contexts/WarmupContext';
 
 export function LoginPage() {
   const navigate = useNavigate();
   const { login, loading, error } = useAuth();
   const [form, setForm] = useState({ email: '', password: '' });
+  const warmup = useWarmup();
+  const [, setWarming] = useState(getWarmState().status);
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (warmup.status !== 'ready') {
+      setWarming('pending');
+      await warmBackend();
+      return;
+    }
     try {
       const session = await login(form);
       navigate(session.user.role === 'admin' ? '/admin' : '/bookings');
