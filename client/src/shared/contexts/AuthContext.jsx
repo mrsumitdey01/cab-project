@@ -34,7 +34,7 @@ export function AuthProvider({ children }) {
       setUser(session.user);
       return session;
     } catch (err) {
-      setError(err?.response?.data?.error?.detail || 'Login failed.');
+      setError(err?.response?.data?.error?.detail || err?.message || 'Login failed.');
       throw err;
     } finally {
       setLoading(false);
@@ -50,7 +50,7 @@ export function AuthProvider({ children }) {
       setUser(session.user);
       return session;
     } catch (err) {
-      setError(err?.response?.data?.error?.detail || 'Registration failed.');
+      setError(err?.response?.data?.error?.detail || err?.message || 'Registration failed.');
       throw err;
     } finally {
       setLoading(false);
