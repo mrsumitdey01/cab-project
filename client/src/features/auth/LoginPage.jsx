@@ -15,7 +15,7 @@ export function LoginPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     if (warmup.status !== 'ready') {
-      setWarming('pending');
+      setWarming('warming');
       await warmBackend();
       return;
     }

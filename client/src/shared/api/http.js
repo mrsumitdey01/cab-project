@@ -10,12 +10,12 @@ if (!RAW_BASE_URL) {
   console.error('VITE_API_URL is missing! Production handshake will fail.');
 }
 const API_PREFIX = '/api/v1';
-const NORMALIZED_BASE = (RAW_BASE_URL || '').replace(/\/+$/, '');
+const NORMALIZED_BASE = RAW_BASE_URL ? RAW_BASE_URL.replace(/\/+$/, '') : '';
 const HAS_PREFIX = NORMALIZED_BASE.endsWith(API_PREFIX);
-const BASE_URL = NORMALIZED_BASE ? (HAS_PREFIX ? NORMALIZED_BASE : `${NORMALIZED_BASE}${API_PREFIX}`) : API_PREFIX;
+const BASE_URL = NORMALIZED_BASE ? (HAS_PREFIX ? NORMALIZED_BASE : `${NORMALIZED_BASE}${API_PREFIX}`) : '';
 
 export const http = axios.create({
-  baseURL: BASE_URL,
+  baseURL: BASE_URL || undefined,
   timeout: 60000,
 });
 
@@ -38,6 +38,9 @@ export function clearSessionTokens() {
 }
 
 http.interceptors.request.use((config) => {
+  if (!BASE_URL) {
+    throw new Error('VITE_API_URL is missing! Production handshake will fail.');
+  }
   const token = getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
