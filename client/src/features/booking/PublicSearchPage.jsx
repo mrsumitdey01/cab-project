@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { MapPin, Flag, CalendarDays, Clock } from 'lucide-react';
 import { searchTrips, createPublicBooking, createBooking } from '../../shared/api/endpoints';
 import { Alert } from '../../shared/ui/Alert';
 import { useAuth } from '../../shared/contexts/AuthContext';
@@ -110,10 +111,10 @@ export function PublicSearchPage() {
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="text-center mt-8 mb-10">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
+        <h1 className="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter leading-tight">
           Travel Smart.
-          <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-cyan-500">
-            Travel in Style.
+          <span className="block text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-indigo-600">
+            Travel in <span className="text-indigo-600">Style</span>.
           </span>
         </h1>
         <p className="text-lg text-slate-500 font-medium mt-3">Safarexpress Cab. Premium rides at your fingertips.</p>
@@ -139,14 +140,14 @@ export function PublicSearchPage() {
             <div className="relative">
               <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">From</label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 w-2 h-2 bg-blue-600 rounded-full"></span>
+                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-600" size={18} />
                 <input
                   type="text"
                   name="pickup"
                   placeholder="Enter Pickup Location"
                   value={formData.pickup.address}
                   onChange={handleSearchChange}
-                  className="w-full pl-8 pr-4 py-4 bg-slate-50 border-none rounded-xl text-slate-700 font-medium focus:outline-none input-glow transition"
+                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium focus:outline-none input-glow transition"
                   required
                 />
               </div>
@@ -154,14 +155,14 @@ export function PublicSearchPage() {
             <div className="relative">
               <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">To</label>
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 w-2 h-2 bg-red-500 rounded-full"></span>
+                <Flag className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-600" size={18} />
                 <input
                   type="text"
                   name="dropoff"
                   placeholder="Enter Drop Location"
                   value={formData.dropoff.address}
                   onChange={handleSearchChange}
-                  className="w-full pl-8 pr-4 py-4 bg-slate-50 border-none rounded-xl text-slate-700 font-medium focus:outline-none input-glow transition"
+                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium focus:outline-none input-glow transition"
                   required
                 />
               </div>
@@ -171,28 +172,34 @@ export function PublicSearchPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
             <div>
               <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Pick-Up Date</label>
-              <input
-                type="date"
-                name="pickupDate"
-                value={formData.schedule.pickupDate}
-                onChange={handleSearchChange}
-                className="w-full px-4 py-4 bg-slate-50 border-none rounded-xl text-slate-700 font-medium focus:outline-none input-glow transition"
-                required
-              />
+              <div className="relative">
+                <CalendarDays className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-600" size={18} />
+                <input
+                  type="date"
+                  name="pickupDate"
+                  value={formData.schedule.pickupDate}
+                  onChange={handleSearchChange}
+                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium focus:outline-none input-glow transition"
+                  required
+                />
+              </div>
             </div>
             <div>
               <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Pick-Up Time</label>
-              <input
-                type="time"
-                name="pickupTime"
-                value={formData.schedule.pickupTime}
-                onChange={handleSearchChange}
-                className="w-full px-4 py-4 bg-slate-50 border-none rounded-xl text-slate-700 font-medium focus:outline-none input-glow transition"
-                required
-              />
+              <div className="relative">
+                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-600" size={18} />
+                <input
+                  type="time"
+                  name="pickupTime"
+                  value={formData.schedule.pickupTime}
+                  onChange={handleSearchChange}
+                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium focus:outline-none input-glow transition"
+                  required
+                />
+              </div>
             </div>
             <button
-              className="py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-600 text-white font-bold text-lg shadow-lg hover:shadow-indigo-500/30 transform hover:-translate-y-1 transition-all disabled:opacity-50"
+              className="py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-bold text-lg shadow-lg hover:brightness-110 hover:shadow-indigo-500/30 transform hover:-translate-y-1 transition-all disabled:opacity-50"
               disabled={loading || warmup.status !== 'ready'}
             >
               {loading ? 'Searching...' : warmup.status !== 'ready' ? 'Connecting...' : 'Book Cab'}
