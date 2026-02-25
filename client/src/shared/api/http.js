@@ -5,10 +5,14 @@ const REFRESH_TOKEN_KEY = 'cab_refresh_token';
 
 let refreshing = null;
 
-const RAW_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const RAW_BASE_URL = import.meta.env.VITE_API_URL;
+if (!RAW_BASE_URL) {
+  console.error('VITE_API_URL is missing! Production handshake will fail.');
+}
 const API_PREFIX = '/api/v1';
-const HAS_PREFIX = RAW_BASE_URL.endsWith(API_PREFIX);
-const BASE_URL = HAS_PREFIX ? RAW_BASE_URL : `${RAW_BASE_URL}${API_PREFIX}`;
+const NORMALIZED_BASE = (RAW_BASE_URL || '').replace(/\/+$/, '');
+const HAS_PREFIX = NORMALIZED_BASE.endsWith(API_PREFIX);
+const BASE_URL = NORMALIZED_BASE ? (HAS_PREFIX ? NORMALIZED_BASE : `${NORMALIZED_BASE}${API_PREFIX}`) : API_PREFIX;
 
 export const http = axios.create({
   baseURL: BASE_URL,

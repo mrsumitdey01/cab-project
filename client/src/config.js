@@ -1,2 +1,4 @@
-export const API_BASE_URL =
-  process.env.REACT_APP_API_URL || process.env.VITE_API_URL || 'http://localhost:5000';
+export const API_BASE_URL = import.meta.env.VITE_API_URL;
+if (!API_BASE_URL) {
+  console.error('VITE_API_URL is missing! Production handshake will fail.');
+}
