@@ -1,9 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* SafariExpress Cab Theme */
-body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; }
+body { font-family: 'Inter', sans-serif; background: #f8fafc; }
 .mesh-gradient {
     background-color: #f8fafc;
     background-image:
@@ -29,6 +30,16 @@ body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f8fafc; }
 .input-glow:focus {
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
     border-color: #2563EB;
+}
+
+input[type="date"],
+input[type="time"] {
+    appearance: none;
+}
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    display: none;
 }
 
 .brand-logo {

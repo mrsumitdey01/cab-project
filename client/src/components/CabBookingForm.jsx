@@ -99,7 +99,7 @@ const CabBookingForm = () => {
                                     name="pickupDate"
                                     value={formData.schedule.pickupDate}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-4 bg-slate-50 border-none rounded-xl text-slate-700 font-medium focus:outline-none input-glow transition"
+                                    className="w-full px-4 py-4 bg-slate-50 border-none rounded-xl text-slate-700 font-medium appearance-none focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition"
                                     required
                                 />
                             </div>
@@ -110,7 +110,7 @@ const CabBookingForm = () => {
                                     name="pickupTime"
                                     value={formData.schedule.pickupTime}
                                     onChange={handleChange}
-                                    className="w-full px-4 py-4 bg-slate-50 border-none rounded-xl text-slate-700 font-medium focus:outline-none input-glow transition"
+                                    className="w-full px-4 py-4 bg-slate-50 border-none rounded-xl text-slate-700 font-medium appearance-none focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition"
                                     required
                                 />
                             </div>

@@ -75,6 +75,14 @@ export function PublicSearchPage() {
 
   async function handleBookingSubmit(e) {
     e.preventDefault();
+    if (!selection.route || !selection.cabType) {
+      setError('Please select a route and cab before confirming.');
+      return;
+    }
+    if (!isAuthenticated && (!contact.name || !contact.email || !contact.phone)) {
+      setError('Please enter your contact details to confirm the booking.');
+      return;
+    }
     setLoading(true);
     setError('');
     setSuccess('');
@@ -120,7 +128,7 @@ export function PublicSearchPage() {
         <p className="text-lg text-slate-500 font-medium mt-3">Safarexpress Cab. Premium rides at your fingertips.</p>
       </div>
 
-      <div className="glass-card rounded-3xl shadow-2xl overflow-hidden">
+      <div className="glass-card bg-white/70 backdrop-blur-xl border border-white/40 shadow-2xl rounded-3xl overflow-hidden">
         <div className="flex border-b border-slate-100 bg-white/60 p-2 gap-2 overflow-x-auto">
           {TRIP_TYPES.map((tab) => (
             <button
@@ -147,7 +155,7 @@ export function PublicSearchPage() {
                   placeholder="Enter Pickup Location"
                   value={formData.pickup.address}
                   onChange={handleSearchChange}
-                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium focus:outline-none input-glow transition"
+                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium appearance-none focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition"
                   required
                 />
               </div>
@@ -162,7 +170,7 @@ export function PublicSearchPage() {
                   placeholder="Enter Drop Location"
                   value={formData.dropoff.address}
                   onChange={handleSearchChange}
-                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium focus:outline-none input-glow transition"
+                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium appearance-none focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition"
                   required
                 />
               </div>
@@ -179,7 +187,7 @@ export function PublicSearchPage() {
                   name="pickupDate"
                   value={formData.schedule.pickupDate}
                   onChange={handleSearchChange}
-                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium focus:outline-none input-glow transition"
+                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition"
                   required
                 />
               </div>
@@ -193,7 +201,7 @@ export function PublicSearchPage() {
                   name="pickupTime"
                   value={formData.schedule.pickupTime}
                   onChange={handleSearchChange}
-                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium focus:outline-none input-glow transition"
+                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition"
                   required
                 />
               </div>
@@ -276,7 +284,7 @@ export function PublicSearchPage() {
                   <input className="p-3 rounded-lg border" placeholder="Phone" value={contact.phone} onChange={(e) => setContact((prev) => ({ ...prev, phone: e.target.value }))} required />
                 </>
               )}
-              <button className="md:col-span-2 p-3 rounded-xl bg-indigo-600 text-white font-semibold" disabled={loading}>{loading ? 'Booking...' : 'Confirm Booking'}</button>
+              <button className="md:col-span-2 p-3 rounded-xl bg-indigo-600 text-white font-semibold" disabled={loading || showSkeleton || !selection.route || !selection.cabType || (!isAuthenticated && (!contact.name || !contact.email || !contact.phone))}>{loading ? 'Booking...' : 'Confirm Booking'}</button>
             </form>
           </div>
         </div>
