@@ -5,11 +5,13 @@ const REFRESH_TOKEN_KEY = 'cab_refresh_token';
 
 let refreshing = null;
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const RAW_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const API_PREFIX = '/api/v1';
+const HAS_PREFIX = RAW_BASE_URL.endsWith(API_PREFIX);
+const BASE_URL = HAS_PREFIX ? RAW_BASE_URL : `${RAW_BASE_URL}${API_PREFIX}`;
 
 export const http = axios.create({
-  baseURL: `${API_BASE_URL}${API_PREFIX}`,
+  baseURL: BASE_URL,
   timeout: 60000,
 });
 
@@ -59,7 +61,7 @@ http.interceptors.response.use(
     }
 
     if (!refreshing) {
-      refreshing = axios.post(`${API_BASE_URL}${API_PREFIX}/auth/refresh`, { refreshToken })
+      refreshing = axios.post(`${BASE_URL}/auth/refresh`, { refreshToken })
         .then((res) => {
           const session = res.data?.data;
           if (!session?.accessToken || !session?.refreshToken) {
