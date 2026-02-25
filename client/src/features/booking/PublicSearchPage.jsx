@@ -108,7 +108,13 @@ export function PublicSearchPage() {
       setSuccess(`Booking confirmed. Fare: ₹${response.booking.fare.totalAmount}`);
       setBookingFormOpen(false);
     } catch (err) {
-      setError(err?.response?.data?.error?.detail || 'Booking failed.');
+      console.error('Booking error:', err?.response?.data || err);
+      setError(
+        err?.response?.data?.error?.detail ||
+        err?.response?.data?.message ||
+        err?.message ||
+        'Booking failed.'
+      );
     } finally {
       setLoading(false);
     }
