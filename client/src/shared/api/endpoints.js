@@ -1,7 +1,9 @@
 import { http, clearSessionTokens } from './http';
 
 export async function register(payload) {
+  console.log(`Registering user at ${import.meta.env.VITE_API_URL || 'http://localhost:5000'}/auth/register`);
   const res = await http.post('/auth/register', payload);
+  console.log(`Register response status: ${res.status}`);
   return res.data.data;
 }
 
