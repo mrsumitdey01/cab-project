@@ -30,7 +30,7 @@ const CabBookingForm = () => {
             <div className="shape-blob w-96 h-96 bg-blue-400 top-0 left-0 fixed animate-float"></div>
             <div className="shape-blob w-80 h-80 bg-indigo-300 bottom-0 right-0 fixed animate-float" style={{animationDelay: '2s'}}></div>
 
-            <div className="max-w-4xl mx-auto relative z-10">
+            <div className="max-w-2xl mx-auto relative z-10">
                 {/* Header */}
                 <div className="text-center mb-10">
                     <h1 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-4">
@@ -41,7 +41,7 @@ const CabBookingForm = () => {
                 </div>
 
                 {/* Main Glass Card */}
-                <div className="glass-card rounded-3xl shadow-2xl overflow-hidden hover:shadow-blue-200/50 transition-all duration-500">
+                <div className="glass-card rounded-3xl shadow-2xl overflow-hidden hover:shadow-indigo-500/20 transition-all duration-500">
                     
                     {/* Tabs */}
                     <div className="flex border-b border-slate-100 bg-slate-50/50 p-2 gap-2 overflow-x-auto">
@@ -49,7 +49,7 @@ const CabBookingForm = () => {
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
-                                className={`flex-1 py-3 px-4 text-center text-sm font-bold whitespace-nowrap rounded-xl transition-all duration-300 ${activeTab === tab ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:bg-white'}`}
+                                className={`flex-1 py-3 px-4 text-center text-sm font-bold whitespace-nowrap rounded-xl transition-all duration-300 ${activeTab === tab ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:bg-white'}`}
                             >
                                 {tab.replace('_', ' ')}
                             </button>
@@ -117,7 +117,7 @@ const CabBookingForm = () => {
                             <button 
                                 type="submit"
                                 disabled={loading}
-                                className="py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all disabled:opacity-50 flex items-center justify-center"
+                                className="py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-600 text-white font-bold text-lg shadow-lg hover:shadow-indigo-500/20 transform hover:-translate-y-1 transition-all disabled:opacity-50 flex items-center justify-center"
                             >
                                 {loading ? 'Processing...' : 'Book Ride'}
                             </button>

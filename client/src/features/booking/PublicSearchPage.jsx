@@ -52,7 +52,9 @@ export function PublicSearchPage() {
       if (warmup.status !== 'ready') {
         setWarming('warming');
         await warmBackend();
-        setError('Connecting to fleet... Please wait 30 seconds.');
+        setError('');
+        setResults({ routes: [], cabs: [] });
+        setBookingFormOpen(true);
         return;
       }
       const data = await searchTrips(formData);
@@ -79,7 +81,9 @@ export function PublicSearchPage() {
       if (warmup.status !== 'ready') {
         setWarming('warming');
         await warmBackend();
-        setError('Connecting to fleet... Please wait 30 seconds.');
+        setError('');
+        setResults({ routes: [], cabs: [] });
+        setBookingFormOpen(true);
         return;
       }
       const payload = {
@@ -100,6 +104,8 @@ export function PublicSearchPage() {
       setLoading(false);
     }
   }
+
+  const showSkeleton = warmup.status !== 'ready' || loading;
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -186,7 +192,7 @@ export function PublicSearchPage() {
               />
             </div>
             <button
-              className="py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all disabled:opacity-50"
+              className="py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-indigo-600 text-white font-bold text-lg shadow-lg hover:shadow-indigo-500/30 transform hover:-translate-y-1 transition-all disabled:opacity-50"
               disabled={loading || warmup.status !== 'ready'}
             >
               {loading ? 'Searching...' : warmup.status !== 'ready' ? 'Connecting...' : 'Book Cab'}
@@ -204,7 +210,7 @@ export function PublicSearchPage() {
 
       {bookingFormOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 modal-backdrop">
-          <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl p-6 relative modal-panel">
+          <div className="glass-card w-full max-w-2xl rounded-2xl shadow-2xl p-6 relative modal-panel">
             <button
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
               onClick={() => setBookingFormOpen(false)}
@@ -214,13 +220,29 @@ export function PublicSearchPage() {
             </button>
             <h2 className="text-xl font-semibold mb-3">Passenger Details</h2>
             <form onSubmit={handleBookingSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {results && (
+              {showSkeleton && (
+                <div className="md:col-span-2 space-y-3">
+                  <div className="h-4 w-40 bg-slate-200/80 rounded-full animate-pulse"></div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={`route-skel-${i}`} className="h-12 rounded-xl bg-slate-200/80 animate-pulse"></div>
+                    ))}
+                  </div>
+                  <div className="h-4 w-32 bg-slate-200/80 rounded-full animate-pulse mt-4"></div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {[...Array(4)].map((_, i) => (
+                      <div key={`cab-skel-${i}`} className="h-12 rounded-xl bg-slate-200/80 animate-pulse"></div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {results && !showSkeleton && (
                 <>
                   <div className="md:col-span-2">
                     <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">Routes</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {results.routes.map((route) => (
-                        <label key={route.id || route.label} className="flex items-center gap-3 p-3 border rounded-lg">
+                        <label key={route.id || route.label} className="flex items-center gap-3 p-3 border rounded-xl bg-white/70 hover:shadow-indigo-500/20 transition-shadow">
                           <input type="radio" name="route" value={route.label} onChange={() => setSelection((prev) => ({ ...prev, route: route.label }))} required />
                           <span>{route.label} - {route.etaMinutes} mins ({route.distanceKm} km)</span>
                         </label>
@@ -231,7 +253,7 @@ export function PublicSearchPage() {
                     <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-2">Cabs</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {results.cabs.map((cab) => (
-                        <label key={cab.id || cab.cabType} className="flex items-center gap-3 p-3 border rounded-lg">
+                        <label key={cab.id || cab.cabType} className="flex items-center gap-3 p-3 border rounded-xl bg-white/70 hover:shadow-indigo-500/20 transition-shadow">
                           <input type="radio" name="cab" value={cab.cabType} onChange={() => setSelection({ route: selection.route, cabType: cab.cabType, carModel: cab.carModel })} required />
                           <span>{cab.cabType} ({cab.carModel})</span>
                         </label>
@@ -247,7 +269,7 @@ export function PublicSearchPage() {
                   <input className="p-3 rounded-lg border" placeholder="Phone" value={contact.phone} onChange={(e) => setContact((prev) => ({ ...prev, phone: e.target.value }))} required />
                 </>
               )}
-              <button className="md:col-span-2 p-3 rounded-lg bg-blue-600 text-white font-semibold" disabled={loading}>{loading ? 'Booking...' : 'Confirm Booking'}</button>
+              <button className="md:col-span-2 p-3 rounded-xl bg-indigo-600 text-white font-semibold" disabled={loading}>{loading ? 'Booking...' : 'Confirm Booking'}</button>
             </form>
           </div>
         </div>

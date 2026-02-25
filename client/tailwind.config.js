@@ -4,8 +4,16 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: { sans: ['Plus Jakarta Sans', 'sans-serif'] },
+      colors: {
+        slate: {
+          900: '#0f172a',
+        },
+        indigo: {
+          600: '#4f46e5',
+        },
+      },
       animation: { 'float': 'float 6s ease-in-out infinite' },
-      keyframes: { float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-10px)' } } }
+      keyframes: { float: { '0%, 100%': { transform: 'translateY(0px)' }, '50%': { transform: 'translateY(-10px)' } } },
     }
   },
   plugins: [],

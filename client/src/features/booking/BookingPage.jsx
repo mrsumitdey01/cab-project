@@ -55,11 +55,11 @@ export function BookingPage() {
   }, [bookings]);
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-4">My Bookings</h1>
+    <div className="max-w-5xl mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-4 text-slate-900">My Bookings</h1>
       <div className="flex gap-2 mb-6">
         {tabs.map((tab) => (
-          <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-lg font-semibold ${activeTab === tab ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700'}`}>
+          <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-xl font-semibold ${activeTab === tab ? 'bg-indigo-600 text-white' : 'bg-white/70 text-slate-700 border border-white/70 shadow-sm'}`}>
             {tab.toUpperCase()}
           </button>
         ))}
@@ -67,7 +67,7 @@ export function BookingPage() {
       <Alert type="error" message={error} />
       <div className="space-y-3">
         {grouped[activeTab].map((booking) => (
-          <div key={booking._id} className="border rounded-lg p-3 bg-white shadow-sm">
+          <div key={booking._id} className="border rounded-2xl p-4 bg-white/80 shadow-sm hover:shadow-indigo-500/20 transition-shadow">
             <div className="flex justify-between items-start">
               <div>
                 <p className="font-semibold">{booking.pickup?.address} -> {booking.dropoff?.address}</p>
