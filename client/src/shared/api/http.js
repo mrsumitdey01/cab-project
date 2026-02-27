@@ -39,9 +39,10 @@ export function clearSessionTokens() {
 
 function assertAsciiHeader(name, value) {
   if (typeof value !== 'string') return;
-  const asciiOnly = /^[\x00-\x7F]*$/.test(value);
-  if (!asciiOnly) {
-    throw new Error(`Header ${name} contains non-ASCII characters.`);
+  for (let i = 0; i < value.length; i += 1) {
+    if (value.charCodeAt(i) > 127) {
+      throw new Error(`Header ${name} contains non-ASCII characters.`);
+    }
   }
 }
 
