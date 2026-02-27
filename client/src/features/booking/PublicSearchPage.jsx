@@ -104,7 +104,7 @@ export function PublicSearchPage() {
 
   async function handleBookingSubmit(e) {
     e.preventDefault();
-    const phoneValid = /^[0-9]{10}$/.test(contact.phone || '');
+    const phoneValid = /^[+]?[0-9]{7,13}$/.test(contact.phone || '');
     if (!contact.name || !phoneValid) {
       setError('Please enter your name and a valid 10-digit WhatsApp number.');
       return;
@@ -318,11 +318,17 @@ export function PublicSearchPage() {
               <>
                 <input className="p-3 rounded-xl border" placeholder="Passenger Full Name" value={contact.name} onChange={(e) => setContact((prev) => ({ ...prev, name: e.target.value }))} required />
                 <input className="p-3 rounded-xl border" placeholder="Email (optional)" type="email" value={contact.email} onChange={(e) => setContact((prev) => ({ ...prev, email: e.target.value }))} />
-                <input className="p-3 rounded-xl border" placeholder="WhatsApp Number (for updates)" value={contact.phone} onChange={(e) => setContact((prev) => ({ ...prev, phone: e.target.value.replace(/\\D/g, '') }))} required />
+                <input
+                  className="p-3 rounded-xl border"
+                  placeholder="WhatsApp Number (for updates)"
+                  value={contact.phone}
+                  onChange={(e) => setContact((prev) => ({ ...prev, phone: e.target.value.replace(/[^+0-9]/g, '') }))}
+                  required
+                />
               </>
               <button
                 className="md:col-span-2 p-3 rounded-xl bg-indigo-600 text-white font-semibold"
-                disabled={loading || showSkeleton || (!contact.name || !/^[0-9]{10}$/.test(contact.phone || ''))}
+                disabled={loading || showSkeleton || (!contact.name || !/^[+]?[0-9]{7,13}$/.test(contact.phone || ''))}
               >
                 {loading ? 'Sending...' : 'Send Your Enquiry'}
               </button>

@@ -18,7 +18,7 @@ const bookingCreateSchema = z.object({
   contact: z.object({
     name: z.string().min(2).optional(),
     email: z.string().email().optional(),
-    phone: z.string().min(7).optional(),
+    phone: z.string().regex(/^[+]?[0-9]{7,13}$/).optional(),
   }).optional(),
   selection: z.object({
     route: z.string().min(2).optional(),
@@ -31,7 +31,7 @@ const publicBookingSchema = bookingCreateSchema.extend({
   contact: z.object({
     name: z.string().min(2),
     email: z.string().email(),
-    phone: z.string().min(7),
+    phone: z.string().regex(/^[+]?[0-9]{7,13}$/),
   }),
 });
 
