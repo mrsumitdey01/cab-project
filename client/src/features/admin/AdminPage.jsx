@@ -72,7 +72,7 @@ export function AdminPage() {
   const [routes, setRoutes] = useState([]);
   const [cabs, setCabs] = useState([]);
   const [bookings, setBookings] = useState([]);
-  const [routeForm, setRouteForm] = useState({ label: '', etaMinutes: '', distanceKm: '', baseFare: '' });
+  const [routeForm, setRouteForm] = useState({ fromHub: '', toHub: '', flatRate: '' });
   const [cabForm, setCabForm] = useState({ cabType: '', carModel: '', multiplier: '', availableFrom: '', availableTo: '' });
   const [routeModalOpen, setRouteModalOpen] = useState(false);
   const [cabModalOpen, setCabModalOpen] = useState(false);
@@ -143,12 +143,11 @@ export function AdminPage() {
     setSuccess('');
     try {
       await createAdminRoute({
-        label: routeForm.label,
-        etaMinutes: Number(routeForm.etaMinutes),
-        distanceKm: Number(routeForm.distanceKm),
-        baseFare: Number(routeForm.baseFare),
+        fromHub: routeForm.fromHub,
+        toHub: routeForm.toHub,
+        flatRate: Number(routeForm.flatRate),
       });
-      setRouteForm({ label: '', etaMinutes: '', distanceKm: '', baseFare: '' });
+      setRouteForm({ fromHub: '', toHub: '', flatRate: '' });
       await load();
       setSuccess('Route created.');
     } catch (err) {
@@ -466,20 +465,19 @@ export function AdminPage() {
             <button className="absolute top-4 right-4 text-slate-400 hover:text-slate-600" onClick={() => setRouteModalOpen(false)} aria-label="Close">X</button>
             <h2 className="text-xl font-semibold mb-3">Route Setup</h2>
             <form onSubmit={handleCreateRoute} className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <input className="p-3 rounded-xl border" placeholder="Route Name" value={routeForm.label} onChange={(e) => setRouteForm((prev) => ({ ...prev, label: e.target.value }))} required />
-              <input className="p-3 rounded-xl border" placeholder="ETA (min)" type="number" value={routeForm.etaMinutes} onChange={(e) => setRouteForm((prev) => ({ ...prev, etaMinutes: e.target.value }))} required />
-              <input className="p-3 rounded-xl border" placeholder="Distance (km)" type="number" value={routeForm.distanceKm} onChange={(e) => setRouteForm((prev) => ({ ...prev, distanceKm: e.target.value }))} required />
-              <input className="p-3 rounded-xl border" placeholder="Base Fare" type="number" value={routeForm.baseFare} onChange={(e) => setRouteForm((prev) => ({ ...prev, baseFare: e.target.value }))} required />
+              <input className="p-3 rounded-xl border" placeholder="From Hub" value={routeForm.fromHub} onChange={(e) => setRouteForm((prev) => ({ ...prev, fromHub: e.target.value }))} required />
+              <input className="p-3 rounded-xl border" placeholder="To Hub" value={routeForm.toHub} onChange={(e) => setRouteForm((prev) => ({ ...prev, toHub: e.target.value }))} required />
+              <input className="p-3 rounded-xl border md:col-span-2" placeholder="Flat Rate (₹)" type="number" value={routeForm.flatRate} onChange={(e) => setRouteForm((prev) => ({ ...prev, flatRate: e.target.value }))} required />
               <button className="md:col-span-2 p-3 rounded-xl bg-indigo-600 text-white">Add Route</button>
             </form>
             <div className="mt-4 space-y-2">
               {routes.map((route) => (
                 <div key={route._id} className="border rounded-xl p-3 bg-white/70">
                   <div className="flex items-center justify-between">
-                    <p className="font-semibold">{route.label}</p>
-                    <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-1 rounded-full">Base ₹{route.baseFare}</span>
+                    <p className="font-semibold">{route.fromHub} → {route.toHub}</p>
+                    <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-1 rounded-full">Flat ₹{route.flatRate}</span>
                   </div>
-                  <p className="text-sm text-slate-500">ETA {route.etaMinutes} min | {route.distanceKm} km</p>
+                  <p className="text-sm text-slate-500">Route: {route.fromHub} → {route.toHub}</p>
                 </div>
               ))}
               {routes.length === 0 && <p className="text-sm text-slate-500">No routes configured yet.</p>}

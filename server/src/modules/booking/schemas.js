@@ -24,6 +24,9 @@ const bookingCreateSchema = z.object({
     route: z.string().min(2).optional(),
     cabType: z.string().min(2).optional(),
     carModel: z.string().min(2).optional(),
+    multiplier: z.number().optional(),
+    fromHub: z.string().min(2).optional(),
+    toHub: z.string().min(2).optional(),
   }).optional(),
 });
 

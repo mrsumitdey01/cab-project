@@ -53,8 +53,9 @@ function createAdminRouter(config) {
 
   router.post('/routes', async (req, res, next) => {
     try {
-      const { label, etaMinutes, distanceKm, baseFare } = req.body || {};
-      const route = await RouteOption.create({ label, etaMinutes, distanceKm, baseFare });
+      const { fromHub, toHub, flatRate } = req.body || {};
+      const label = `${fromHub} → ${toHub}`;
+      const route = await RouteOption.create({ fromHub, toHub, flatRate, label });
       await AuditLog.create({
         action: 'ROUTE_CREATED',
         actor: {
@@ -63,7 +64,7 @@ function createAdminRouter(config) {
           email: req.user.email,
         },
         target: { type: 'route', id: route._id },
-        metadata: { label, etaMinutes, distanceKm, baseFare },
+        metadata: { fromHub, toHub, flatRate },
         requestId: res.locals.requestId,
       });
       return success(res, { route }, { status: 201 });

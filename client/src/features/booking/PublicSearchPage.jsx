@@ -1,13 +1,22 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { MapPin, Flag, CalendarDays, Clock, ShieldCheck, Headphones, BadgeCheck, Sparkles, LocateFixed } from 'lucide-react';
+import { Flag, CalendarDays, Clock, ShieldCheck, Headphones, BadgeCheck, Sparkles, LocateFixed } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { searchTrips, createPublicBooking, createBooking } from '../../shared/api/endpoints';
 import { Alert } from '../../shared/ui/Alert';
 import { useAuth } from '../../shared/contexts/AuthContext';
 import { getWarmState, warmBackend } from '../../shared/api/warmup';
 import { useWarmup } from '../../shared/contexts/WarmupContext';
+import { AutocompleteDropdown } from '../../components/AutocompleteDropdown';
 
 const TRIP_TYPES = ['ONE_WAY', 'ROUND_TRIP', 'AIRPORT', 'HOURLY'];
+const FLAT_RATE_MATRIX = {
+  'Delhi-Noida': 800,
+  'Gurgaon-Delhi': 1000,
+  'Chandigarh-Delhi': 3000,
+  'Mumbai-Mumbai Airport': 1200,
+  'Bengaluru-Whitefield': 900,
+  'Hyderabad-Gachibowli': 850,
+};
 
 export function PublicSearchPage() {
   const navigate = useNavigate();
@@ -20,9 +29,11 @@ export function PublicSearchPage() {
   });
   const [results, setResults] = useState(null);
   const [bookingFormOpen, setBookingFormOpen] = useState(false);
-  const [selection, setSelection] = useState({ route: '', cabType: '', carModel: '' });
+  const [selection, setSelection] = useState({ route: '', cabType: '', carModel: '', multiplier: 1, fromHub: '', toHub: '' });
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [selectedCab, setSelectedCab] = useState(null);
+  const [selectedFrom, setSelectedFrom] = useState(null);
+  const [selectedTo, setSelectedTo] = useState(null);
   const [contact, setContact] = useState({ name: '', email: '', phone: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -60,10 +71,6 @@ export function PublicSearchPage() {
 
   function handleSearchChange(e) {
     const { name, value } = e.target;
-    if (name === 'pickup' || name === 'dropoff') {
-      setFormData((prev) => ({ ...prev, [name]: { address: value } }));
-      return;
-    }
     setFormData((prev) => ({ ...prev, schedule: { ...prev.schedule, [name]: value } }));
   }
 
@@ -91,15 +98,18 @@ export function PublicSearchPage() {
       }
       const data = await searchTrips(formData);
       setResults(data);
-      const routeLabel = `${formData.pickup.address} → ${formData.dropoff.address}`;
+      const routeLabel = `${selectedFrom?.hub || formData.pickup.address} → ${selectedTo?.hub || formData.dropoff.address}`;
       const defaultCab = data.cabs?.[0] || null;
       setSelectedRoute({ label: routeLabel });
       setSelectedCab(defaultCab);
       setSelection((prev) => ({
         ...prev,
         route: routeLabel,
+        fromHub: selectedFrom?.hub || '',
+        toHub: selectedTo?.hub || '',
         cabType: defaultCab?.cabType || '',
         carModel: defaultCab?.carModel || '',
+        multiplier: defaultCab?.multiplier || 1,
       }));
       setBookingFormOpen(true);
     } catch (err) {
@@ -143,6 +153,7 @@ export function PublicSearchPage() {
           ...selection,
           cabType: selectedCab?.cabType || results?.cabs?.[0]?.cabType || '',
           carModel: selectedCab?.carModel || results?.cabs?.[0]?.carModel || '',
+          multiplier: selectedCab?.multiplier || results?.cabs?.[0]?.multiplier || 1,
         };
 
       const payload = {
@@ -171,6 +182,11 @@ export function PublicSearchPage() {
   }
 
   const showSkeleton = warmup.status !== 'ready' || loading;
+  const hubKey = selectedFrom?.hub && selectedTo?.hub ? `${selectedFrom.hub}-${selectedTo.hub}` : '';
+  const baseRate = hubKey && FLAT_RATE_MATRIX[hubKey] ? FLAT_RATE_MATRIX[hubKey] : 0;
+  const cabMultiplier = selectedCab?.multiplier || results?.cabs?.[0]?.multiplier || 1;
+  const estimatedFare = baseRate ? Math.round(baseRate * cabMultiplier) : 0;
+  const priceMessage = hubKey && !baseRate ? 'Price calculated on request.' : '';
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -201,36 +217,24 @@ export function PublicSearchPage() {
 
         <form onSubmit={handleSearch} className="p-6 md:p-10 bg-white/70">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 relative">
-            <div className="relative">
-              <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">From</label>
-              <div className="relative">
-                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-600" size={18} />
-                <input
-                  type="text"
-                  name="pickup"
-                  placeholder="Enter Pickup Location"
-                  value={formData.pickup.address}
-                  onChange={handleSearchChange}
-                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium appearance-none focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition"
-                  required
-                />
-              </div>
-            </div>
-            <div className="relative">
-              <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">To</label>
-              <div className="relative">
-                <Flag className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-600" size={18} />
-                <input
-                  type="text"
-                  name="dropoff"
-                  placeholder="Enter Drop Location"
-                  value={formData.dropoff.address}
-                  onChange={handleSearchChange}
-                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium appearance-none focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition"
-                  required
-                />
-              </div>
-            </div>
+            <AutocompleteDropdown
+              label="From"
+              placeholder="Enter Pickup Location"
+              value={selectedFrom}
+              onChange={(loc) => {
+                setSelectedFrom(loc);
+                setFormData((prev) => ({ ...prev, pickup: { address: loc?.name || '' } }));
+              }}
+            />
+            <AutocompleteDropdown
+              label="To"
+              placeholder="Enter Drop Location"
+              value={selectedTo}
+              onChange={(loc) => {
+                setSelectedTo(loc);
+                setFormData((prev) => ({ ...prev, dropoff: { address: loc?.name || '' } }));
+              }}
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
@@ -392,6 +396,13 @@ export function PublicSearchPage() {
                       <p><span className="font-semibold text-slate-800">From:</span> {formData.pickup.address || 'N/A'}</p>
                       <p><span className="font-semibold text-slate-800">To:</span> {formData.dropoff.address || 'N/A'}</p>
                       <p><span className="font-semibold text-slate-800">Route:</span> {selectedRoute?.label || 'N/A'}</p>
+                    </div>
+                    <div className="mt-3 text-sm">
+                      {estimatedFare > 0 ? (
+                        <p className="font-semibold text-indigo-700">Estimated Fare: ₹{estimatedFare}</p>
+                      ) : (
+                        <p className="text-slate-500">{priceMessage}</p>
+                      )}
                     </div>
                   </div>
                 </div>

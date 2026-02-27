@@ -25,7 +25,7 @@ async function createBooking(payload, actor, requestId, idempotencyKey) {
     }
   }
 
-  const fare = calculateFare(payload);
+  const fare = await calculateFare(payload);
   let passenger = null;
   if (payload.contact?.name || payload.contact?.email || payload.contact?.phone) {
     passenger = await Passenger.create({
@@ -111,10 +111,10 @@ async function searchOptions(input) {
     tripType: input.tripType,
     routes: routes.map((route) => ({
       id: route._id,
-      label: route.label,
-      etaMinutes: route.etaMinutes,
-      distanceKm: route.distanceKm,
-      baseFare: route.baseFare,
+      label: route.label || `${route.fromHub} → ${route.toHub}`,
+      fromHub: route.fromHub,
+      toHub: route.toHub,
+      flatRate: route.flatRate,
     })),
     cabs: cabs.map((cab) => ({
       id: cab._id,
@@ -209,10 +209,17 @@ async function updateBookingStatus(id, status, actor, requestId) {
   return booking;
 }
 
-function calculateFare(payload) {
-  const base = 100;
-  const surge = payload.tripType === 'AIRPORT' ? 200 : 100;
-  return base + surge;
+async function calculateFare(payload) {
+  const fromHub = payload?.selection?.fromHub;
+  const toHub = payload?.selection?.toHub;
+  if (fromHub && toHub) {
+    const route = await RouteOption.findOne({ fromHub, toHub });
+    if (route?.flatRate) {
+      const multiplier = Number(payload?.selection?.multiplier || 1);
+      return Math.round(route.flatRate * (Number.isFinite(multiplier) ? multiplier : 1));
+    }
+  }
+  return 0;
 }
 
 module.exports = {
