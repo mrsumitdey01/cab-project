@@ -38,6 +38,14 @@ function classifyBooking(booking) {
   return 'past';
 }
 
+function statusBadge(status) {
+  const base = 'px-2 py-1 rounded-full text-xs font-semibold';
+  if (status === 'CONFIRMED') return `${base} bg-emerald-100 text-emerald-700`;
+  if (status === 'COMPLETED') return `${base} bg-indigo-100 text-indigo-700`;
+  if (status === 'CANCELLED') return `${base} bg-rose-100 text-rose-700`;
+  return `${base} bg-amber-100 text-amber-700`;
+}
+
 export function AdminPage() {
   const [health, setHealth] = useState(null);
   const [logs, setLogs] = useState([]);
@@ -48,6 +56,8 @@ export function AdminPage() {
   const [alertCount, setAlertCount] = useState(0);
   const [activeTab, setActiveTab] = useState('present');
   const [since] = useState(new Date(Date.now() - 15 * 60 * 1000).toISOString());
+  const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
 
   const [routes, setRoutes] = useState([]);
   const [cabs, setCabs] = useState([]);
@@ -159,54 +169,74 @@ export function AdminPage() {
     return map;
   }, [bookings]);
 
+  const filteredBookings = useMemo(() => {
+    const list = groupedBookings[activeTab] || [];
+    return list.filter((booking) => {
+      const haystack = [
+        booking.pickup?.address,
+        booking.dropoff?.address,
+        booking.selection?.route,
+        booking.selection?.cabType,
+        booking.selection?.carModel,
+        booking._id,
+      ].filter(Boolean).join(' ').toLowerCase();
+      const matchesQuery = !query || haystack.includes(query.toLowerCase());
+      const matchesStatus = statusFilter === 'ALL' || booking.status === statusFilter;
+      return matchesQuery && matchesStatus;
+    });
+  }, [groupedBookings, activeTab, query, statusFilter]);
+
+  const revenue = useMemo(() => bookings.reduce((sum, b) => sum + (b.fare?.totalAmount || 0), 0), [bookings]);
+
   return (
     <div className="max-w-6xl mx-auto p-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
           <p className="text-sm uppercase tracking-widest text-slate-400 font-semibold">Operations Center</p>
-          <h1 className="text-3xl font-bold">Admin Console</h1>
+          <h1 className="text-3xl font-bold text-slate-900">Admin Console</h1>
         </div>
         <div className="flex items-center gap-3">
+          <button onClick={load} className="px-4 py-2 rounded-xl bg-white/70 border border-white/60 shadow-sm hover:shadow-indigo-500/20 transition-shadow">Refresh</button>
           <span className="text-sm font-semibold bg-amber-100 text-amber-800 px-3 py-1 rounded-full">{alertCount} new bookings</span>
           <span className="text-sm font-semibold bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">{bookings.length} total bookings</span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-2xl shadow">
+        <div className="bg-white/80 p-4 rounded-2xl shadow">
           <p className="text-xs uppercase text-slate-400 font-semibold">Routes</p>
           <p className="text-2xl font-bold mt-2">{routes.length}</p>
         </div>
-        <div className="bg-white p-4 rounded-2xl shadow">
+        <div className="bg-white/80 p-4 rounded-2xl shadow">
           <p className="text-xs uppercase text-slate-400 font-semibold">Cabs</p>
           <p className="text-2xl font-bold mt-2">{cabs.length}</p>
         </div>
-        <div className="bg-white p-4 rounded-2xl shadow">
-          <p className="text-xs uppercase text-slate-400 font-semibold">Audit Logs</p>
-          <p className="text-2xl font-bold mt-2">{logs.length}</p>
+        <div className="bg-white/80 p-4 rounded-2xl shadow">
+          <p className="text-xs uppercase text-slate-400 font-semibold">Bookings</p>
+          <p className="text-2xl font-bold mt-2">{bookings.length}</p>
         </div>
-        <div className="bg-white p-4 rounded-2xl shadow">
-          <p className="text-xs uppercase text-slate-400 font-semibold">System</p>
-          <p className="text-2xl font-bold mt-2">{health?.status || 'OK'}</p>
+        <div className="bg-white/80 p-4 rounded-2xl shadow">
+          <p className="text-xs uppercase text-slate-400 font-semibold">Revenue</p>
+          <p className="text-2xl font-bold mt-2">?{revenue}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white p-6 rounded-2xl shadow">
+        <div className="bg-white/80 p-6 rounded-2xl shadow">
           <h2 className="text-xl font-semibold mb-3">Route Setup</h2>
           <form onSubmit={handleCreateRoute} className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <input className="p-3 rounded-lg border" placeholder="Route Name" value={routeForm.label} onChange={(e) => setRouteForm((prev) => ({ ...prev, label: e.target.value }))} required />
-            <input className="p-3 rounded-lg border" placeholder="ETA (min)" type="number" value={routeForm.etaMinutes} onChange={(e) => setRouteForm((prev) => ({ ...prev, etaMinutes: e.target.value }))} required />
-            <input className="p-3 rounded-lg border" placeholder="Distance (km)" type="number" value={routeForm.distanceKm} onChange={(e) => setRouteForm((prev) => ({ ...prev, distanceKm: e.target.value }))} required />
-            <input className="p-3 rounded-lg border" placeholder="Base Fare" type="number" value={routeForm.baseFare} onChange={(e) => setRouteForm((prev) => ({ ...prev, baseFare: e.target.value }))} required />
-            <button className="md:col-span-2 p-3 rounded-lg bg-blue-600 text-white">Add Route</button>
+            <input className="p-3 rounded-xl border" placeholder="Route Name" value={routeForm.label} onChange={(e) => setRouteForm((prev) => ({ ...prev, label: e.target.value }))} required />
+            <input className="p-3 rounded-xl border" placeholder="ETA (min)" type="number" value={routeForm.etaMinutes} onChange={(e) => setRouteForm((prev) => ({ ...prev, etaMinutes: e.target.value }))} required />
+            <input className="p-3 rounded-xl border" placeholder="Distance (km)" type="number" value={routeForm.distanceKm} onChange={(e) => setRouteForm((prev) => ({ ...prev, distanceKm: e.target.value }))} required />
+            <input className="p-3 rounded-xl border" placeholder="Base Fare" type="number" value={routeForm.baseFare} onChange={(e) => setRouteForm((prev) => ({ ...prev, baseFare: e.target.value }))} required />
+            <button className="md:col-span-2 p-3 rounded-xl bg-indigo-600 text-white">Add Route</button>
           </form>
           <div className="mt-4 space-y-2">
             {routes.map((route) => (
-              <div key={route._id} className="border rounded-lg p-3">
+              <div key={route._id} className="border rounded-xl p-3 bg-white/70">
                 <div className="flex items-center justify-between">
                   <p className="font-semibold">{route.label}</p>
-                  <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-1 rounded-full">Base ₹{route.baseFare}</span>
+                  <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-1 rounded-full">Base ?{route.baseFare}</span>
                 </div>
                 <p className="text-sm text-slate-500">ETA {route.etaMinutes} min | {route.distanceKm} km</p>
               </div>
@@ -215,19 +245,19 @@ export function AdminPage() {
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-2xl shadow">
+        <div className="bg-white/80 p-6 rounded-2xl shadow">
           <h2 className="text-xl font-semibold mb-3">Cab Setup</h2>
           <form onSubmit={handleCreateCab} className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <input className="p-3 rounded-lg border" placeholder="Cab Type" value={cabForm.cabType} onChange={(e) => setCabForm((prev) => ({ ...prev, cabType: e.target.value }))} required />
-            <input className="p-3 rounded-lg border" placeholder="Car Model" value={cabForm.carModel} onChange={(e) => setCabForm((prev) => ({ ...prev, carModel: e.target.value }))} required />
-            <input className="p-3 rounded-lg border" placeholder="Multiplier" type="number" step="0.1" value={cabForm.multiplier} onChange={(e) => setCabForm((prev) => ({ ...prev, multiplier: e.target.value }))} required />
-            <input className="p-3 rounded-lg border" type="date" value={cabForm.availableFrom} onChange={(e) => setCabForm((prev) => ({ ...prev, availableFrom: e.target.value }))} />
-            <input className="p-3 rounded-lg border md:col-span-2" type="date" value={cabForm.availableTo} onChange={(e) => setCabForm((prev) => ({ ...prev, availableTo: e.target.value }))} />
-            <button className="md:col-span-2 p-3 rounded-lg bg-blue-600 text-white">Add Cab</button>
+            <input className="p-3 rounded-xl border" placeholder="Cab Type" value={cabForm.cabType} onChange={(e) => setCabForm((prev) => ({ ...prev, cabType: e.target.value }))} required />
+            <input className="p-3 rounded-xl border" placeholder="Car Model" value={cabForm.carModel} onChange={(e) => setCabForm((prev) => ({ ...prev, carModel: e.target.value }))} required />
+            <input className="p-3 rounded-xl border" placeholder="Multiplier" type="number" step="0.1" value={cabForm.multiplier} onChange={(e) => setCabForm((prev) => ({ ...prev, multiplier: e.target.value }))} required />
+            <input className="p-3 rounded-xl border" type="date" value={cabForm.availableFrom} onChange={(e) => setCabForm((prev) => ({ ...prev, availableFrom: e.target.value }))} />
+            <input className="p-3 rounded-xl border md:col-span-2" type="date" value={cabForm.availableTo} onChange={(e) => setCabForm((prev) => ({ ...prev, availableTo: e.target.value }))} />
+            <button className="md:col-span-2 p-3 rounded-xl bg-indigo-600 text-white">Add Cab</button>
           </form>
           <div className="mt-4 space-y-2">
             {cabs.map((cab) => (
-              <div key={cab._id} className="border rounded-lg p-3">
+              <div key={cab._id} className="border rounded-xl p-3 bg-white/70">
                 <div className="flex items-center justify-between">
                   <p className="font-semibold">{cab.cabType} - {cab.carModel}</p>
                   <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2 py-1 rounded-full">x{cab.multiplier}</span>
@@ -240,66 +270,86 @@ export function AdminPage() {
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-2xl shadow mb-6">
+      <div className="bg-white/80 p-6 rounded-2xl shadow mb-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
           <h2 className="text-xl font-semibold">Bookings Overview</h2>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             {tabs.map((tab) => (
-              <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-lg font-semibold ${activeTab === tab ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700'}`}>
+              <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-xl font-semibold ${activeTab === tab ? 'bg-indigo-600 text-white' : 'bg-white/70 text-slate-700 border border-white/70 shadow-sm'}`}>
                 {tab.toUpperCase()} ({groupedBookings[tab].length})
               </button>
             ))}
           </div>
         </div>
+        <div className="flex flex-col md:flex-row gap-3 mb-4">
+          <input
+            className="w-full md:flex-1 p-3 rounded-xl bg-white/80 border border-white/60 shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10"
+            placeholder="Search bookings by ID, route, cab, or location"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          <select
+            className="p-3 rounded-xl bg-white/80 border border-white/60 shadow-sm focus:outline-none focus:ring-4 focus:ring-blue-500/10"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="ALL">All Status</option>
+            <option value="PENDING">Pending</option>
+            <option value="CONFIRMED">Confirmed</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="CANCELLED">Cancelled</option>
+          </select>
+        </div>
         <div className="space-y-3">
-          {groupedBookings[activeTab].map((booking) => (
-            <div key={booking._id} className="border rounded-lg p-4">
+          {filteredBookings.map((booking) => (
+            <div key={booking._id} className="border rounded-2xl p-4 bg-white/70 hover:shadow-indigo-500/20 transition-shadow">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold">{booking.pickup?.address} → {booking.dropoff?.address}</p>
-                  <p className="text-sm text-slate-500">{booking.tripType} | {booking.status}</p>
+                  <p className="font-semibold">{booking.pickup?.address} ? {booking.dropoff?.address}</p>
+                  <p className="text-sm text-slate-500">{booking.tripType}</p>
                   <p className="text-sm text-slate-500">Route: {booking.selection?.route || 'N/A'} | Cab: {booking.selection?.cabType || 'N/A'} | Model: {booking.selection?.carModel || 'N/A'}</p>
                 </div>
                 <div className="text-right">
                   <p className="text-xs font-semibold text-slate-500">Booking ID #{booking._id}</p>
-                  <p className="font-bold">₹{booking.fare?.totalAmount}</p>
+                  <p className="font-bold">?{booking.fare?.totalAmount}</p>
                   <p className="text-xs text-slate-500">{booking.schedule?.pickupDate} {booking.schedule?.pickupTime || ''}</p>
+                  <div className={statusBadge(booking.status)}>{booking.status}</div>
                 </div>
               </div>
             </div>
           ))}
-          {groupedBookings[activeTab].length === 0 && <p className="text-sm text-slate-500">No bookings in this tab.</p>}
+          {filteredBookings.length === 0 && <p className="text-sm text-slate-500">No bookings in this tab.</p>}
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div className="bg-white p-6 rounded-2xl shadow">
+        <div className="bg-white/80 p-6 rounded-2xl shadow">
           <h2 className="text-xl font-semibold mb-3">Update Booking Status</h2>
           <form onSubmit={handleStatusUpdate} className="flex flex-col md:flex-row gap-3">
-            <input className="flex-1 p-3 rounded-lg border" placeholder="Booking ID" value={bookingId} onChange={(e) => setBookingId(e.target.value)} required />
-          <select className="p-3 rounded-lg border" value={status} onChange={(e) => setStatus(e.target.value)}>
-            <option value="CONFIRMED">CONFIRMED</option>
-            <option value="CANCELLED">CANCELLED</option>
-            <option value="COMPLETED">COMPLETED</option>
-          </select>
-            <button className="p-3 rounded-lg bg-blue-600 text-white">Update</button>
+            <input className="flex-1 p-3 rounded-xl border" placeholder="Booking ID" value={bookingId} onChange={(e) => setBookingId(e.target.value)} required />
+            <select className="p-3 rounded-xl border" value={status} onChange={(e) => setStatus(e.target.value)}>
+              <option value="CONFIRMED">CONFIRMED</option>
+              <option value="CANCELLED">CANCELLED</option>
+              <option value="COMPLETED">COMPLETED</option>
+            </select>
+            <button className="p-3 rounded-xl bg-indigo-600 text-white">Update</button>
           </form>
           <div className="mt-3 space-y-2">
             <Alert type="error" message={error} />
             <Alert type="success" message={success} />
           </div>
         </div>
-        <div className="bg-white p-6 rounded-2xl shadow">
+        <div className="bg-white/80 p-6 rounded-2xl shadow">
           <h2 className="text-xl font-semibold mb-3">Health Summary</h2>
           <pre className="text-xs bg-slate-100 p-3 rounded-lg overflow-auto">{JSON.stringify(health, null, 2)}</pre>
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-2xl shadow">
+      <div className="bg-white/80 p-6 rounded-2xl shadow">
         <h2 className="text-xl font-semibold mb-3">Audit Logs</h2>
         <div className="space-y-2">
           {groupedLogs[activeTab].map((log) => (
-            <div key={log._id} className="border rounded-lg p-3">
+            <div key={log._id} className="border rounded-xl p-3 bg-white/70">
               <p className="font-semibold">{log.action}</p>
               <p className="text-sm text-slate-500">{log.actor?.email} | {new Date(log.createdAt).toLocaleString()}</p>
             </div>
