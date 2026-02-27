@@ -135,9 +135,9 @@ export function PublicSearchPage() {
         contact: isAuthenticated ? undefined : contact,
       };
 
-      const response = isAuthenticated
+      await (isAuthenticated
         ? await createBooking(payload, idempotencyKey)
-        : await createPublicBooking(payload, idempotencyKey);
+        : await createPublicBooking(payload, idempotencyKey));
 
       setSuccess('Enquiry submitted.');
       setIsSubmitted(true);
