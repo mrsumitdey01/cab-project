@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+﻿import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Bar,
   BarChart,
@@ -77,6 +77,8 @@ export function AdminPage() {
   const [routeModalOpen, setRouteModalOpen] = useState(false);
   const [cabModalOpen, setCabModalOpen] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
+  const [passengerModalOpen, setPassengerModalOpen] = useState(false);
+  const [selectedPassenger, setSelectedPassenger] = useState(null);
 
   const load = useCallback(async () => {
     try {
@@ -325,7 +327,7 @@ export function AdminPage() {
               <LineChart data={revenueByDay}>
                 <XAxis dataKey="date" tick={{ fontSize: 10 }} />
                 <YAxis tick={{ fontSize: 10 }} />
-                <Tooltip formatter={(value) => [`?${value}`, 'Revenue']} />
+                <Tooltip formatter={(value) => [`₹${value}`, 'Revenue']} />
                 <Line type="monotone" dataKey="total" stroke="#4f46e5" strokeWidth={2} dot={false} />
               </LineChart>
             </ResponsiveContainer>
@@ -341,7 +343,7 @@ export function AdminPage() {
               <BarChart data={revenueByCab}>
                 <XAxis dataKey="cabType" tick={{ fontSize: 10 }} />
                 <YAxis tick={{ fontSize: 10 }} />
-                <Tooltip formatter={(value) => [`?${value}`, 'Revenue']} />
+                <Tooltip formatter={(value) => [`₹${value}`, 'Revenue']} />
                 <Bar dataKey="total" fill="#6366f1" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -408,7 +410,7 @@ export function AdminPage() {
             <thead className="bg-slate-50 text-slate-500 uppercase text-xs">
               <tr>
                 <th className="text-left p-3">Customer</th>
-                <th className="text-left p-3">Pickup ? Drop</th>
+                <th className="text-left p-3">Pickup → Drop</th>
                 <th className="text-left p-3">Fare</th>
                 <th className="text-left p-3">Status</th>
                 <th className="text-left p-3">Action</th>
@@ -418,11 +420,20 @@ export function AdminPage() {
               {filteredBookings.map((booking) => (
                 <tr key={booking._id} className="border-t">
                   <td className="p-3">
-                    <p className="font-semibold text-slate-800">{booking.contact?.email || booking.user?.email || 'Guest'}</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSelectedPassenger(booking);
+                        setPassengerModalOpen(true);
+                      }}
+                      className="font-semibold text-slate-800 hover:text-indigo-600 transition-colors"
+                    >
+                      {booking.contact?.name || booking.user?.name || booking.contact?.email || booking.user?.email || 'Guest'}
+                    </button>
                     <p className="text-xs text-slate-500">ID #{booking._id}</p>
                   </td>
                   <td className="p-3">
-                    <p className="font-semibold text-slate-800">{booking.pickup?.address} ? {booking.dropoff?.address}</p>
+                    <p className="font-semibold text-slate-800">{booking.pickup?.address} → {booking.dropoff?.address}</p>
                     <p className="text-xs text-slate-500">{booking.schedule?.pickupDate} {booking.schedule?.pickupTime || ''}</p>
                   </td>
                   <td className="p-3 font-bold">₹{booking.fare?.totalAmount}</td>
@@ -501,6 +512,36 @@ export function AdminPage() {
         </div>
       )}
 
+      {passengerModalOpen && selectedPassenger && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 modal-backdrop">
+          <div className="glass-card w-full max-w-xl rounded-2xl shadow-2xl p-6 relative modal-panel">
+            <button
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
+              onClick={() => setPassengerModalOpen(false)}
+              aria-label="Close"
+            >
+              X
+            </button>
+            <h2 className="text-xl font-semibold mb-4">Passenger Details</h2>
+            <div className="space-y-3 text-sm text-slate-600">
+              <div className="p-4 rounded-xl bg-white/70 border border-white/60">
+                <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold">Passenger</p>
+                <p className="mt-2 text-base font-semibold text-slate-900">{selectedPassenger.contact?.name || selectedPassenger.user?.name || 'Guest'}</p>
+                <p className="text-slate-500">{selectedPassenger.contact?.email || selectedPassenger.user?.email || 'No email provided'}</p>
+                <p className="text-slate-500">{selectedPassenger.contact?.phone || 'No phone provided'}</p>
+              </div>
+              <div className="p-4 rounded-xl bg-white/70 border border-white/60">
+                <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold">Trip</p>
+                <p className="mt-2 text-slate-700"><span className="font-semibold">Route:</span> {selectedPassenger.pickup?.address} → {selectedPassenger.dropoff?.address}</p>
+                <p className="text-slate-500"><span className="font-semibold">Schedule:</span> {selectedPassenger.schedule?.pickupDate} {selectedPassenger.schedule?.pickupTime || ''}</p>
+                <p className="text-slate-500"><span className="font-semibold">Status:</span> {selectedPassenger.status}</p>
+                <p className="text-slate-500"><span className="font-semibold">Booking ID:</span> {selectedPassenger._id}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div id="admin-status-section" className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white/80 p-6 rounded-2xl shadow">
           <h2 className="text-xl font-semibold mb-3">Update Booking Status</h2>
@@ -538,3 +579,5 @@ export function AdminPage() {
     </div>
   );
 }
+
+

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { MapPin, Flag, CalendarDays, Clock, CheckCircle } from 'lucide-react';
+import { MapPin, Flag, CalendarDays, Clock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { searchTrips, createPublicBooking, createBooking } from '../../shared/api/endpoints';
 import { Alert } from '../../shared/ui/Alert';
@@ -278,7 +278,10 @@ export function PublicSearchPage() {
             <h2 className="text-xl font-semibold mb-3">Passenger Details</h2>
             {isSubmitted ? (
               <div className="flex flex-col items-center justify-center p-10 text-center">
-                <CheckCircle className="text-blue-600 animate-bounce mb-4" size={56} />
+                <svg className="mb-4" width="72" height="72" viewBox="0 0 72 72" fill="none" aria-hidden="true">
+                  <circle className="tick-circle" cx="36" cy="36" r="30" stroke="#2563eb" strokeWidth="5" />
+                  <path className="tick-check" d="M22 37L32 47L50 29" stroke="#2563eb" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
                 <p className="text-2xl font-bold text-slate-900">Thank You!</p>
                 <p className="text-slate-500 mt-2">We will connect with you shortly.</p>
               </div>
