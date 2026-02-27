@@ -142,7 +142,7 @@ export function BookingPage() {
                 <p className="text-sm text-slate-500">{booking.tripType} | {booking.status}</p>
                 <p className="text-sm text-slate-500">Route: {booking.selection?.route || 'N/A'} | Cab: {booking.selection?.cabType || 'N/A'} | Model: {booking.selection?.carModel || 'N/A'}</p>
               </div>
-              <p className="font-bold">?{booking.fare?.totalAmount}</p>
+              <p className="font-bold">₹{booking.fare?.totalAmount}</p>
             </div>
           </div>
         ))}

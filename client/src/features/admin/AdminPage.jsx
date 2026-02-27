@@ -217,7 +217,7 @@ export function AdminPage() {
         </div>
         <div className="bg-white/80 p-4 rounded-2xl shadow">
           <p className="text-xs uppercase text-slate-400 font-semibold">Revenue</p>
-          <p className="text-2xl font-bold mt-2">?{revenue}</p>
+          <p className="text-2xl font-bold mt-2">₹{revenue}</p>
         </div>
       </div>
 
@@ -236,7 +236,7 @@ export function AdminPage() {
               <div key={route._id} className="border rounded-xl p-3 bg-white/70">
                 <div className="flex items-center justify-between">
                   <p className="font-semibold">{route.label}</p>
-                  <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-1 rounded-full">Base ?{route.baseFare}</span>
+                  <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-1 rounded-full">Base ₹{route.baseFare}</span>
                 </div>
                 <p className="text-sm text-slate-500">ETA {route.etaMinutes} min | {route.distanceKm} km</p>
               </div>
@@ -311,7 +311,7 @@ export function AdminPage() {
                 </div>
                 <div className="text-right">
                   <p className="text-xs font-semibold text-slate-500">Booking ID #{booking._id}</p>
-                  <p className="font-bold">?{booking.fare?.totalAmount}</p>
+                  <p className="font-bold">₹{booking.fare?.totalAmount}</p>
                   <p className="text-xs text-slate-500">{booking.schedule?.pickupDate} {booking.schedule?.pickupTime || ''}</p>
                   <div className={statusBadge(booking.status)}>{booking.status}</div>
                 </div>
