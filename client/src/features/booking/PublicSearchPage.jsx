@@ -279,7 +279,7 @@ export function PublicSearchPage() {
         <Alert type="success" message={success} />
       </div>
 
-      <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <div className="bg-white/70 border border-white/50 rounded-2xl p-5 shadow-sm">
           <ShieldCheck className="text-indigo-600 mb-3" />
           <h3 className="font-semibold text-slate-900">Transparent Pricing</h3>
@@ -291,13 +291,19 @@ export function PublicSearchPage() {
           <p className="text-sm text-slate-500 mt-1">Dedicated team for quick updates and live assistance.</p>
         </div>
         <div className="bg-white/70 border border-white/50 rounded-2xl p-5 shadow-sm">
-          <div className="flex items-center gap-3 mb-3">
-            <Sparkles className="text-indigo-600" />
-            <LocateFixed className="text-indigo-600" />
-            <BadgeCheck className="text-indigo-600" />
-          </div>
-          <h3 className="font-semibold text-slate-900">Safety & Trust</h3>
-          <p className="text-sm text-slate-500 mt-1">Sanitized cabs, GPS tracking, and verified drivers.</p>
+          <BadgeCheck className="text-indigo-600 mb-3" />
+          <h3 className="font-semibold text-slate-900">Verified Drivers</h3>
+          <p className="text-sm text-slate-500 mt-1">Background-checked professionals for your safety.</p>
+        </div>
+        <div className="bg-white/70 border border-white/50 rounded-2xl p-5 shadow-sm">
+          <Sparkles className="text-indigo-600 mb-3" />
+          <h3 className="font-semibold text-slate-900">Sanitized Cabs</h3>
+          <p className="text-sm text-slate-500 mt-1">Clean, fresh rides for every journey.</p>
+        </div>
+        <div className="bg-white/70 border border-white/50 rounded-2xl p-5 shadow-sm">
+          <LocateFixed className="text-indigo-600 mb-3" />
+          <h3 className="font-semibold text-slate-900">GPS Tracking</h3>
+          <p className="text-sm text-slate-500 mt-1">Live tracking for total peace of mind.</p>
         </div>
       </div>
 
