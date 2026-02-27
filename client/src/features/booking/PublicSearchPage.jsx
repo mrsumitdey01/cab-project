@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { MapPin, Flag, CalendarDays, Clock } from 'lucide-react';
+import { MapPin, Flag, CalendarDays, Clock, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { searchTrips, createPublicBooking, createBooking } from '../../shared/api/endpoints';
 import { Alert } from '../../shared/ui/Alert';
 import { useAuth } from '../../shared/contexts/AuthContext';
@@ -9,6 +10,7 @@ import { useWarmup } from '../../shared/contexts/WarmupContext';
 const TRIP_TYPES = ['ONE_WAY', 'ROUND_TRIP', 'AIRPORT', 'HOURLY'];
 
 export function PublicSearchPage() {
+  const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     tripType: TRIP_TYPES[0],
@@ -20,10 +22,12 @@ export function PublicSearchPage() {
   const [bookingFormOpen, setBookingFormOpen] = useState(false);
   const [selection, setSelection] = useState({ route: '', cabType: '', carModel: '' });
   const [selectedRoute, setSelectedRoute] = useState(null);
+  const [selectedCab, setSelectedCab] = useState(null);
   const [contact, setContact] = useState({ name: '', email: '', phone: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const warmup = useWarmup();
   const [, setWarming] = useState(getWarmState().status);
 
@@ -35,6 +39,16 @@ export function PublicSearchPage() {
     }
     return () => document.body.classList.remove('modal-open');
   }, [bookingFormOpen]);
+
+  useEffect(() => {
+    if (!isSubmitted) return;
+    const timeout = setTimeout(() => {
+      setBookingFormOpen(false);
+      setIsSubmitted(false);
+      navigate('/');
+    }, 4000);
+    return () => clearTimeout(timeout);
+  }, [isSubmitted, navigate]);
 
   function handleSearchChange(e) {
     const { name, value } = e.target;
@@ -62,10 +76,14 @@ export function PublicSearchPage() {
       const data = await searchTrips(formData);
       setResults(data);
       const routeLabel = `${formData.pickup.address} → ${formData.dropoff.address}`;
+      const defaultCab = data.cabs?.[0] || null;
       setSelectedRoute({ label: routeLabel });
+      setSelectedCab(defaultCab);
       setSelection((prev) => ({
         ...prev,
         route: routeLabel,
+        cabType: defaultCab?.cabType || '',
+        carModel: defaultCab?.carModel || '',
       }));
       setBookingFormOpen(true);
     } catch (err) {
@@ -103,9 +121,17 @@ export function PublicSearchPage() {
         setBookingFormOpen(true);
         return;
       }
+      const safeSelection = selection.cabType
+        ? selection
+        : {
+          ...selection,
+          cabType: selectedCab?.cabType || results?.cabs?.[0]?.cabType || '',
+          carModel: selectedCab?.carModel || results?.cabs?.[0]?.carModel || '',
+        };
+
       const payload = {
         ...formData,
-        selection,
+        selection: safeSelection,
         contact: isAuthenticated ? undefined : contact,
       };
 
@@ -113,8 +139,8 @@ export function PublicSearchPage() {
         ? await createBooking(payload, idempotencyKey)
         : await createPublicBooking(payload, idempotencyKey);
 
-      setSuccess(`Booking confirmed. Fare: ₹${response.booking.fare.totalAmount}`);
-      setBookingFormOpen(false);
+      setSuccess('Enquiry submitted.');
+      setIsSubmitted(true);
     } catch (err) {
       console.error('Booking error:', err?.response?.data || err);
       setError(
@@ -250,7 +276,14 @@ export function PublicSearchPage() {
               X
             </button>
             <h2 className="text-xl font-semibold mb-3">Passenger Details</h2>
-            <form onSubmit={handleBookingSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {isSubmitted ? (
+              <div className="flex flex-col items-center justify-center p-10 text-center">
+                <CheckCircle className="text-blue-600 animate-bounce mb-4" size={56} />
+                <p className="text-2xl font-bold text-slate-900">Thank You!</p>
+                <p className="text-slate-500 mt-2">We will connect with you shortly.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleBookingSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {showSkeleton && (
                 <div className="md:col-span-2 space-y-3">
                   <div className="h-4 w-40 bg-slate-200/80 rounded-full animate-pulse"></div>
@@ -288,9 +321,10 @@ export function PublicSearchPage() {
                 className="md:col-span-2 p-3 rounded-xl bg-indigo-600 text-white font-semibold"
                 disabled={loading || showSkeleton || (!contact.name || !/^[0-9]{10}$/.test(contact.phone || ''))}
               >
-                {loading ? 'Booking...' : 'Confirm Booking'}
+                {loading ? 'Sending...' : 'Send Your Enquiry'}
               </button>
             </form>
+            )}
           </div>
         </div>
       )}
