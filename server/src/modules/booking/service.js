@@ -8,10 +8,10 @@ const CabOption = require('../../../models/CabOption');
 const { ApiError } = require('../../lib/errors');
 
 const ALLOWED_TRANSITIONS = {
-  PENDING: ['CONFIRMED', 'CANCELLED'],
-  CONFIRMED: ['CANCELLED', 'COMPLETED'],
-  COMPLETED: [],
-  CANCELLED: [],
+  PENDING: ['CONFIRMED', 'CANCELLED', 'COMPLETED'],
+  CONFIRMED: ['PENDING', 'CANCELLED', 'COMPLETED'],
+  COMPLETED: ['PENDING', 'CONFIRMED', 'CANCELLED'],
+  CANCELLED: ['PENDING', 'CONFIRMED', 'COMPLETED'],
 };
 
 async function createBooking(payload, actor, requestId, idempotencyKey) {
