@@ -197,7 +197,8 @@ export function PublicSearchPage() {
                   name="pickupDate"
                   value={formData.schedule.pickupDate}
                   onChange={handleSearchChange}
-                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition"
+                  onClick={(e) => e.currentTarget.showPicker && e.currentTarget.showPicker()}
+                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium cursor-pointer hover:bg-slate-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500"
                   required
                 />
               </div>
@@ -211,7 +212,8 @@ export function PublicSearchPage() {
                   name="pickupTime"
                   value={formData.schedule.pickupTime}
                   onChange={handleSearchChange}
-                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition"
+                  onClick={(e) => e.currentTarget.showPicker && e.currentTarget.showPicker()}
+                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium cursor-pointer hover:bg-slate-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500"
                   required
                 />
               </div>
