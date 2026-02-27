@@ -274,7 +274,7 @@ export function AdminPage() {
         </div>
         <div className="bg-white/80 p-4 rounded-2xl shadow">
           <p className="text-xs uppercase text-slate-400 font-semibold">Revenue</p>
-          <p className="text-2xl font-bold mt-2">?{revenue}</p>
+          <p className="text-2xl font-bold mt-2">₹{revenue}</p>
         </div>
       </div>
 
@@ -361,7 +361,7 @@ export function AdminPage() {
                 <p className="font-semibold text-slate-800">{route.route}</p>
                 <p className="text-xs text-slate-500">Revenue</p>
               </div>
-              <p className="font-bold text-indigo-600">?{route.total}</p>
+              <p className="font-bold text-indigo-600">₹{route.total}</p>
             </div>
           ))}
           {revenueByRoute.length === 0 && <p className="text-sm text-slate-500">No revenue data yet.</p>}
@@ -425,7 +425,7 @@ export function AdminPage() {
                     <p className="font-semibold text-slate-800">{booking.pickup?.address} ? {booking.dropoff?.address}</p>
                     <p className="text-xs text-slate-500">{booking.schedule?.pickupDate} {booking.schedule?.pickupTime || ''}</p>
                   </td>
-                  <td className="p-3 font-bold">?{booking.fare?.totalAmount}</td>
+                  <td className="p-3 font-bold">₹{booking.fare?.totalAmount}</td>
                   <td className="p-3"><span className={statusBadge(booking.status)}>{booking.status}</span></td>
                   <td className="p-3">
                     <button onClick={() => handleEditBooking(booking)} className="px-3 py-1 rounded-lg bg-indigo-600 text-white">Edit</button>
@@ -461,7 +461,7 @@ export function AdminPage() {
                 <div key={route._id} className="border rounded-xl p-3 bg-white/70">
                   <div className="flex items-center justify-between">
                     <p className="font-semibold">{route.label}</p>
-                    <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-1 rounded-full">Base ?{route.baseFare}</span>
+                    <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-1 rounded-full">Base ₹{route.baseFare}</span>
                   </div>
                   <p className="text-sm text-slate-500">ETA {route.etaMinutes} min | {route.distanceKm} km</p>
                 </div>
