@@ -18,7 +18,7 @@ function Navbar() {
   }
 
   return (
-    <header className="bg-white shadow-sm border-b">
+    <header className="bg-white/80 backdrop-blur-md shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-6xl mx-auto p-4 flex items-center justify-between">
         <Link to="/" className="font-bold text-2xl flex items-center gap-3">
           <span className="brand-logo" aria-label="Safarexpress Cab">
