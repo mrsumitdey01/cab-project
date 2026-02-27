@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { MapPin, Flag, CalendarDays, Clock, ShieldCheck, Headphones, BadgeCheck, Sparkles, LocateFixed, Shield } from 'lucide-react';
+import { MapPin, Flag, CalendarDays, Clock, ShieldCheck, Headphones, BadgeCheck, Sparkles, LocateFixed } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { searchTrips, createPublicBooking, createBooking } from '../../shared/api/endpoints';
 import { Alert } from '../../shared/ui/Alert';
@@ -291,24 +291,13 @@ export function PublicSearchPage() {
           <p className="text-sm text-slate-500 mt-1">Dedicated team for quick updates and live assistance.</p>
         </div>
         <div className="bg-white/70 border border-white/50 rounded-2xl p-5 shadow-sm">
-          <BadgeCheck className="text-indigo-600 mb-3" />
-          <h3 className="font-semibold text-slate-900">Verified Drivers</h3>
-          <p className="text-sm text-slate-500 mt-1">Background-checked professionals for your safety.</p>
-        </div>
-      </div>
-
-      <div className="mt-8 bg-white/70 border border-white/60 rounded-2xl px-4 py-3 shadow-sm flex flex-wrap items-center gap-4">
-        <div className="flex items-center gap-2 text-sm text-slate-600">
-          <Sparkles className="text-indigo-600" size={18} />
-          <span>Sanitized Cabs</span>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-slate-600">
-          <LocateFixed className="text-indigo-600" size={18} />
-          <span>GPS Tracking</span>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-slate-600">
-          <Shield className="text-indigo-600" size={18} />
-          <span>Verified Drivers</span>
+          <div className="flex items-center gap-3 mb-3">
+            <Sparkles className="text-indigo-600" />
+            <LocateFixed className="text-indigo-600" />
+            <BadgeCheck className="text-indigo-600" />
+          </div>
+          <h3 className="font-semibold text-slate-900">Safety & Trust</h3>
+          <p className="text-sm text-slate-500 mt-1">Sanitized cabs, GPS tracking, and verified drivers.</p>
         </div>
       </div>
 
