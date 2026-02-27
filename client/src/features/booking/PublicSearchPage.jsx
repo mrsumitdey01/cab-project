@@ -20,7 +20,6 @@ export function PublicSearchPage() {
   const [bookingFormOpen, setBookingFormOpen] = useState(false);
   const [selection, setSelection] = useState({ route: '', cabType: '', carModel: '' });
   const [selectedRoute, setSelectedRoute] = useState(null);
-  const [selectedCab, setSelectedCab] = useState(null);
   const [contact, setContact] = useState({ name: '', email: '', phone: '' });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -62,15 +61,12 @@ export function PublicSearchPage() {
       }
       const data = await searchTrips(formData);
       setResults(data);
-      const defaultRoute = data.routes?.[0] || null;
-      const defaultCab = data.cabs?.[0] || null;
-      setSelectedRoute(defaultRoute);
-      setSelectedCab(defaultCab);
-      setSelection({
-        route: defaultRoute?.label || '',
-        cabType: defaultCab?.cabType || '',
-        carModel: defaultCab?.carModel || '',
-      });
+      const routeLabel = `${formData.pickup.address} → ${formData.dropoff.address}`;
+      setSelectedRoute({ label: routeLabel });
+      setSelection((prev) => ({
+        ...prev,
+        route: routeLabel,
+      }));
       setBookingFormOpen(true);
     } catch (err) {
       setError(err?.response?.data?.error?.detail || 'Search failed.');
@@ -91,7 +87,7 @@ export function PublicSearchPage() {
   async function handleBookingSubmit(e) {
     e.preventDefault();
     const phoneValid = /^[0-9]{10}$/.test(contact.phone || '');
-    if (!isAuthenticated && (!contact.name || !phoneValid)) {
+    if (!contact.name || !phoneValid) {
       setError('Please enter your name and a valid 10-digit WhatsApp number.');
       return;
     }
@@ -133,9 +129,6 @@ export function PublicSearchPage() {
   }
 
   const showSkeleton = warmup.status !== 'ready' || loading;
-  const baseFare = selectedRoute?.baseFare || 0;
-  const multiplier = selectedCab?.multiplier || 1;
-  const totalFare = Math.round(baseFare * multiplier);
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -279,29 +272,21 @@ export function PublicSearchPage() {
                   <div className="p-4 rounded-xl shadow-sm bg-white/70 border border-white/60">
                     <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold">Trip Summary</p>
                     <div className="mt-2 space-y-1 text-sm text-slate-600">
+                      <p><span className="font-semibold text-slate-800">From:</span> {formData.pickup.address || 'N/A'}</p>
+                      <p><span className="font-semibold text-slate-800">To:</span> {formData.dropoff.address || 'N/A'}</p>
                       <p><span className="font-semibold text-slate-800">Route:</span> {selectedRoute?.label || 'N/A'}</p>
-                      <p><span className="font-semibold text-slate-800">ETA:</span> {selectedRoute?.etaMinutes || 'N/A'} mins • {selectedRoute?.distanceKm || 'N/A'} km</p>
-                      <p><span className="font-semibold text-slate-800">Cab:</span> {selectedCab?.cabType || 'N/A'} {selectedCab?.carModel ? `(${selectedCab.carModel})` : ''}</p>
-                      <p><span className="font-semibold text-slate-800">Base Fare:</span> ₹{baseFare}</p>
-                      <p><span className="font-semibold text-slate-800">Multiplier:</span> x{multiplier}</p>
                     </div>
                   </div>
                 </div>
               )}
-              {!isAuthenticated && (
-                <>
-                  <input className="p-3 rounded-xl border" placeholder="Passenger Full Name" value={contact.name} onChange={(e) => setContact((prev) => ({ ...prev, name: e.target.value }))} required />
-                  <input className="p-3 rounded-xl border" placeholder="Email (optional)" type="email" value={contact.email} onChange={(e) => setContact((prev) => ({ ...prev, email: e.target.value }))} />
-                  <input className="p-3 rounded-xl border" placeholder="WhatsApp Number (for updates)" value={contact.phone} onChange={(e) => setContact((prev) => ({ ...prev, phone: e.target.value.replace(/\\D/g, '') }))} required />
-                </>
-              )}
-              <div className="md:col-span-2 flex items-center justify-between rounded-xl bg-white/70 border border-white/60 px-4 py-3 shadow-sm">
-                <span className="text-sm text-slate-500">Total Fare</span>
-                <span className="text-xl font-bold text-slate-900">₹{totalFare}</span>
-              </div>
+              <>
+                <input className="p-3 rounded-xl border" placeholder="Passenger Full Name" value={contact.name} onChange={(e) => setContact((prev) => ({ ...prev, name: e.target.value }))} required />
+                <input className="p-3 rounded-xl border" placeholder="Email (optional)" type="email" value={contact.email} onChange={(e) => setContact((prev) => ({ ...prev, email: e.target.value }))} />
+                <input className="p-3 rounded-xl border" placeholder="WhatsApp Number (for updates)" value={contact.phone} onChange={(e) => setContact((prev) => ({ ...prev, phone: e.target.value.replace(/\\D/g, '') }))} required />
+              </>
               <button
                 className="md:col-span-2 p-3 rounded-xl bg-indigo-600 text-white font-semibold"
-                disabled={loading || showSkeleton || (!isAuthenticated && (!contact.name || !/^[0-9]{10}$/.test(contact.phone || '')))}
+                disabled={loading || showSkeleton || (!contact.name || !/^[0-9]{10}$/.test(contact.phone || ''))}
               >
                 {loading ? 'Booking...' : 'Confirm Booking'}
               </button>
