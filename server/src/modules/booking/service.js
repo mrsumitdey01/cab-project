@@ -2,6 +2,7 @@ const Booking = require('../../../models/Booking');
 const BookingEvent = require('../../../models/BookingEvent');
 const AuditLog = require('../../../models/AuditLog');
 const IdempotencyKey = require('../../../models/IdempotencyKey');
+const Passenger = require('../../../models/Passenger');
 const RouteOption = require('../../../models/RouteOption');
 const CabOption = require('../../../models/CabOption');
 const { ApiError } = require('../../lib/errors');
@@ -25,6 +26,14 @@ async function createBooking(payload, actor, requestId, idempotencyKey) {
   }
 
   const fare = calculateFare(payload);
+  let passenger = null;
+  if (payload.contact?.name || payload.contact?.email || payload.contact?.phone) {
+    passenger = await Passenger.create({
+      name: payload.contact?.name?.trim() || 'Guest',
+      email: payload.contact?.email?.trim() || '',
+      phone: payload.contact?.phone?.trim() || '',
+    });
+  }
   const booking = await Booking.create({
     ...payload,
     pickup: { address: payload.pickup.address.trim() },
@@ -35,6 +44,7 @@ async function createBooking(payload, actor, requestId, idempotencyKey) {
     },
     fare: { totalAmount: fare },
     userId,
+    passengerId: passenger?._id || null,
     contact: payload.contact || {},
     selection: payload.selection || {},
   });
@@ -119,14 +129,20 @@ async function searchOptions(input) {
 
 async function listBookings(actor) {
   if (actor.role === 'admin') {
-    return Booking.find({}).sort({ createdAt: -1 }).limit(100);
+    return Booking.find({})
+      .populate('passengerId')
+      .sort({ createdAt: -1 })
+      .limit(100);
   }
 
-  return Booking.find({ userId: actor.userId }).sort({ createdAt: -1 }).limit(100);
+  return Booking.find({ userId: actor.userId })
+    .populate('passengerId')
+    .sort({ createdAt: -1 })
+    .limit(100);
 }
 
 async function getBookingById(id, actor) {
-  const booking = await Booking.findById(id);
+  const booking = await Booking.findById(id).populate('passengerId');
   if (!booking) {
     throw new ApiError({ status: 404, title: 'Not Found', detail: 'Booking not found.', code: 'booking_not_found' });
   }

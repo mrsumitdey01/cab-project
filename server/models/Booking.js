@@ -15,6 +15,7 @@ const bookingSchema = new mongoose.Schema({
         pickupDate: { type: Date, required: true },
         pickupTime: { type: String, required: true }
     },
+    passengerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Passenger', default: null, index: true },
     contact: {
         name: { type: String, default: '' },
         email: { type: String, default: '' },

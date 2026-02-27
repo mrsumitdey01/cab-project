@@ -115,6 +115,10 @@ export function AdminPage() {
       setError('Select a booking to update.');
       return;
     }
+    if (editingBooking?.status && editingBooking.status === status) {
+      setError(`Select a different status than ${editingBooking.status}.`);
+      return;
+    }
     try {
       const booking = await updateBookingStatus(bookingId, status);
       setSuccess(`Updated booking ${booking._id} to ${booking.status}`);
@@ -127,7 +131,8 @@ export function AdminPage() {
 
   function handleEditBooking(booking) {
     setBookingId(booking._id);
-    setStatus(booking.status || 'CONFIRMED');
+    const nextStatus = booking.status === 'PENDING' ? 'CONFIRMED' : (booking.status || 'CONFIRMED');
+    setStatus(nextStatus);
     setEditingBooking(booking);
     document.getElementById('admin-status-section')?.scrollIntoView({ behavior: 'smooth' });
   }
@@ -428,7 +433,7 @@ export function AdminPage() {
                       }}
                       className="font-semibold text-slate-800 hover:text-indigo-600 transition-colors"
                     >
-                      {booking.contact?.name || booking.user?.name || booking.contact?.email || booking.user?.email || 'Guest'}
+                      {booking.passengerId?.name || booking.contact?.name || booking.user?.name || booking.contact?.email || booking.user?.email || 'Guest'}
                     </button>
                     <p className="text-xs text-slate-500">ID #{booking._id}</p>
                   </td>
@@ -526,9 +531,9 @@ export function AdminPage() {
             <div className="space-y-3 text-sm text-slate-600">
               <div className="p-4 rounded-xl bg-white/70 border border-white/60">
                 <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold">Passenger</p>
-                <p className="mt-2 text-base font-semibold text-slate-900">{selectedPassenger.contact?.name || selectedPassenger.user?.name || 'Guest'}</p>
-                <p className="text-slate-500">{selectedPassenger.contact?.email || selectedPassenger.user?.email || 'No email provided'}</p>
-                <p className="text-slate-500">{selectedPassenger.contact?.phone || 'No phone provided'}</p>
+                <p className="mt-2 text-base font-semibold text-slate-900">{selectedPassenger.passengerId?.name || selectedPassenger.contact?.name || selectedPassenger.user?.name || 'Guest'}</p>
+                <p className="text-slate-500">{selectedPassenger.passengerId?.email || selectedPassenger.contact?.email || selectedPassenger.user?.email || 'No email provided'}</p>
+                <p className="text-slate-500">{selectedPassenger.passengerId?.phone || selectedPassenger.contact?.phone || 'No phone provided'}</p>
               </div>
               <div className="p-4 rounded-xl bg-white/70 border border-white/60">
                 <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold">Trip</p>
