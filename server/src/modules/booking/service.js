@@ -53,6 +53,20 @@ async function createBooking(payload, actor, requestId, idempotencyKey) {
     requestId,
   });
 
+  if (actor?.role === 'admin') {
+    await AuditLog.create({
+      action: 'BOOKING_CREATED',
+      actor: {
+        userId: actor.userId,
+        role: actor.role,
+        email: actor.email,
+      },
+      target: { type: 'booking', id: booking._id },
+      metadata: { tripType: booking.tripType, status: booking.status },
+      requestId,
+    });
+  }
+
   const responseBody = { booking };
   if (idempotencyKey) {
     await IdempotencyKey.create({

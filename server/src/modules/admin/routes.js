@@ -55,6 +55,17 @@ function createAdminRouter(config) {
     try {
       const { label, etaMinutes, distanceKm, baseFare } = req.body || {};
       const route = await RouteOption.create({ label, etaMinutes, distanceKm, baseFare });
+      await AuditLog.create({
+        action: 'ROUTE_CREATED',
+        actor: {
+          userId: req.user.sub,
+          role: req.user.role,
+          email: req.user.email,
+        },
+        target: { type: 'route', id: route._id },
+        metadata: { label, etaMinutes, distanceKm, baseFare },
+        requestId: res.locals.requestId,
+      });
       return success(res, { route }, { status: 201 });
     } catch (err) {
       return next(err);
@@ -79,6 +90,17 @@ function createAdminRouter(config) {
         multiplier,
         availableFrom: availableFrom ? new Date(availableFrom) : null,
         availableTo: availableTo ? new Date(availableTo) : null,
+      });
+      await AuditLog.create({
+        action: 'CAB_CREATED',
+        actor: {
+          userId: req.user.sub,
+          role: req.user.role,
+          email: req.user.email,
+        },
+        target: { type: 'cab', id: cab._id },
+        metadata: { cabType, carModel, multiplier, availableFrom, availableTo },
+        requestId: res.locals.requestId,
       });
       return success(res, { cab }, { status: 201 });
     } catch (err) {

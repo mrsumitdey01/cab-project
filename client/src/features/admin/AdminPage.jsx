@@ -1,5 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
+  Bar,
+  BarChart,
+  Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
+import {
   createAdminCab,
   createAdminRoute,
   getAdminCabs,
@@ -64,6 +74,9 @@ export function AdminPage() {
   const [bookings, setBookings] = useState([]);
   const [routeForm, setRouteForm] = useState({ label: '', etaMinutes: '', distanceKm: '', baseFare: '' });
   const [cabForm, setCabForm] = useState({ cabType: '', carModel: '', multiplier: '', availableFrom: '', availableTo: '' });
+  const [routeModalOpen, setRouteModalOpen] = useState(false);
+  const [cabModalOpen, setCabModalOpen] = useState(false);
+  const [editingBooking, setEditingBooking] = useState(null);
 
   const load = useCallback(async () => {
     try {
@@ -96,13 +109,25 @@ export function AdminPage() {
     e.preventDefault();
     setError('');
     setSuccess('');
+    if (!bookingId) {
+      setError('Select a booking to update.');
+      return;
+    }
     try {
       const booking = await updateBookingStatus(bookingId, status);
       setSuccess(`Updated booking ${booking._id} to ${booking.status}`);
+      setEditingBooking(null);
       await load();
     } catch (err) {
       setError(err?.response?.data?.error?.detail || 'Status update failed.');
     }
+  }
+
+  function handleEditBooking(booking) {
+    setBookingId(booking._id);
+    setStatus(booking.status || 'CONFIRMED');
+    setEditingBooking(booking);
+    document.getElementById('admin-status-section')?.scrollIntoView({ behavior: 'smooth' });
   }
 
   async function handleCreateRoute(e) {
@@ -187,6 +212,38 @@ export function AdminPage() {
   }, [groupedBookings, activeTab, query, statusFilter]);
 
   const revenue = useMemo(() => bookings.reduce((sum, b) => sum + (b.fare?.totalAmount || 0), 0), [bookings]);
+  const revenueByDay = useMemo(() => {
+    const map = new Map();
+    bookings.forEach((booking) => {
+      const date = booking?.schedule?.pickupDate ? new Date(booking.schedule.pickupDate) : new Date(booking.createdAt);
+      const key = Number.isNaN(date.getTime()) ? 'Unknown' : date.toISOString().slice(0, 10);
+      map.set(key, (map.get(key) || 0) + (booking.fare?.totalAmount || 0));
+    });
+    return Array.from(map.entries())
+      .map(([date, total]) => ({ date, total }))
+      .sort((a, b) => (a.date > b.date ? 1 : -1));
+  }, [bookings]);
+
+  const revenueByCab = useMemo(() => {
+    const map = new Map();
+    bookings.forEach((booking) => {
+      const cabType = booking.selection?.cabType || 'Unknown';
+      map.set(cabType, (map.get(cabType) || 0) + (booking.fare?.totalAmount || 0));
+    });
+    return Array.from(map.entries()).map(([cabType, total]) => ({ cabType, total }));
+  }, [bookings]);
+
+  const revenueByRoute = useMemo(() => {
+    const map = new Map();
+    bookings.forEach((booking) => {
+      const route = booking.selection?.route || 'Unknown';
+      map.set(route, (map.get(route) || 0) + (booking.fare?.totalAmount || 0));
+    });
+    return Array.from(map.entries())
+      .map(([route, total]) => ({ route, total }))
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 5);
+  }, [bookings]);
 
   return (
     <div className="max-w-6xl mx-auto p-6">
@@ -217,57 +274,103 @@ export function AdminPage() {
         </div>
         <div className="bg-white/80 p-4 rounded-2xl shadow">
           <p className="text-xs uppercase text-slate-400 font-semibold">Revenue</p>
-          <p className="text-2xl font-bold mt-2">₹{revenue}</p>
+          <p className="text-2xl font-bold mt-2">?{revenue}</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white/80 p-6 rounded-2xl shadow">
-          <h2 className="text-xl font-semibold mb-3">Route Setup</h2>
-          <form onSubmit={handleCreateRoute} className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <input className="p-3 rounded-xl border" placeholder="Route Name" value={routeForm.label} onChange={(e) => setRouteForm((prev) => ({ ...prev, label: e.target.value }))} required />
-            <input className="p-3 rounded-xl border" placeholder="ETA (min)" type="number" value={routeForm.etaMinutes} onChange={(e) => setRouteForm((prev) => ({ ...prev, etaMinutes: e.target.value }))} required />
-            <input className="p-3 rounded-xl border" placeholder="Distance (km)" type="number" value={routeForm.distanceKm} onChange={(e) => setRouteForm((prev) => ({ ...prev, distanceKm: e.target.value }))} required />
-            <input className="p-3 rounded-xl border" placeholder="Base Fare" type="number" value={routeForm.baseFare} onChange={(e) => setRouteForm((prev) => ({ ...prev, baseFare: e.target.value }))} required />
-            <button className="md:col-span-2 p-3 rounded-xl bg-indigo-600 text-white">Add Route</button>
-          </form>
-          <div className="mt-4 space-y-2">
-            {routes.map((route) => (
-              <div key={route._id} className="border rounded-xl p-3 bg-white/70">
-                <div className="flex items-center justify-between">
-                  <p className="font-semibold">{route.label}</p>
-                  <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-1 rounded-full">Base ₹{route.baseFare}</span>
-                </div>
-                <p className="text-sm text-slate-500">ETA {route.etaMinutes} min | {route.distanceKm} km</p>
+          <h2 className="text-xl font-semibold mb-4">Health Summary</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-4 rounded-2xl bg-white/70 border border-white/60 shadow-sm">
+              <p className="text-xs uppercase tracking-widest text-slate-400">Avg Latency (ms)</p>
+              <p className="text-2xl font-bold mt-2">{health?.metrics?.avgLatencyMs ?? 'N/A'}</p>
+              <div className="h-2 bg-slate-100 rounded-full mt-3 overflow-hidden">
+                <div
+                  className={`h-full ${health?.metrics?.avgLatencyMs <= 300 ? 'bg-emerald-500' : health?.metrics?.avgLatencyMs <= 800 ? 'bg-amber-500' : 'bg-rose-500'}`}
+                  style={{ width: `${Math.min(100, (health?.metrics?.avgLatencyMs || 0) / 10)}%` }}
+                />
               </div>
-            ))}
-            {routes.length === 0 && <p className="text-sm text-slate-500">No routes configured yet.</p>}
+            </div>
+            <div className="p-4 rounded-2xl bg-white/70 border border-white/60 shadow-sm">
+              <p className="text-xs uppercase tracking-widest text-slate-400">Error Rate</p>
+              <p className="text-2xl font-bold mt-2">{health?.metrics?.errorRate ?? 'N/A'}</p>
+              <div className="h-2 bg-slate-100 rounded-full mt-3 overflow-hidden">
+                <div
+                  className={`h-full ${health?.metrics?.errorRate <= 0.01 ? 'bg-emerald-500' : health?.metrics?.errorRate <= 0.05 ? 'bg-amber-500' : 'bg-rose-500'}`}
+                  style={{ width: `${Math.min(100, (health?.metrics?.errorRate || 0) * 100)}%` }}
+                />
+              </div>
+            </div>
           </div>
         </div>
-
         <div className="bg-white/80 p-6 rounded-2xl shadow">
-          <h2 className="text-xl font-semibold mb-3">Cab Setup</h2>
-          <form onSubmit={handleCreateCab} className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <input className="p-3 rounded-xl border" placeholder="Cab Type" value={cabForm.cabType} onChange={(e) => setCabForm((prev) => ({ ...prev, cabType: e.target.value }))} required />
-            <input className="p-3 rounded-xl border" placeholder="Car Model" value={cabForm.carModel} onChange={(e) => setCabForm((prev) => ({ ...prev, carModel: e.target.value }))} required />
-            <input className="p-3 rounded-xl border" placeholder="Multiplier" type="number" step="0.1" value={cabForm.multiplier} onChange={(e) => setCabForm((prev) => ({ ...prev, multiplier: e.target.value }))} required />
-            <input className="p-3 rounded-xl border" type="date" value={cabForm.availableFrom} onChange={(e) => setCabForm((prev) => ({ ...prev, availableFrom: e.target.value }))} />
-            <input className="p-3 rounded-xl border md:col-span-2" type="date" value={cabForm.availableTo} onChange={(e) => setCabForm((prev) => ({ ...prev, availableTo: e.target.value }))} />
-            <button className="md:col-span-2 p-3 rounded-xl bg-indigo-600 text-white">Add Cab</button>
-          </form>
-          <div className="mt-4 space-y-2">
-            {cabs.map((cab) => (
-              <div key={cab._id} className="border rounded-xl p-3 bg-white/70">
-                <div className="flex items-center justify-between">
-                  <p className="font-semibold">{cab.cabType} - {cab.carModel}</p>
-                  <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2 py-1 rounded-full">x{cab.multiplier}</span>
-                </div>
-                <p className="text-sm text-slate-500">Availability {cab.availableFrom ? new Date(cab.availableFrom).toLocaleDateString() : 'Always'} - {cab.availableTo ? new Date(cab.availableTo).toLocaleDateString() : 'Always'}</p>
-              </div>
-            ))}
-            {cabs.length === 0 && <p className="text-sm text-slate-500">No cabs configured yet.</p>}
+          <h2 className="text-xl font-semibold mb-4">System Status</h2>
+          <div className="space-y-3 text-sm text-slate-500">
+            <p>Database: <span className={health?.dbReady ? 'text-emerald-600 font-semibold' : 'text-rose-600 font-semibold'}>{health?.dbReady ? 'Ready' : 'Degraded'}</span></p>
+            <p>Audit Logs: <span className="font-semibold text-slate-700">{health?.auditCount ?? 0}</span></p>
+            <p>Metrics Sampled: <span className="font-semibold text-slate-700">{health?.metrics ? 'Active' : 'N/A'}</span></p>
           </div>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="bg-white/80 p-6 rounded-2xl shadow lg:col-span-2">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Revenue Trend</h2>
+            <span className="text-xs text-slate-500">Daily</span>
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={revenueByDay}>
+                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 10 }} />
+                <Tooltip formatter={(value) => [`?${value}`, 'Revenue']} />
+                <Line type="monotone" dataKey="total" stroke="#4f46e5" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        <div className="bg-white/80 p-6 rounded-2xl shadow">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Revenue by Cab</h2>
+            <span className="text-xs text-slate-500">Top Types</span>
+          </div>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={revenueByCab}>
+                <XAxis dataKey="cabType" tick={{ fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 10 }} />
+                <Tooltip formatter={(value) => [`?${value}`, 'Revenue']} />
+                <Bar dataKey="total" fill="#6366f1" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white/80 p-6 rounded-2xl shadow mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">Most Profitable Routes</h2>
+          <span className="text-xs text-slate-500">Top 5</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {revenueByRoute.map((route) => (
+            <div key={route.route} className="p-4 rounded-xl border border-white/60 bg-white/70 flex items-center justify-between">
+              <div>
+                <p className="font-semibold text-slate-800">{route.route}</p>
+                <p className="text-xs text-slate-500">Revenue</p>
+              </div>
+              <p className="font-bold text-indigo-600">?{route.total}</p>
+            </div>
+          ))}
+          {revenueByRoute.length === 0 && <p className="text-sm text-slate-500">No revenue data yet.</p>}
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-3 mb-6">
+        <button onClick={() => setRouteModalOpen(true)} className="px-4 py-2 rounded-xl bg-white/70 border border-white/60 shadow-sm hover:shadow-indigo-500/20 transition-shadow">Manage Routes</button>
+        <button onClick={() => setCabModalOpen(true)} className="px-4 py-2 rounded-xl bg-white/70 border border-white/60 shadow-sm hover:shadow-indigo-500/20 transition-shadow">Manage Cabs</button>
       </div>
 
       <div className="bg-white/80 p-6 rounded-2xl shadow mb-6">
@@ -300,29 +403,105 @@ export function AdminPage() {
             <option value="CANCELLED">Cancelled</option>
           </select>
         </div>
-        <div className="space-y-3">
-          {filteredBookings.map((booking) => (
-            <div key={booking._id} className="border rounded-2xl p-4 bg-white/70 hover:shadow-indigo-500/20 transition-shadow">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-semibold">{booking.pickup?.address} ? {booking.dropoff?.address}</p>
-                  <p className="text-sm text-slate-500">{booking.tripType}</p>
-                  <p className="text-sm text-slate-500">Route: {booking.selection?.route || 'N/A'} | Cab: {booking.selection?.cabType || 'N/A'} | Model: {booking.selection?.carModel || 'N/A'}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-xs font-semibold text-slate-500">Booking ID #{booking._id}</p>
-                  <p className="font-bold">₹{booking.fare?.totalAmount}</p>
-                  <p className="text-xs text-slate-500">{booking.schedule?.pickupDate} {booking.schedule?.pickupTime || ''}</p>
-                  <div className={statusBadge(booking.status)}>{booking.status}</div>
-                </div>
-              </div>
-            </div>
-          ))}
-          {filteredBookings.length === 0 && <p className="text-sm text-slate-500">No bookings in this tab.</p>}
+        <div className="overflow-auto rounded-xl border border-white/60">
+          <table className="min-w-full text-sm">
+            <thead className="bg-slate-50 text-slate-500 uppercase text-xs">
+              <tr>
+                <th className="text-left p-3">Customer</th>
+                <th className="text-left p-3">Pickup ? Drop</th>
+                <th className="text-left p-3">Fare</th>
+                <th className="text-left p-3">Status</th>
+                <th className="text-left p-3">Action</th>
+              </tr>
+            </thead>
+            <tbody className="bg-white/70">
+              {filteredBookings.map((booking) => (
+                <tr key={booking._id} className="border-t">
+                  <td className="p-3">
+                    <p className="font-semibold text-slate-800">{booking.contact?.email || booking.user?.email || 'Guest'}</p>
+                    <p className="text-xs text-slate-500">ID #{booking._id}</p>
+                  </td>
+                  <td className="p-3">
+                    <p className="font-semibold text-slate-800">{booking.pickup?.address} ? {booking.dropoff?.address}</p>
+                    <p className="text-xs text-slate-500">{booking.schedule?.pickupDate} {booking.schedule?.pickupTime || ''}</p>
+                  </td>
+                  <td className="p-3 font-bold">?{booking.fare?.totalAmount}</td>
+                  <td className="p-3"><span className={statusBadge(booking.status)}>{booking.status}</span></td>
+                  <td className="p-3">
+                    <button onClick={() => handleEditBooking(booking)} className="px-3 py-1 rounded-lg bg-indigo-600 text-white">Edit</button>
+                  </td>
+                </tr>
+              ))}
+              {filteredBookings.length === 0 && (
+                <tr>
+                  <td colSpan="5" className="p-6 text-center text-slate-500">
+                    No bookings yet. Start by creating a route and cab, then take a test booking.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+      {routeModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 modal-backdrop">
+          <div className="glass-card w-full max-w-3xl rounded-2xl shadow-2xl p-6 relative modal-panel">
+            <button className="absolute top-4 right-4 text-slate-400 hover:text-slate-600" onClick={() => setRouteModalOpen(false)} aria-label="Close">X</button>
+            <h2 className="text-xl font-semibold mb-3">Route Setup</h2>
+            <form onSubmit={handleCreateRoute} className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input className="p-3 rounded-xl border" placeholder="Route Name" value={routeForm.label} onChange={(e) => setRouteForm((prev) => ({ ...prev, label: e.target.value }))} required />
+              <input className="p-3 rounded-xl border" placeholder="ETA (min)" type="number" value={routeForm.etaMinutes} onChange={(e) => setRouteForm((prev) => ({ ...prev, etaMinutes: e.target.value }))} required />
+              <input className="p-3 rounded-xl border" placeholder="Distance (km)" type="number" value={routeForm.distanceKm} onChange={(e) => setRouteForm((prev) => ({ ...prev, distanceKm: e.target.value }))} required />
+              <input className="p-3 rounded-xl border" placeholder="Base Fare" type="number" value={routeForm.baseFare} onChange={(e) => setRouteForm((prev) => ({ ...prev, baseFare: e.target.value }))} required />
+              <button className="md:col-span-2 p-3 rounded-xl bg-indigo-600 text-white">Add Route</button>
+            </form>
+            <div className="mt-4 space-y-2">
+              {routes.map((route) => (
+                <div key={route._id} className="border rounded-xl p-3 bg-white/70">
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold">{route.label}</p>
+                    <span className="text-xs font-semibold bg-slate-100 text-slate-600 px-2 py-1 rounded-full">Base ?{route.baseFare}</span>
+                  </div>
+                  <p className="text-sm text-slate-500">ETA {route.etaMinutes} min | {route.distanceKm} km</p>
+                </div>
+              ))}
+              {routes.length === 0 && <p className="text-sm text-slate-500">No routes configured yet.</p>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {cabModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 modal-backdrop">
+          <div className="glass-card w-full max-w-3xl rounded-2xl shadow-2xl p-6 relative modal-panel">
+            <button className="absolute top-4 right-4 text-slate-400 hover:text-slate-600" onClick={() => setCabModalOpen(false)} aria-label="Close">X</button>
+            <h2 className="text-xl font-semibold mb-3">Cab Setup</h2>
+            <form onSubmit={handleCreateCab} className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <input className="p-3 rounded-xl border" placeholder="Cab Type" value={cabForm.cabType} onChange={(e) => setCabForm((prev) => ({ ...prev, cabType: e.target.value }))} required />
+              <input className="p-3 rounded-xl border" placeholder="Car Model" value={cabForm.carModel} onChange={(e) => setCabForm((prev) => ({ ...prev, carModel: e.target.value }))} required />
+              <input className="p-3 rounded-xl border" placeholder="Multiplier" type="number" step="0.1" value={cabForm.multiplier} onChange={(e) => setCabForm((prev) => ({ ...prev, multiplier: e.target.value }))} required />
+              <input className="p-3 rounded-xl border" type="date" value={cabForm.availableFrom} onChange={(e) => setCabForm((prev) => ({ ...prev, availableFrom: e.target.value }))} />
+              <input className="p-3 rounded-xl border md:col-span-2" type="date" value={cabForm.availableTo} onChange={(e) => setCabForm((prev) => ({ ...prev, availableTo: e.target.value }))} />
+              <button className="md:col-span-2 p-3 rounded-xl bg-indigo-600 text-white">Add Cab</button>
+            </form>
+            <div className="mt-4 space-y-2">
+              {cabs.map((cab) => (
+                <div key={cab._id} className="border rounded-xl p-3 bg-white/70">
+                  <div className="flex items-center justify-between">
+                    <p className="font-semibold">{cab.cabType} - {cab.carModel}</p>
+                    <span className="text-xs font-semibold bg-blue-100 text-blue-700 px-2 py-1 rounded-full">x{cab.multiplier}</span>
+                  </div>
+                  <p className="text-sm text-slate-500">Availability {cab.availableFrom ? new Date(cab.availableFrom).toLocaleDateString() : 'Always'} - {cab.availableTo ? new Date(cab.availableTo).toLocaleDateString() : 'Always'}</p>
+                </div>
+              ))}
+              {cabs.length === 0 && <p className="text-sm text-slate-500">No cabs configured yet.</p>}
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div id="admin-status-section" className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white/80 p-6 rounded-2xl shadow">
           <h2 className="text-xl font-semibold mb-3">Update Booking Status</h2>
           <form onSubmit={handleStatusUpdate} className="flex flex-col md:flex-row gap-3">
@@ -334,14 +513,13 @@ export function AdminPage() {
             </select>
             <button className="p-3 rounded-xl bg-indigo-600 text-white">Update</button>
           </form>
+          {editingBooking && (
+            <p className="mt-2 text-xs text-slate-500">Editing booking #{editingBooking._id}</p>
+          )}
           <div className="mt-3 space-y-2">
             <Alert type="error" message={error} />
             <Alert type="success" message={success} />
           </div>
-        </div>
-        <div className="bg-white/80 p-6 rounded-2xl shadow">
-          <h2 className="text-xl font-semibold mb-3">Health Summary</h2>
-          <pre className="text-xs bg-slate-100 p-3 rounded-lg overflow-auto">{JSON.stringify(health, null, 2)}</pre>
         </div>
       </div>
 
