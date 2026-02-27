@@ -41,6 +41,12 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     opacity: 0;
     display: none;
 }
+input[type="date"]::-ms-clear,
+input[type="date"]::-ms-expand,
+input[type="time"]::-ms-clear,
+input[type="time"]::-ms-expand {
+    display: none;
+}
 
 .brand-logo {
     width: 68px;

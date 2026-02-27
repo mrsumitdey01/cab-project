@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { MapPin, Flag, CalendarDays, Clock, ShieldCheck, Headphones, BadgeCheck } from 'lucide-react';
+import { MapPin, Flag, CalendarDays, Clock, ShieldCheck, Headphones, BadgeCheck, Sparkles, LocateFixed, Shield } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { searchTrips, createPublicBooking, createBooking } from '../../shared/api/endpoints';
 import { Alert } from '../../shared/ui/Alert';
@@ -297,6 +297,21 @@ export function PublicSearchPage() {
         </div>
       </div>
 
+      <div className="mt-8 bg-white/70 border border-white/60 rounded-2xl px-4 py-3 shadow-sm flex flex-wrap items-center gap-4">
+        <div className="flex items-center gap-2 text-sm text-slate-600">
+          <Sparkles className="text-indigo-600" size={18} />
+          <span>Sanitized Cabs</span>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-slate-600">
+          <LocateFixed className="text-indigo-600" size={18} />
+          <span>GPS Tracking</span>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-slate-600">
+          <Shield className="text-indigo-600" size={18} />
+          <span>Verified Drivers</span>
+        </div>
+      </div>
+
       <div className="mt-10">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-xl font-semibold text-slate-900">Popular Routes</h2>
@@ -321,7 +336,7 @@ export function PublicSearchPage() {
         href="https://wa.me/919999999999"
         target="_blank"
         rel="noreferrer"
-        className="fixed bottom-6 right-6 z-50 bg-emerald-500 text-white p-4 rounded-full shadow-lg hover:brightness-110 transition animate-pulse"
+        className="fixed bottom-6 right-6 z-50 bg-emerald-500 text-white p-4 rounded-full shadow-lg hover:brightness-110 transition animate-bounce"
         aria-label="Chat on WhatsApp"
       >
         <span className="sr-only">WhatsApp</span>
