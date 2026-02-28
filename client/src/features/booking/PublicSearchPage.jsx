@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { CalendarDays, Clock, ShieldCheck, Headphones, BadgeCheck, Sparkles, LocateFixed } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { searchTrips, createPublicBooking, createBooking } from '../../shared/api/endpoints';
@@ -43,6 +43,8 @@ export function PublicSearchPage() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const warmup = useWarmup();
   const [, setWarming] = useState(getWarmState().status);
+  const contactBarRef = useRef(null);
+  const [showFloatingWhatsApp, setShowFloatingWhatsApp] = useState(false);
 
   const popularRoutes = [
     { label: 'Delhi → Noida Express', pickup: 'Delhi', dropoff: 'Noida' },
@@ -60,6 +62,17 @@ export function PublicSearchPage() {
     }
     return () => document.body.classList.remove('modal-open');
   }, [bookingFormOpen]);
+
+  useEffect(() => {
+    function handleScroll() {
+      if (!contactBarRef.current) return;
+      const trigger = contactBarRef.current.offsetTop + contactBarRef.current.offsetHeight;
+      setShowFloatingWhatsApp(window.scrollY > trigger);
+    }
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     if (!isSubmitted) return;
@@ -218,9 +231,9 @@ export function PublicSearchPage() {
         <p className="text-lg text-slate-500 font-medium mt-3">Safarexpress Cab. Premium rides at your fingertips.</p>
       </div>
 
-      <div className="w-full flex flex-col sm:flex-row items-center justify-center gap-4 mb-6 relative z-10">
+      <div ref={contactBarRef} className="w-full flex flex-col sm:flex-row items-center justify-center gap-4 mb-6 relative z-10">
         <span className="text-sm font-semibold text-slate-600 bg-white/80 backdrop-blur-md py-1.5 px-4 rounded-full shadow-sm border border-slate-100">
-          ⚡ Quick Booking:
+          Reach out to us instantly:
         </span>
 
         <div className="flex gap-3">
@@ -382,22 +395,24 @@ export function PublicSearchPage() {
         </div>
       </div>
 
-      <a
-        href="https://wa.me/919999999999"
-        target="_blank"
-        rel="noreferrer"
-        className="fixed bottom-6 right-6 z-50 group"
-        aria-label="Chat on WhatsApp"
-      >
-        <span className="absolute inset-0 rounded-full bg-emerald-400/40 blur-lg opacity-70 animate-pulse"></span>
-        <span className="absolute inset-0 rounded-full bg-emerald-400/30 animate-ping"></span>
-        <span className="relative inline-flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-xl hover:brightness-110 transition">
-          <svg width="22" height="22" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
-            <path d="M19.11 17.44c-.27-.13-1.6-.79-1.85-.88-.25-.09-.43-.13-.61.13-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.13-1.14-.42-2.17-1.33-.8-.71-1.34-1.58-1.49-1.85-.16-.27-.02-.41.12-.54.12-.12.27-.32.41-.48.14-.16.18-.27.27-.45.09-.18.04-.34-.02-.48-.07-.13-.61-1.47-.84-2.01-.22-.53-.44-.46-.61-.47-.16-.02-.34-.02-.52-.02-.18 0-.48.07-.73.34-.25.27-.96.94-.96 2.3 0 1.36.98 2.67 1.12 2.85.14.18 1.93 2.95 4.68 4.13.65.28 1.16.45 1.56.57.66.21 1.26.18 1.74.11.53-.08 1.6-.65 1.83-1.28.23-.62.23-1.15.16-1.28-.07-.13-.25-.2-.52-.34zM16 6.24c-5.38 0-9.76 4.38-9.76 9.76 0 1.72.45 3.34 1.24 4.75L6.2 25.6l5.04-1.32c1.35.74 2.9 1.16 4.56 1.16 5.38 0 9.76-4.38 9.76-9.76S21.38 6.24 16 6.24zm0 17.7c-1.53 0-2.96-.44-4.17-1.19l-.3-.18-2.99.78.79-2.92-.19-.3c-.78-1.25-1.24-2.72-1.24-4.29 0-4.46 3.64-8.1 8.1-8.1s8.1 3.64 8.1 8.1-3.64 8.1-8.1 8.1z"/>
-          </svg>
-          <span className="text-sm font-semibold hidden sm:inline">WhatsApp</span>
-        </span>
-      </a>
+      {showFloatingWhatsApp && (
+        <a
+          href="https://wa.me/919999999999"
+          target="_blank"
+          rel="noreferrer"
+          className="fixed bottom-6 right-6 z-50 group"
+          aria-label="Chat on WhatsApp"
+        >
+          <span className="absolute inset-0 rounded-full bg-emerald-400/40 blur-lg opacity-70 animate-pulse"></span>
+          <span className="absolute inset-0 rounded-full bg-emerald-400/30 animate-ping"></span>
+          <span className="relative inline-flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-xl hover:brightness-110 transition">
+            <svg width="22" height="22" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+              <path d="M19.11 17.44c-.27-.13-1.6-.79-1.85-.88-.25-.09-.43-.13-.61.13-.18.27-.7.88-.86 1.06-.16.18-.32.2-.59.07-.27-.13-1.14-.42-2.17-1.33-.8-.71-1.34-1.58-1.49-1.85-.16-.27-.02-.41.12-.54.12-.12.27-.32.41-.48.14-.16.18-.27.27-.45.09-.18.04-.34-.02-.48-.07-.13-.61-1.47-.84-2.01-.22-.53-.44-.46-.61-.47-.16-.02-.34-.02-.52-.02-.18 0-.48.07-.73.34-.25.27-.96.94-.96 2.3 0 1.36.98 2.67 1.12 2.85.14.18 1.93 2.95 4.68 4.13.65.28 1.16.45 1.56.57.66.21 1.26.18 1.74.11.53-.08 1.6-.65 1.83-1.28.23-.62.23-1.15.16-1.28-.07-.13-.25-.2-.52-.34zM16 6.24c-5.38 0-9.76 4.38-9.76 9.76 0 1.72.45 3.34 1.24 4.75L6.2 25.6l5.04-1.32c1.35.74 2.9 1.16 4.56 1.16 5.38 0 9.76-4.38 9.76-9.76S21.38 6.24 16 6.24zm0 17.7c-1.53 0-2.96-.44-4.17-1.19l-.3-.18-2.99.78.79-2.92-.19-.3c-.78-1.25-1.24-2.72-1.24-4.29 0-4.46 3.64-8.1 8.1-8.1s8.1 3.64 8.1 8.1-3.64 8.1-8.1 8.1z"/>
+            </svg>
+            <span className="text-sm font-semibold hidden sm:inline">WhatsApp</span>
+          </span>
+        </a>
+      )}
 
 
 
