@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CalendarDays, Clock, ShieldCheck, Headphones, BadgeCheck, Sparkles, LocateFixed } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { searchTrips, createPublicBooking, createBooking } from '../../shared/api/endpoints';
@@ -135,14 +135,11 @@ export function PublicSearchPage() {
     }
   }
 
-  const idempotencyKey = useMemo(() => {
-    const raw = `${formData.pickup.address}-${formData.dropoff.address}-${formData.schedule.pickupDate}-${formData.schedule.pickupTime}-${formData.tripType}-${selection.route}-${selection.cabType}`;
-    const base64 = btoa(unescape(encodeURIComponent(raw)))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=+$/, '');
-    return base64.slice(0, 96);
-  }, [formData, selection]);
+  function buildIdempotencyKey() {
+    const context = `${formData.tripType}-${selection.cabType || 'NA'}-${Date.now()}`.replace(/[^a-zA-Z0-9-]/g, '');
+    const randomId = crypto.randomUUID();
+    return `${randomId}-${context}`.slice(0, 120);
+  }
 
   async function handleBookingSubmit(e) {
     e.preventDefault();
@@ -182,9 +179,10 @@ export function PublicSearchPage() {
         contact,
       };
 
+      const requestIdempotencyKey = buildIdempotencyKey();
       await (isAuthenticated
-        ? await createBooking(payload, idempotencyKey)
-        : await createPublicBooking(payload, idempotencyKey));
+        ? await createBooking(payload, requestIdempotencyKey)
+        : await createPublicBooking(payload, requestIdempotencyKey));
 
       setSuccess('Enquiry submitted.');
       setIsSubmitted(true);
