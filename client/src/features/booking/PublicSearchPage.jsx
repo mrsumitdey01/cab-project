@@ -90,13 +90,15 @@ export function PublicSearchPage() {
     setError('');
     setSuccess('');
     try {
-      if (!selectedFrom && fromQuery.trim()) {
-        setSelectedFrom({ id: `custom-from-${fromQuery}`, name: fromQuery, keywords: [] });
-        setFormData((prev) => ({ ...prev, pickup: { address: fromQuery.trim() } }));
+      const nextFrom = selectedFrom || (fromQuery.trim() ? { id: `custom-from-${fromQuery}`, name: fromQuery, keywords: [] } : null);
+      const nextTo = selectedTo || (toQuery.trim() ? { id: `custom-to-${toQuery}`, name: toQuery, keywords: [] } : null);
+      if (nextFrom) {
+        setSelectedFrom(nextFrom);
+        setFormData((prev) => ({ ...prev, pickup: { address: nextFrom.name } }));
       }
-      if (!selectedTo && toQuery.trim()) {
-        setSelectedTo({ id: `custom-to-${toQuery}`, name: toQuery, keywords: [] });
-        setFormData((prev) => ({ ...prev, dropoff: { address: toQuery.trim() } }));
+      if (nextTo) {
+        setSelectedTo(nextTo);
+        setFormData((prev) => ({ ...prev, dropoff: { address: nextTo.name } }));
       }
       if (warmup.status !== 'ready') {
         setWarming('warming');
@@ -108,19 +110,19 @@ export function PublicSearchPage() {
       }
       const data = await searchTrips({
         ...formData,
-        pickup: { address: selectedFrom?.name || fromQuery.trim() },
-        dropoff: { address: selectedTo?.name || toQuery.trim() },
+        pickup: { address: nextFrom?.name || fromQuery.trim() },
+        dropoff: { address: nextTo?.name || toQuery.trim() },
       });
       setResults(data);
-      const routeLabel = `${selectedFrom?.hub || formData.pickup.address} → ${selectedTo?.hub || formData.dropoff.address}`;
+      const routeLabel = `${nextFrom?.name || formData.pickup.address} → ${nextTo?.name || formData.dropoff.address}`;
       const defaultCab = data.cabs?.[0] || null;
       setSelectedRoute({ label: routeLabel });
       setSelectedCab(defaultCab);
       setSelection((prev) => ({
         ...prev,
         route: routeLabel,
-        fromHub: selectedFrom?.hub || '',
-        toHub: selectedTo?.hub || '',
+        fromHub: nextFrom?.hub || '',
+        toHub: nextTo?.hub || '',
         cabType: defaultCab?.cabType || '',
         carModel: defaultCab?.carModel || '',
         multiplier: defaultCab?.multiplier || 1,
