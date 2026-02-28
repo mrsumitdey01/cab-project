@@ -233,7 +233,7 @@ export function PublicSearchPage() {
 
       <div ref={contactBarRef} className="w-full flex flex-col sm:flex-row items-center justify-center gap-4 mb-6 relative z-10">
         <span className="text-sm font-semibold text-slate-600 bg-white/80 backdrop-blur-md py-1.5 px-4 rounded-full shadow-sm border border-slate-100">
-          Reach out to us instantly:
+          ⚡ Reach out to us instantly:
         </span>
 
         <div className="flex gap-3">
@@ -395,14 +395,15 @@ export function PublicSearchPage() {
         </div>
       </div>
 
-      {showFloatingWhatsApp && (
-        <a
-          href="https://wa.me/919999999999"
-          target="_blank"
-          rel="noreferrer"
-          className="fixed bottom-6 right-6 z-50 group"
-          aria-label="Chat on WhatsApp"
-        >
+      <a
+        href="https://wa.me/919999999999"
+        target="_blank"
+        rel="noreferrer"
+        className={`fixed bottom-6 right-6 z-50 group transition-all duration-300 ${
+          showFloatingWhatsApp ? 'opacity-100 scale-100' : 'opacity-0 scale-90 pointer-events-none'
+        }`}
+        aria-label="Chat on WhatsApp"
+      >
           <span className="absolute inset-0 rounded-full bg-emerald-400/40 blur-lg opacity-70 animate-pulse"></span>
           <span className="absolute inset-0 rounded-full bg-emerald-400/30 animate-ping"></span>
           <span className="relative inline-flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-xl hover:brightness-110 transition">
@@ -411,8 +412,7 @@ export function PublicSearchPage() {
             </svg>
             <span className="text-sm font-semibold hidden sm:inline">WhatsApp</span>
           </span>
-        </a>
-      )}
+      </a>
 
 
 
