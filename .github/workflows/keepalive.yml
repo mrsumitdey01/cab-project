@@ -1,0 +1,24 @@
+name: keepalive
+
+on:
+  schedule:
+    - cron: '*/14 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping backend health (with Blackout Window)
+        run: |
+          # Fetch the current hour in Indian Standard Time (00-23)
+          CURRENT_HOUR=$(TZ="Asia/Kolkata" date +%H)
+          
+          # Check if the hour is 03 or 04 (3:00 AM to 4:59 AM)
+          if [ "$CURRENT_HOUR" -ge 03 ] && [ "$CURRENT_HOUR" -lt 05 ]; then
+            echo "Blackout period active ($CURRENT_HOUR:xx IST). Skipping server ping to save hours."
+            exit 0
+          fi
+          
+          echo "Executing ping at $CURRENT_HOUR:xx IST..."
+          curl -sS -m 20 -o /dev/null -w "status=%{http_code}\n" https://cab-platform-backend.onrender.com/api/v1/health
