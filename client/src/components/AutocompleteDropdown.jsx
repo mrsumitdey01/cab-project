@@ -45,7 +45,7 @@ export function AutocompleteDropdown({ label, placeholder, value, onChange }) {
   }, []);
 
   const filtered = useMemo(() => {
-    if (!debouncedQuery || debouncedQuery.trim().length < 5) return [];
+    if (!debouncedQuery || debouncedQuery.trim().length < 3) return [];
     const q = debouncedQuery.toLowerCase();
     return options.filter((loc) => {
       const name = String(loc.name || '').toLowerCase();
@@ -72,7 +72,7 @@ export function AutocompleteDropdown({ label, placeholder, value, onChange }) {
           onChange={(e) => {
             const next = e.target.value;
             setQuery(next);
-            setOpen(next.trim().length >= 5);
+            setOpen(next.trim().length >= 3);
             if (onChange && next === '') onChange(null);
           }}
           onFocus={() => setOpen(false)}
