@@ -9,16 +9,10 @@ export default function SafarExpressLogo() {
         </span>
 
         <div className="absolute inset-[-4px] rounded-full animate-[spin_5s_linear_infinite]">
-          <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 flex items-center justify-center w-7 h-7 bg-white rounded-full shadow-md border border-slate-100 rotate-90">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="text-slate-800 drop-shadow-sm transform -rotate-90"
-            >
-              <path d="M21.5 10.5l-3-3.5C17.5 6 16 5.5 14 5.5H7.5C5.5 5.5 4 6.5 3.2 8.5L2 12.5C1.5 13 1 13.5 1 14.5V16c0 1 .5 1.5 1.5 1.5H4c.5 1.5 2 2.5 3.5 2.5s3-.1 3.5-2.5h2c.5 1.5 2 2.5 3.5 2.5s3-1 3.5-2.5h1.5c1 0 1.5-.5 1.5-1.5v-3c0-1-.5-2-1.5-2.5z" />
-            </svg>
+          <div className="absolute -top-3 left-1/2 -translate-x-1/2 flex items-center justify-center w-6 h-6 bg-zinc-900 rounded-full shadow-[0_2px_5px_rgba(0,0,0,0.4)] border border-zinc-950">
+            <div className="flex items-center justify-center w-3.5 h-3.5 bg-zinc-300 rounded-full border-[2px] border-dashed border-zinc-500">
+              <div className="w-1 h-1 bg-zinc-800 rounded-full" />
+            </div>
           </div>
         </div>
       </div>
