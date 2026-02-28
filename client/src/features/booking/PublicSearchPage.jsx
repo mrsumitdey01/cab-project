@@ -90,8 +90,8 @@ export function PublicSearchPage() {
     setError('');
     setSuccess('');
     try {
-      const nextFrom = selectedFrom || (fromQuery.trim() ? { id: `custom-from-${fromQuery}`, name: fromQuery, keywords: [] } : null);
-      const nextTo = selectedTo || (toQuery.trim() ? { id: `custom-to-${toQuery}`, name: toQuery, keywords: [] } : null);
+      const nextFrom = selectedFrom || (fromQuery.trim() ? { id: `custom-from-${fromQuery}`, name: fromQuery, hub: fromQuery.trim(), keywords: [] } : null);
+      const nextTo = selectedTo || (toQuery.trim() ? { id: `custom-to-${toQuery}`, name: toQuery, hub: toQuery.trim(), keywords: [] } : null);
       if (nextFrom) {
         setSelectedFrom(nextFrom);
         setFormData((prev) => ({ ...prev, pickup: { address: nextFrom.name } }));
@@ -121,8 +121,8 @@ export function PublicSearchPage() {
       setSelection((prev) => ({
         ...prev,
         route: routeLabel,
-        fromHub: nextFrom?.hub || '',
-        toHub: nextTo?.hub || '',
+        fromHub: nextFrom?.hub || nextFrom?.name || '',
+        toHub: nextTo?.hub || nextTo?.name || '',
         cabType: defaultCab?.cabType || '',
         carModel: defaultCab?.carModel || '',
         multiplier: defaultCab?.multiplier || 1,
@@ -243,7 +243,8 @@ export function PublicSearchPage() {
               value={selectedFrom}
               onQueryChange={setFromQuery}
               onChange={(loc) => {
-                setSelectedFrom(loc);
+                const withHub = loc ? { ...loc, hub: loc.hub || loc.name || '' } : null;
+                setSelectedFrom(withHub);
                 setFormData((prev) => ({ ...prev, pickup: { address: loc?.name || '' } }));
               }}
             />
@@ -254,7 +255,8 @@ export function PublicSearchPage() {
               showPopular
               onQueryChange={setToQuery}
               onChange={(loc) => {
-                setSelectedTo(loc);
+                const withHub = loc ? { ...loc, hub: loc.hub || loc.name || '' } : null;
+                setSelectedTo(withHub);
                 setFormData((prev) => ({ ...prev, dropoff: { address: loc?.name || '' } }));
               }}
             />
