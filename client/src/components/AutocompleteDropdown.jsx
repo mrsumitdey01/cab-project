@@ -45,7 +45,7 @@ export function AutocompleteDropdown({ label, placeholder, value, onChange }) {
   }, []);
 
   const filtered = useMemo(() => {
-    if (!debouncedQuery) return options.slice(0, 20);
+    if (!debouncedQuery || debouncedQuery.trim().length < 5) return [];
     const q = debouncedQuery.toLowerCase();
     return options.filter((loc) => {
       const name = String(loc.name || '').toLowerCase();
@@ -70,11 +70,12 @@ export function AutocompleteDropdown({ label, placeholder, value, onChange }) {
           value={query}
           placeholder={placeholder}
           onChange={(e) => {
-            setQuery(e.target.value);
-            setOpen(true);
-            if (onChange && e.target.value === '') onChange(null);
+            const next = e.target.value;
+            setQuery(next);
+            setOpen(next.trim().length >= 5);
+            if (onChange && next === '') onChange(null);
           }}
-          onFocus={() => setOpen(true)}
+          onFocus={() => setOpen(false)}
           className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium appearance-none focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition"
           autoComplete="off"
         />
@@ -91,7 +92,6 @@ export function AutocompleteDropdown({ label, placeholder, value, onChange }) {
               <MapPin size={16} className="text-indigo-600" />
               <div>
                 <p className="text-sm font-semibold text-slate-800">{item.name}</p>
-                <p className="text-xs text-slate-500">Hub: {item.hub}</p>
               </div>
             </button>
           ))}
