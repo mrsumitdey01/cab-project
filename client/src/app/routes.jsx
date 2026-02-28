@@ -7,7 +7,7 @@ import { PublicSearchPage } from '../features/booking/PublicSearchPage';
 import { AdminPage } from '../features/admin/AdminPage';
 import { ProtectedRoute } from '../shared/ui/ProtectedRoute';
 import { useAuth } from '../shared/contexts/AuthContext';
-import { SafarExpressLogo } from '../components/SafarExpressLogo';
+import SafarExpressLogo from '../components/SafarExpressLogo';
 
 function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
