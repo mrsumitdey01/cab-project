@@ -31,6 +31,8 @@ export function PublicSearchPage() {
   const [bookingFormOpen, setBookingFormOpen] = useState(false);
   const [selection, setSelection] = useState({ route: '', cabType: '', carModel: '', multiplier: 1, fromHub: '', toHub: '' });
   const [selectedRoute, setSelectedRoute] = useState(null);
+  const [fromQuery, setFromQuery] = useState('');
+  const [toQuery, setToQuery] = useState('');
   const [selectedCab, setSelectedCab] = useState(null);
   const [selectedFrom, setSelectedFrom] = useState(null);
   const [selectedTo, setSelectedTo] = useState(null);
@@ -88,6 +90,14 @@ export function PublicSearchPage() {
     setError('');
     setSuccess('');
     try {
+      if (!selectedFrom && fromQuery.trim()) {
+        setSelectedFrom({ id: `custom-from-${fromQuery}`, name: fromQuery, keywords: [] });
+        setFormData((prev) => ({ ...prev, pickup: { address: fromQuery.trim() } }));
+      }
+      if (!selectedTo && toQuery.trim()) {
+        setSelectedTo({ id: `custom-to-${toQuery}`, name: toQuery, keywords: [] });
+        setFormData((prev) => ({ ...prev, dropoff: { address: toQuery.trim() } }));
+      }
       if (warmup.status !== 'ready') {
         setWarming('warming');
         await warmBackend();
@@ -96,7 +106,11 @@ export function PublicSearchPage() {
         setBookingFormOpen(true);
         return;
       }
-      const data = await searchTrips(formData);
+      const data = await searchTrips({
+        ...formData,
+        pickup: { address: selectedFrom?.name || fromQuery.trim() },
+        dropoff: { address: selectedTo?.name || toQuery.trim() },
+      });
       setResults(data);
       const routeLabel = `${selectedFrom?.hub || formData.pickup.address} → ${selectedTo?.hub || formData.dropoff.address}`;
       const defaultCab = data.cabs?.[0] || null;
@@ -139,6 +153,8 @@ export function PublicSearchPage() {
     setError('');
     setSuccess('');
     try {
+      const pickupAddress = selectedFrom?.name || fromQuery.trim() || formData.pickup.address;
+      const dropoffAddress = selectedTo?.name || toQuery.trim() || formData.dropoff.address;
       if (warmup.status !== 'ready') {
         setWarming('warming');
         await warmBackend();
@@ -158,6 +174,8 @@ export function PublicSearchPage() {
 
       const payload = {
         ...formData,
+        pickup: { address: pickupAddress },
+        dropoff: { address: dropoffAddress },
         selection: safeSelection,
         contact: isAuthenticated ? undefined : contact,
       };
@@ -221,6 +239,7 @@ export function PublicSearchPage() {
               label="From"
               placeholder="Enter Pickup Location"
               value={selectedFrom}
+              onQueryChange={setFromQuery}
               onChange={(loc) => {
                 setSelectedFrom(loc);
                 setFormData((prev) => ({ ...prev, pickup: { address: loc?.name || '' } }));
@@ -231,6 +250,7 @@ export function PublicSearchPage() {
               placeholder="Enter Drop Location"
               value={selectedTo}
               showPopular
+              onQueryChange={setToQuery}
               onChange={(loc) => {
                 setSelectedTo(loc);
                 setFormData((prev) => ({ ...prev, dropoff: { address: loc?.name || '' } }));

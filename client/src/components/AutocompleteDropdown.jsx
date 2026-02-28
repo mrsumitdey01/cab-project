@@ -11,7 +11,14 @@ function useDebouncedValue(value, delay) {
   return debounced;
 }
 
-export function AutocompleteDropdown({ label, placeholder, value, onChange, showPopular = false }) {
+export function AutocompleteDropdown({
+  label,
+  placeholder,
+  value,
+  onChange,
+  onQueryChange,
+  showPopular = false,
+}) {
   const [options, setOptions] = useState([]);
   const [query, setQuery] = useState(value?.name || '');
   const [open, setOpen] = useState(false);
@@ -80,6 +87,7 @@ export function AutocompleteDropdown({ label, placeholder, value, onChange, show
             setQuery(next);
             setOpen(next.trim().length >= minChars);
             if (onChange && next === '') onChange(null);
+            if (onQueryChange) onQueryChange(next);
           }}
           onFocus={() => setOpen(showPopular)}
           className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium appearance-none focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition"
