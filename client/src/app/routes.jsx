@@ -22,7 +22,7 @@ function Navbar() {
       <div className="max-w-6xl mx-auto p-4 flex items-center justify-between">
         <Link to="/" className="font-bold text-2xl flex items-center gap-3">
           <span className="brand-logo" aria-label="Safarexpress Cab">
-          <span className="brand-se">SX</span>
+          <span className="brand-se">SE</span>
             <span className="brand-road" />
           </span>
           <span className="brand-name">Safarexpress Cab</span>
