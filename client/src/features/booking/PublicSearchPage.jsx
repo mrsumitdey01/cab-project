@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { CalendarDays, Clock, ShieldCheck, Headphones, BadgeCheck, Sparkles, LocateFixed } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { searchTrips, createPublicBooking, createBooking } from '../../shared/api/endpoints';
