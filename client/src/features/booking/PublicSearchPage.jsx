@@ -179,7 +179,7 @@ export function PublicSearchPage() {
         pickup: { address: pickupAddress },
         dropoff: { address: dropoffAddress },
         selection: safeSelection,
-        contact: isAuthenticated ? undefined : contact,
+        contact,
       };
 
       await (isAuthenticated
