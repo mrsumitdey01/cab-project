@@ -230,6 +230,7 @@ export function PublicSearchPage() {
               label="To"
               placeholder="Enter Drop Location"
               value={selectedTo}
+              showPopular
               onChange={(loc) => {
                 setSelectedTo(loc);
                 setFormData((prev) => ({ ...prev, dropoff: { address: loc?.name || '' } }));
