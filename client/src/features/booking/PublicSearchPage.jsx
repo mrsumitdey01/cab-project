@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { CalendarDays, Clock, ShieldCheck, Headphones, BadgeCheck, Sparkles, LocateFixed } from 'lucide-react';
+import { CalendarDays, Clock, ShieldCheck, Headphones, BadgeCheck, Sparkles, LocateFixed, Phone, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { searchTrips, createPublicBooking, createBooking } from '../../shared/api/endpoints';
 import { Alert } from '../../shared/ui/Alert';
@@ -234,6 +234,25 @@ export function PublicSearchPage() {
         </div>
 
         <form onSubmit={handleSearch} className="p-6 md:p-10 bg-white/70">
+          <div className="mb-6">
+            <p className="text-sm text-gray-500 font-medium mb-3">Reach out to us instantly:</p>
+            <div className="flex gap-3 mb-6 border-b border-gray-100 pb-6">
+              <button
+                type="button"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#25D366] text-white hover:bg-[#20bd5a] transition-colors"
+              >
+                <MessageCircle size={18} />
+                WhatsApp
+              </button>
+              <button
+                type="button"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                <Phone size={18} />
+                Call Us
+              </button>
+            </div>
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 relative">
             <AutocompleteDropdown
               label="From"
