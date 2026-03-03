@@ -371,7 +371,7 @@ export function PublicSearchPage() {
                 />
               </div>
             </div>
-            <div className="flex flex-col justify-end h-full">
+            <div className="flex flex-col justify-center h-full">
               <button
                 className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg shadow-[0_8px_20px_-6px_rgba(59,130,246,0.6)] hover:shadow-[0_12px_25px_-6px_rgba(59,130,246,0.7)] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
                 disabled={loading || warmup.status !== 'ready'}
