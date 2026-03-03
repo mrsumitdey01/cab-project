@@ -97,6 +97,22 @@ export function PublicSearchPage() {
     }));
   }
 
+  function handleSwapLocations() {
+    setSelectedFrom((prev) => {
+      setSelectedTo(prev);
+      return selectedTo;
+    });
+    setFromQuery((prev) => {
+      setToQuery(prev);
+      return toQuery;
+    });
+    setFormData((prev) => ({
+      ...prev,
+      pickup: prev.dropoff,
+      dropoff: prev.pickup,
+    }));
+  }
+
   async function handleSearch(e) {
     e.preventDefault();
     setLoading(true);
@@ -260,49 +276,68 @@ export function PublicSearchPage() {
       </div>
 
       <div className="glass-card bg-white/70 backdrop-blur-xl border border-white/40 shadow-2xl rounded-3xl overflow-hidden">
-        <div className="flex border-b border-slate-100 bg-white/60 p-2 gap-2 overflow-x-auto">
+        <div className="px-6 pt-6">
+          <div className="flex bg-slate-100 rounded-full p-1.5 gap-2 overflow-x-auto">
           {TRIP_TYPES.map((tab) => (
             <button
               key={tab}
               onClick={() => setFormData((prev) => ({ ...prev, tripType: tab }))}
-              className={`flex-1 py-3 px-4 text-center text-sm font-bold whitespace-nowrap rounded-xl transition-all duration-300 ${
-                formData.tripType === tab ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:bg-white'
+              className={`flex-1 py-2.5 px-4 text-center text-sm font-bold whitespace-nowrap rounded-full transition-all duration-300 ${
+                formData.tripType === tab ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
               }`}
             >
               {tab.replace('_', ' ')}
             </button>
           ))}
+          </div>
         </div>
 
         <form onSubmit={handleSearch} className="p-6 md:p-10 bg-white/70">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 relative">
-            <AutocompleteDropdown
-              label="From"
-              placeholder="Enter Pickup Location"
-              value={selectedFrom}
-              onQueryChange={setFromQuery}
-              onChange={(loc) => {
-                const withHub = loc ? { ...loc, hub: loc.hub || loc.name || '' } : null;
-                setSelectedFrom(withHub);
-                setFormData((prev) => ({ ...prev, pickup: { address: loc?.name || '' } }));
-              }}
-            />
-            <AutocompleteDropdown
-              label="To"
-              placeholder="Enter Drop Location"
-              value={selectedTo}
-              showPopular
-              onQueryChange={setToQuery}
-              onChange={(loc) => {
-                const withHub = loc ? { ...loc, hub: loc.hub || loc.name || '' } : null;
-                setSelectedTo(withHub);
-                setFormData((prev) => ({ ...prev, dropoff: { address: loc?.name || '' } }));
-              }}
-            />
+            <div className="bg-slate-50 hover:bg-slate-100/50 border border-slate-200 rounded-2xl p-4 transition-all duration-200 focus-within:bg-white focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-500/10">
+              <AutocompleteDropdown
+                label="From"
+                placeholder="Enter Pickup Location"
+                value={selectedFrom}
+                onQueryChange={setFromQuery}
+                onChange={(loc) => {
+                  const withHub = loc ? { ...loc, hub: loc.hub || loc.name || '' } : null;
+                  setSelectedFrom(withHub);
+                  setFormData((prev) => ({ ...prev, pickup: { address: loc?.name || '' } }));
+                }}
+              />
+            </div>
+            <div className="bg-slate-50 hover:bg-slate-100/50 border border-slate-200 rounded-2xl p-4 transition-all duration-200 focus-within:bg-white focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-500/10">
+              <AutocompleteDropdown
+                label="To"
+                placeholder="Enter Drop Location"
+                value={selectedTo}
+                showPopular
+                onQueryChange={setToQuery}
+                onChange={(loc) => {
+                  const withHub = loc ? { ...loc, hub: loc.hub || loc.name || '' } : null;
+                  setSelectedTo(withHub);
+                  setFormData((prev) => ({ ...prev, dropoff: { address: loc?.name || '' } }));
+                }}
+              />
+            </div>
+            <button
+              type="button"
+              onClick={handleSwapLocations}
+              className="hidden md:flex items-center justify-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white shadow-md border border-slate-100 rounded-full p-2 z-10 hover:bg-slate-50 hover:rotate-180 transition-transform duration-300"
+              aria-label="Swap locations"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 3l4 4-4 4" />
+                <path d="M20 7H9" />
+                <path d="M8 21l-4-4 4-4" />
+                <path d="M4 17h11" />
+              </svg>
+            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
-            <div>
+            <div className="bg-slate-50 hover:bg-slate-100/50 border border-slate-200 rounded-2xl p-4 transition-all duration-200 focus-within:bg-white focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-500/10">
               <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Pick-Up Date</label>
               <div className="relative">
                 <CalendarDays className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-600" size={18} />
@@ -312,12 +347,12 @@ export function PublicSearchPage() {
                   value={formData.schedule.pickupDate}
                   onChange={handleSearchChange}
                   onClick={(e) => e.currentTarget.showPicker && e.currentTarget.showPicker()}
-                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium cursor-pointer hover:bg-slate-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500"
+                  className="w-full pl-11 pr-4 py-4 bg-transparent text-slate-700 font-medium cursor-pointer hover:bg-transparent transition-colors focus:outline-none"
                   required
                 />
               </div>
             </div>
-            <div>
+            <div className="bg-slate-50 hover:bg-slate-100/50 border border-slate-200 rounded-2xl p-4 transition-all duration-200 focus-within:bg-white focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-500/10">
               <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Pick-Up Time</label>
               <div className="relative">
                 <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-600" size={18} />
@@ -327,13 +362,13 @@ export function PublicSearchPage() {
                   value={formData.schedule.pickupTime}
                   onChange={handleSearchChange}
                   onClick={(e) => e.currentTarget.showPicker && e.currentTarget.showPicker()}
-                  className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium cursor-pointer hover:bg-slate-50 transition-colors focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500"
+                  className="w-full pl-11 pr-4 py-4 bg-transparent text-slate-700 font-medium cursor-pointer hover:bg-transparent transition-colors focus:outline-none"
                   required
                 />
               </div>
             </div>
             <button
-              className="py-4 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 text-white font-bold text-lg shadow-lg hover:brightness-110 hover:shadow-indigo-500/30 transform hover:-translate-y-1 transition-all disabled:opacity-50"
+              className="py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg shadow-[0_8px_20px_-6px_rgba(59,130,246,0.5)] hover:-translate-y-0.5 hover:brightness-110 transition-all disabled:opacity-50"
               disabled={loading || warmup.status !== 'ready'}
             >
               {loading ? 'Searching...' : warmup.status !== 'ready' ? 'Connecting...' : 'Book Cab'}
