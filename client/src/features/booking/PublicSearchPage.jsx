@@ -277,13 +277,13 @@ export function PublicSearchPage() {
 
       <div className="glass-card bg-white/70 backdrop-blur-xl border border-white/40 shadow-[0_20px_60px_-15px_rgba(59,130,246,0.15)] rounded-3xl overflow-hidden">
         <div className="px-6 pt-6">
-          <div className="flex bg-slate-100 rounded-full p-1.5 gap-2 overflow-x-auto">
+          <div className="flex bg-slate-200/60 rounded-full p-1.5 gap-2 overflow-x-auto">
           {TRIP_TYPES.map((tab) => (
             <button
               key={tab}
               onClick={() => setFormData((prev) => ({ ...prev, tripType: tab }))}
-              className={`flex-1 py-2.5 px-4 text-center text-sm font-bold whitespace-nowrap rounded-full transition-all duration-300 ${
-                formData.tripType === tab ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'
+              className={`flex-1 py-2.5 px-4 text-center text-sm whitespace-nowrap rounded-full transition-all duration-300 ${
+                formData.tripType === tab ? 'bg-white text-blue-600 font-bold shadow-md' : 'text-slate-600 font-semibold hover:text-slate-900'
               }`}
             >
               {tab.replace('_', ' ')}
@@ -371,16 +371,17 @@ export function PublicSearchPage() {
                 />
               </div>
             </div>
-            <button
-              className="h-full w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg shadow-[0_8px_20px_-6px_rgba(59,130,246,0.5)] hover:-translate-y-0.5 hover:brightness-110 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-              disabled={loading || warmup.status !== 'ready'}
-            >
-              {loading ? 'Searching...' : warmup.status !== 'ready' ? 'Connecting...' : 'Book Cab'}
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M5 12h14" />
-                <path d="M13 5l7 7-7 7" />
-              </svg>
-            </button>
+            <div className="flex flex-col justify-end h-full">
+              <button
+                className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg shadow-[0_8px_20px_-6px_rgba(59,130,246,0.6)] hover:shadow-[0_12px_25px_-6px_rgba(59,130,246,0.7)] hover:-translate-y-0.5 transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
+                disabled={loading || warmup.status !== 'ready'}
+              >
+                {loading ? 'Searching...' : warmup.status !== 'ready' ? 'Connecting...' : 'Book Cab'}
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </button>
+            </div>
           </div>
         </form>
       </div>
