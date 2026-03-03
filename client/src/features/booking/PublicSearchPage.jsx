@@ -324,7 +324,7 @@ export function PublicSearchPage() {
             <button
               type="button"
               onClick={handleSwapLocations}
-              className="hidden md:flex items-center justify-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white shadow-md border border-slate-100 rounded-full p-2 z-10 hover:bg-slate-50 hover:rotate-180 transition-transform duration-300"
+              className="hidden md:flex items-center justify-center absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white shadow-lg p-2.5 rounded-full z-20 hover:scale-110 hover:shadow-xl transition-all duration-200"
               aria-label="Swap locations"
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#334155" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -336,42 +336,50 @@ export function PublicSearchPage() {
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
             <div className="bg-slate-50 hover:bg-slate-100/50 border border-slate-200 rounded-2xl p-4 transition-all duration-200 focus-within:bg-white focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-500/10">
-              <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Pick-Up Date</label>
+              <label className="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Pick-Up Date</label>
               <div className="relative">
-                <CalendarDays className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-600" size={18} />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 bg-blue-50/50 text-blue-600 p-2 rounded-full">
+                  <CalendarDays size={16} />
+                </div>
                 <input
                   type="date"
                   name="pickupDate"
                   value={formData.schedule.pickupDate}
                   onChange={handleSearchChange}
                   onClick={(e) => e.currentTarget.showPicker && e.currentTarget.showPicker()}
-                  className="w-full pl-11 pr-4 py-4 bg-transparent text-slate-700 font-medium cursor-pointer hover:bg-transparent transition-colors focus:outline-none"
+                  className="w-full pl-14 pr-4 py-4 bg-transparent text-slate-700 font-medium cursor-pointer hover:bg-transparent transition-colors focus:outline-none"
                   required
                 />
               </div>
             </div>
             <div className="bg-slate-50 hover:bg-slate-100/50 border border-slate-200 rounded-2xl p-4 transition-all duration-200 focus-within:bg-white focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-500/10">
-              <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">Pick-Up Time</label>
+              <label className="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Pick-Up Time</label>
               <div className="relative">
-                <Clock className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-600" size={18} />
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 bg-blue-50/50 text-blue-600 p-2 rounded-full">
+                  <Clock size={16} />
+                </div>
                 <input
                   type="time"
                   name="pickupTime"
                   value={formData.schedule.pickupTime}
                   onChange={handleSearchChange}
                   onClick={(e) => e.currentTarget.showPicker && e.currentTarget.showPicker()}
-                  className="w-full pl-11 pr-4 py-4 bg-transparent text-slate-700 font-medium cursor-pointer hover:bg-transparent transition-colors focus:outline-none"
+                  className="w-full pl-14 pr-4 py-4 bg-transparent text-slate-700 font-medium cursor-pointer hover:bg-transparent transition-colors focus:outline-none"
                   required
                 />
               </div>
             </div>
             <button
-              className="py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg shadow-[0_8px_20px_-6px_rgba(59,130,246,0.5)] hover:-translate-y-0.5 hover:brightness-110 transition-all disabled:opacity-50"
+              className="h-full w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg shadow-[0_8px_20px_-6px_rgba(59,130,246,0.5)] hover:-translate-y-0.5 hover:brightness-110 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
               disabled={loading || warmup.status !== 'ready'}
             >
               {loading ? 'Searching...' : warmup.status !== 'ready' ? 'Connecting...' : 'Book Cab'}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M5 12h14" />
+                <path d="M13 5l7 7-7 7" />
+              </svg>
             </button>
           </div>
         </form>
