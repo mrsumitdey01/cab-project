@@ -55,7 +55,6 @@ function statusBadge(status) {
   if (status === 'CANCELLED') return `${base} bg-rose-100 text-rose-700`;
   return `${base} bg-amber-100 text-amber-700`;
 }
-
 export function AdminPage() {
   const [health, setHealth] = useState(null);
   const [logs, setLogs] = useState([]);
@@ -79,6 +78,7 @@ export function AdminPage() {
   const [editingBooking, setEditingBooking] = useState(null);
   const [passengerModalOpen, setPassengerModalOpen] = useState(false);
   const [selectedPassenger, setSelectedPassenger] = useState(null);
+  const [exportingBookings, setExportingBookings] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -106,6 +106,50 @@ export function AdminPage() {
     const interval = setInterval(load, 15000);
     return () => clearInterval(interval);
   }, [load]);
+
+  async function exportBookingsCsv() {
+    setExportingBookings(true);
+    try {
+      const header = [
+        'Booking ID',
+        'Status',
+        'Customer',
+        'Pickup',
+        'Dropoff',
+        'Pickup Date',
+        'Pickup Time',
+        'Cab Type',
+        'Car Model',
+        'Fare',
+      ];
+      const rows = bookings.map((b) => ([
+        b._id,
+        b.status,
+        b.passengerId?.name || b.contact?.name || b.user?.name || b.contact?.email || b.user?.email || 'Guest',
+        b.pickup?.address || '',
+        b.dropoff?.address || '',
+        b.schedule?.pickupDate || '',
+        b.schedule?.pickupTime || '',
+        b.selection?.cabType || '',
+        b.selection?.carModel || '',
+        b.fare?.totalAmount ?? '',
+      ]));
+      const csv = [header, ...rows]
+        .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `safar-express-admin-bookings-${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } finally {
+      setExportingBookings(false);
+    }
+  }
 
   async function handleStatusUpdate(e) {
     e.preventDefault();
@@ -250,18 +294,45 @@ export function AdminPage() {
       .sort((a, b) => b.total - a.total)
       .slice(0, 5);
   }, [bookings]);
-
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <div>
-          <p className="text-sm uppercase tracking-widest text-slate-400 font-semibold">Operations Center</p>
-          <h1 className="text-3xl font-bold text-slate-900">Admin Console</h1>
-        </div>
-        <div className="flex items-center gap-3">
-          <button onClick={load} className="px-4 py-2 rounded-xl bg-white/70 border border-white/60 shadow-sm hover:shadow-indigo-500/20 transition-shadow">Refresh</button>
-          <span className="text-sm font-semibold bg-amber-100 text-amber-800 px-3 py-1 rounded-full">{alertCount} new bookings</span>
-          <span className="text-sm font-semibold bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">{bookings.length} total bookings</span>
+      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 text-white p-6 shadow-2xl mb-8">
+        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.35),_transparent_55%)]" />
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+          <div className="space-y-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="text-xs uppercase tracking-[0.25em] text-white/70 font-semibold">Safar Express</span>
+              <span className="px-3 py-1 rounded-full bg-white/10 text-xs font-semibold">Operations Center</span>
+            </div>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-bold">Welcome back, Admin</h1>
+              <p className="text-sm text-white/70">Last refreshed {new Date().toLocaleString()}</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {['Dashboard', 'Bookings', 'Routes', 'Cabs', 'Analytics'].map((item) => (
+                <span key={item} className="px-3 py-1.5 rounded-full bg-white/10 text-xs font-semibold">
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
+          <div className="bg-white/10 border border-white/20 rounded-2xl p-4 w-full lg:w-80 backdrop-blur">
+            <p className="text-xs uppercase tracking-widest text-white/70 font-semibold">Quick Actions</p>
+            <div className="mt-4 space-y-2">
+              <button onClick={() => setRouteModalOpen(true)} className="w-full px-4 py-2 rounded-xl bg-white text-slate-900 font-semibold hover:bg-white/90 transition">Create Route</button>
+              <button onClick={() => setCabModalOpen(true)} className="w-full px-4 py-2 rounded-xl bg-white/15 border border-white/30 font-semibold hover:bg-white/20 transition">Add Cab</button>
+              <div className="flex gap-2">
+                <button onClick={load} className="flex-1 px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-sm font-semibold hover:bg-white/20 transition">Refresh</button>
+                <button onClick={exportBookingsCsv} className="flex-1 px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-sm font-semibold hover:bg-white/20 transition">
+                  {exportingBookings ? 'Exporting…' : 'Export CSV'}
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2 pt-2">
+                <span className="text-xs font-semibold bg-amber-200/20 text-amber-100 px-2 py-1 rounded-full">{alertCount} new bookings</span>
+                <span className="text-xs font-semibold bg-emerald-200/20 text-emerald-100 px-2 py-1 rounded-full">{bookings.length} total bookings</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -458,7 +529,6 @@ export function AdminPage() {
           </table>
         </div>
       </div>
-
       {routeModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 modal-backdrop">
           <div className="glass-card w-full max-w-3xl rounded-2xl shadow-2xl p-6 relative modal-panel">
@@ -582,5 +652,3 @@ export function AdminPage() {
     </div>
   );
 }
-
-

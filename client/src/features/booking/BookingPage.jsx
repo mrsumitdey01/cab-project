@@ -28,12 +28,21 @@ function classifyBooking(booking) {
   return 'past';
 }
 
+function statusBadge(status) {
+  const base = 'px-2.5 py-1 rounded-full text-xs font-semibold';
+  if (status === 'CONFIRMED') return `${base} bg-emerald-100 text-emerald-700`;
+  if (status === 'COMPLETED') return `${base} bg-indigo-100 text-indigo-700`;
+  if (status === 'CANCELLED') return `${base} bg-rose-100 text-rose-700`;
+  return `${base} bg-amber-100 text-amber-700`;
+}
+
 export function BookingPage() {
   const [bookings, setBookings] = useState([]);
   const [activeTab, setActiveTab] = useState('present');
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  const [exporting, setExporting] = useState(false);
 
   async function loadBookings() {
     try {
@@ -80,14 +89,65 @@ export function BookingPage() {
     cancelled: bookings.filter((b) => b.status === 'CANCELLED').length,
   }), [bookings]);
 
+  const nextRide = useMemo(() => {
+    const future = bookings
+      .filter((b) => classifyBooking(b) === 'planned')
+      .map((b) => ({ booking: b, date: parsePickupDateTime(b) }))
+      .filter((b) => b.date && !Number.isNaN(b.date.getTime()))
+      .sort((a, b) => a.date - b.date);
+    return future[0]?.booking || null;
+  }, [bookings]);
+
+  async function exportCsv() {
+    setExporting(true);
+    try {
+      const header = [
+        'Booking ID',
+        'Status',
+        'Pickup',
+        'Dropoff',
+        'Pickup Date',
+        'Pickup Time',
+        'Cab Type',
+        'Car Model',
+        'Fare',
+      ];
+      const rows = bookings.map((b) => ([
+        b._id,
+        b.status,
+        b.pickup?.address || '',
+        b.dropoff?.address || '',
+        b.schedule?.pickupDate || '',
+        b.schedule?.pickupTime || '',
+        b.selection?.cabType || '',
+        b.selection?.carModel || '',
+        b.fare?.totalAmount ?? '',
+      ]));
+      const csv = [header, ...rows]
+        .map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(','))
+        .join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `safar-express-bookings-${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
-    <div className="max-w-5xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
         <div>
           <p className="text-sm uppercase tracking-widest text-slate-400 font-semibold">Customer Dashboard</p>
           <h1 className="text-3xl font-bold text-slate-900">My Bookings</h1>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="bg-white/70 border border-white/60 rounded-2xl px-4 py-2 shadow-sm">
             <p className="text-xs text-slate-400 uppercase tracking-widest">Total</p>
             <p className="text-lg font-bold">{stats.total}</p>
@@ -104,8 +164,31 @@ export function BookingPage() {
             <p className="text-xs text-rose-500 uppercase tracking-widest">Cancelled</p>
             <p className="text-lg font-bold">{stats.cancelled}</p>
           </div>
+          <button
+            type="button"
+            onClick={exportCsv}
+            className="px-4 py-2 rounded-xl bg-white/80 border border-white/60 shadow-sm hover:shadow-indigo-500/20 transition-shadow"
+          >
+            {exporting ? 'Exporting…' : 'Export CSV'}
+          </button>
         </div>
       </div>
+
+      {nextRide && (
+        <div className="mb-6 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-5 shadow-lg">
+          <p className="text-xs uppercase tracking-widest text-white/70">Next Ride</p>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mt-2">
+            <div>
+              <p className="text-lg font-semibold">{nextRide.pickup?.address} → {nextRide.dropoff?.address}</p>
+              <p className="text-sm text-white/80">
+                {nextRide.schedule?.pickupDate} {nextRide.schedule?.pickupTime || ''} · {nextRide.selection?.cabType || 'Cab'} {nextRide.selection?.carModel ? `(${nextRide.selection?.carModel})` : ''}
+              </p>
+            </div>
+            <span className="px-3 py-1 rounded-full bg-white/20 text-sm font-semibold">{nextRide.status}</span>
+          </div>
+        </div>
+      )}
+
       <div className="flex gap-2 mb-6">
         {tabs.map((tab) => (
           <button key={tab} onClick={() => setActiveTab(tab)} className={`px-4 py-2 rounded-xl font-semibold ${activeTab === tab ? 'bg-indigo-600 text-white' : 'bg-white/70 text-slate-700 border border-white/70 shadow-sm'}`}>
@@ -133,16 +216,25 @@ export function BookingPage() {
         </select>
       </div>
       <Alert type="error" message={error} />
-      <div className="space-y-3">
+      <div className="space-y-4">
         {filtered.map((booking) => (
-          <div key={booking._id} className="border rounded-2xl p-4 bg-white/80 shadow-sm hover:shadow-indigo-500/20 transition-shadow">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="font-semibold">{booking.pickup?.address} -> {booking.dropoff?.address}</p>
-                <p className="text-sm text-slate-500">{booking.tripType} | {booking.status}</p>
-                <p className="text-sm text-slate-500">Route: {booking.selection?.route || 'N/A'} | Cab: {booking.selection?.cabType || 'N/A'} | Model: {booking.selection?.carModel || 'N/A'}</p>
+          <div key={booking._id} className="border rounded-2xl p-5 bg-white/85 shadow-sm hover:shadow-indigo-500/20 transition-shadow">
+            <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold text-slate-900">{booking.pickup?.address} → {booking.dropoff?.address}</p>
+                  <span className={statusBadge(booking.status)}>{booking.status}</span>
+                </div>
+                <p className="text-sm text-slate-500">{booking.tripType} · {booking.schedule?.pickupDate} {booking.schedule?.pickupTime || ''}</p>
+                <p className="text-sm text-slate-500">
+                  Route: {booking.selection?.route || 'N/A'} · Cab: {booking.selection?.cabType || 'N/A'} · Model: {booking.selection?.carModel || 'N/A'}
+                </p>
+                <p className="text-xs text-slate-400">Booking ID: {booking._id}</p>
               </div>
-              <p className="font-bold">₹{booking.fare?.totalAmount}</p>
+              <div className="text-right">
+                <p className="text-xs uppercase text-slate-400">Fare</p>
+                <p className="text-2xl font-bold text-indigo-600">₹{booking.fare?.totalAmount ?? 0}</p>
+              </div>
             </div>
           </div>
         ))}
