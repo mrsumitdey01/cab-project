@@ -75,9 +75,11 @@ export function AutocompleteDropdown({
 
   return (
     <div className="relative" ref={containerRef}>
-      <label className="block text-xs font-bold text-slate-400 mb-2 uppercase tracking-wider">{label}</label>
+      <label className="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">{label}</label>
       <div className="relative">
-        <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-600" size={18} />
+        <div className="absolute left-4 top-1/2 -translate-y-1/2 flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-600 mr-3">
+          <MapPin size={16} />
+        </div>
         <input
           type="text"
           value={query}
@@ -90,7 +92,7 @@ export function AutocompleteDropdown({
             if (onQueryChange) onQueryChange(next);
           }}
           onFocus={() => setOpen(showPopular)}
-          className="w-full pl-11 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium appearance-none focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition"
+          className="w-full pl-14 pr-4 py-4 bg-white/80 border border-white/40 rounded-xl text-slate-700 font-medium placeholder:text-slate-400 appearance-none focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition"
           autoComplete="off"
         />
       </div>
