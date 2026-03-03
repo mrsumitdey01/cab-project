@@ -355,6 +355,52 @@ export function AdminPage() {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        <div className="bg-white/80 p-6 rounded-2xl shadow lg:col-span-2">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Admin Shortcuts</h2>
+            <span className="text-xs text-slate-500">Quick actions</span>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="rounded-2xl border border-white/60 bg-white/70 p-4">
+              <p className="text-xs uppercase text-slate-400 font-semibold">Route Health</p>
+              <p className="text-lg font-bold mt-2">{routes.length} active</p>
+              <p className="text-xs text-slate-500 mt-1">Review pricing & availability</p>
+            </div>
+            <div className="rounded-2xl border border-white/60 bg-white/70 p-4">
+              <p className="text-xs uppercase text-slate-400 font-semibold">Cab Readiness</p>
+              <p className="text-lg font-bold mt-2">{cabs.length} listed</p>
+              <p className="text-xs text-slate-500 mt-1">Update multipliers & dates</p>
+            </div>
+            <div className="rounded-2xl border border-white/60 bg-white/70 p-4">
+              <p className="text-xs uppercase text-slate-400 font-semibold">Today’s Demand</p>
+              <p className="text-lg font-bold mt-2">{groupedBookings.present.length} trips</p>
+              <p className="text-xs text-slate-500 mt-1">Monitor live operations</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-white/80 p-6 rounded-2xl shadow">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold">Favourite Links</h2>
+            <span className="text-xs text-slate-500">Pinned</span>
+          </div>
+          <div className="space-y-3 text-sm text-slate-600">
+            {[
+              'Daily booking report',
+              'Pending confirmations',
+              'High value routes',
+              'Driver onboarding',
+              'Customer escalation',
+            ].map((item) => (
+              <div key={item} className="flex items-center justify-between rounded-xl border border-white/60 bg-white/70 px-3 py-2">
+                <span>{item}</span>
+                <span className="text-xs text-indigo-600 font-semibold">Open</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         <div className="bg-white/80 p-6 rounded-2xl shadow">
           <h2 className="text-xl font-semibold mb-4">Health Summary</h2>
