@@ -8,7 +8,7 @@ import { getWarmState, warmBackend } from '../../shared/api/warmup';
 import { useWarmup } from '../../shared/contexts/WarmupContext';
 import { AutocompleteDropdown } from '../../components/AutocompleteDropdown';
 
-const TRIP_TYPES = ['ONE_WAY', 'ROUND_TRIP', 'AIRPORT', 'HOURLY'];
+const TRIP_TYPES = ['ONE_WAY', 'ROUND_TRIP', 'HOURLY'];
 const FLAT_RATE_MATRIX = {
   'Delhi-Noida': 800,
   'Gurgaon-Delhi': 1000,
