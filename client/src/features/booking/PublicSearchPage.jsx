@@ -206,12 +206,20 @@ export function PublicSearchPage() {
           multiplier: selectedCab?.multiplier || results?.cabs?.[0]?.multiplier || 1,
         };
 
+      const contactPayload = {
+        name: contact.name,
+        phone: contact.phone,
+      };
+      if (contact.email && contact.email.trim()) {
+        contactPayload.email = contact.email.trim();
+      }
+
       const payload = {
         ...formData,
         pickup: { address: pickupAddress },
         dropoff: { address: dropoffAddress },
         selection: safeSelection,
-        contact,
+        contact: contactPayload,
       };
 
       const requestIdempotencyKey = buildIdempotencyKey();
