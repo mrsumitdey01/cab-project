@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { LoginPage } from '../features/auth/LoginPage';
 import { RegisterPage } from '../features/auth/RegisterPage';
 import { BookingPage } from '../features/booking/BookingPage';
@@ -13,14 +13,31 @@ function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+  const headerRef = useRef(null);
 
   async function handleLogout() {
     await logout();
     navigate('/login');
   }
 
+  useEffect(() => {
+    setIsOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (!isOpen) return;
+      if (headerRef.current && !headerRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
+
   return (
-    <header className="bg-white/80 backdrop-blur-md shadow-sm border-b sticky top-0 z-50">
+    <header ref={headerRef} className="bg-white/80 backdrop-blur-md shadow-sm border-b sticky top-0 z-50">
       <div className="max-w-6xl mx-auto p-4 flex items-center justify-between relative">
         <Link to="/" className="cursor-pointer">
           <SafarExpressLogo />
