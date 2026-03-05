@@ -5,6 +5,8 @@ import { RegisterPage } from '../features/auth/RegisterPage';
 import { BookingPage } from '../features/booking/BookingPage';
 import { PublicSearchPage } from '../features/booking/PublicSearchPage';
 import { AdminPage } from '../features/admin/AdminPage';
+import { PrivacyPolicyPage } from '../features/legal/PrivacyPolicyPage';
+import { TermsOfServicePage } from '../features/legal/TermsOfServicePage';
 import { ProtectedRoute } from '../shared/ui/ProtectedRoute';
 import { useAuth } from '../shared/contexts/AuthContext';
 import SafarExpressLogo from '../components/SafarExpressLogo';
@@ -134,6 +136,7 @@ function Navbar() {
 
 export function AppRoutes() {
   const { user, isAuthenticated } = useAuth();
+  const [isCorporateModalOpen, setIsCorporateModalOpen] = useState(false);
 
   return (
     <div className="min-h-screen mesh-gradient text-slate-800 antialiased flex flex-col">
@@ -141,6 +144,8 @@ export function AppRoutes() {
       <div className="flex-1">
         <Routes>
           <Route path="/" element={<PublicSearchPage />} />
+          <Route path="/privacy" element={<PrivacyPolicyPage />} />
+          <Route path="/terms" element={<TermsOfServicePage />} />
           <Route path="/login" element={isAuthenticated ? <Navigate to={user?.role === 'admin' ? '/admin' : '/bookings'} replace /> : <LoginPage />} />
           <Route path="/register" element={isAuthenticated ? <Navigate to="/bookings" replace /> : <RegisterPage />} />
           <Route
@@ -178,13 +183,21 @@ export function AppRoutes() {
                 <li><Link className="hover:text-white transition-colors" to="/">Search</Link></li>
                 <li><Link className="hover:text-white transition-colors" to="/bookings">Bookings</Link></li>
                 <li><Link className="hover:text-white transition-colors" to="/admin">Admin</Link></li>
+                <li>
+                  <button
+                    onClick={() => setIsCorporateModalOpen(true)}
+                    className="text-slate-400 hover:text-white transition-colors"
+                  >
+                    Corporate Partnerships
+                  </button>
+                </li>
               </ul>
             </div>
             <div>
               <p className="text-sm font-semibold text-white mb-3">Legal</p>
               <ul className="space-y-2 text-sm">
-                <li><span className="hover:text-white transition-colors cursor-pointer">Privacy Policy</span></li>
-                <li><span className="hover:text-white transition-colors cursor-pointer">Terms of Service</span></li>
+                <li><Link className="hover:text-white transition-colors" to="/privacy">Privacy Policy</Link></li>
+                <li><Link className="hover:text-white transition-colors" to="/terms">Terms of Service</Link></li>
               </ul>
             </div>
           </div>
@@ -193,6 +206,49 @@ export function AppRoutes() {
           © 2026 Safar Express. All rights reserved.
         </div>
       </footer>
+      {isCorporateModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative">
+            <button
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
+              onClick={() => setIsCorporateModalOpen(false)}
+              aria-label="Close"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div className="p-6 border-b border-slate-100">
+              <h3 className="text-xl font-semibold text-slate-900">Partner with Safar Express</h3>
+              <p className="text-sm text-slate-500 mt-1">Reliable corporate fleets and hotel transfers.</p>
+            </div>
+            <form className="p-6 space-y-4">
+              <input className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Company / Hotel Name" />
+              <input className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contact Person" />
+              <input type="email" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Official Email" />
+              <input type="tel" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Phone Number" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <select className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option>Delhi NCR</option>
+                  <option>Mumbai</option>
+                  <option>Bengaluru</option>
+                  <option>Hyderabad</option>
+                  <option>Other</option>
+                </select>
+                <select className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option>10-50</option>
+                  <option>50-200</option>
+                  <option>200+</option>
+                </select>
+              </div>
+              <textarea className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4" placeholder="Specific Requirements" />
+              <button type="button" className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-lg hover:brightness-110 transition">
+                Request a Proposal
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
