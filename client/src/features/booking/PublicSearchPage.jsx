@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { CalendarDays, Clock, ShieldCheck, Headphones, BadgeCheck, Sparkles, LocateFixed } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { searchTrips, createPublicBooking, createBooking } from '../../shared/api/endpoints';
 import { Alert } from '../../shared/ui/Alert';
 import { useAuth } from '../../shared/contexts/AuthContext';
@@ -406,28 +406,38 @@ export function PublicSearchPage() {
       </div>
 
       <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-white/70 border border-white/50 rounded-2xl p-5 shadow-sm">
-          <ShieldCheck className="text-indigo-600 mb-3" />
+        <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:-translate-y-1.5 hover:shadow-xl hover:border-blue-100 transition-all duration-300">
+          <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
+            <ShieldCheck />
+          </div>
           <h3 className="font-semibold text-slate-900">Transparent Pricing</h3>
           <p className="text-sm text-slate-500 mt-1">No hidden fees. Clear fare breakdown on every route.</p>
         </div>
-        <div className="bg-white/70 border border-white/50 rounded-2xl p-5 shadow-sm">
-          <Headphones className="text-indigo-600 mb-3" />
+        <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:-translate-y-1.5 hover:shadow-xl hover:border-blue-100 transition-all duration-300">
+          <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
+            <Headphones />
+          </div>
           <h3 className="font-semibold text-slate-900">24/7 Support</h3>
           <p className="text-sm text-slate-500 mt-1">Dedicated team for quick updates and live assistance.</p>
         </div>
-        <div className="bg-white/70 border border-white/50 rounded-2xl p-5 shadow-sm">
-          <BadgeCheck className="text-indigo-600 mb-3" />
+        <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:-translate-y-1.5 hover:shadow-xl hover:border-blue-100 transition-all duration-300">
+          <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
+            <BadgeCheck />
+          </div>
           <h3 className="font-semibold text-slate-900">Verified Drivers</h3>
           <p className="text-sm text-slate-500 mt-1">Background-checked professionals for your safety.</p>
         </div>
-        <div className="bg-white/70 border border-white/50 rounded-2xl p-5 shadow-sm">
-          <Sparkles className="text-indigo-600 mb-3" />
+        <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:-translate-y-1.5 hover:shadow-xl hover:border-blue-100 transition-all duration-300">
+          <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
+            <Sparkles />
+          </div>
           <h3 className="font-semibold text-slate-900">Sanitized Cabs</h3>
           <p className="text-sm text-slate-500 mt-1">Clean, fresh rides for every journey.</p>
         </div>
-        <div className="bg-white/70 border border-white/50 rounded-2xl p-5 shadow-sm">
-          <LocateFixed className="text-indigo-600 mb-3" />
+        <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:-translate-y-1.5 hover:shadow-xl hover:border-blue-100 transition-all duration-300">
+          <div className="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-4">
+            <LocateFixed />
+          </div>
           <h3 className="font-semibold text-slate-900">GPS Tracking</h3>
           <p className="text-sm text-slate-500 mt-1">Live tracking for total peace of mind.</p>
         </div>
@@ -444,9 +454,12 @@ export function PublicSearchPage() {
               key={route.label}
               type="button"
               onClick={() => handlePopularRoute(route)}
-              className="min-w-[220px] text-left bg-white/80 border border-white/60 rounded-2xl p-4 shadow-sm hover:shadow-indigo-500/20 transition-shadow"
+              className="group min-w-[220px] text-left border border-slate-200 bg-white rounded-xl p-4 hover:border-blue-500 hover:shadow-md transition-all duration-200 cursor-pointer"
             >
-              <p className="font-semibold text-slate-800">{route.label}</p>
+              <div className="flex items-center justify-between">
+                <p className="font-semibold text-slate-800">{route.label}</p>
+                <span className="text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all">→</span>
+              </div>
               <p className="text-xs text-slate-500 mt-1">One tap to book faster</p>
             </button>
           ))}
@@ -553,6 +566,38 @@ export function PublicSearchPage() {
           </div>
         </div>
       )}
+
+      <footer className="bg-slate-900 text-slate-400 py-12 mt-20">
+        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center">SE</div>
+              <span className="text-white text-lg font-semibold">Safar Express</span>
+            </div>
+            <p className="text-sm text-slate-400 mt-3">Premium intercity cab experiences with trusted drivers and transparent pricing.</p>
+          </div>
+          <div className="grid grid-cols-2 gap-6 md:col-span-2">
+            <div>
+              <p className="text-sm font-semibold text-white mb-3">Quick Links</p>
+              <ul className="space-y-2 text-sm">
+                <li><Link className="hover:text-white transition-colors" to="/">Search</Link></li>
+                <li><Link className="hover:text-white transition-colors" to="/bookings">Bookings</Link></li>
+                <li><Link className="hover:text-white transition-colors" to="/admin">Admin</Link></li>
+              </ul>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-white mb-3">Legal</p>
+              <ul className="space-y-2 text-sm">
+                <li><span className="hover:text-white transition-colors cursor-pointer">Privacy Policy</span></li>
+                <li><span className="hover:text-white transition-colors cursor-pointer">Terms of Service</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div className="max-w-6xl mx-auto px-6 border-t border-slate-800 pt-8 mt-8 text-sm text-slate-500">
+          © 2026 Safar Express. All rights reserved.
+        </div>
+      </footer>
     </div>
   );
 }

@@ -13,6 +13,7 @@ function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
+  const [avatarOpen, setAvatarOpen] = useState(false);
   const location = useLocation();
   const headerRef = useRef(null);
 
@@ -23,18 +24,29 @@ function Navbar() {
 
   useEffect(() => {
     setIsOpen(false);
+    setAvatarOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
     function handleClickOutside(event) {
-      if (!isOpen) return;
       if (headerRef.current && !headerRef.current.contains(event.target)) {
         setIsOpen(false);
+        setAvatarOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen]);
+  }, []);
+
+  const displayName = user?.name || user?.fullName || user?.email || '';
+  const initials = displayName
+    ? displayName
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join('')
+    : 'SE';
 
   return (
     <header ref={headerRef} className="bg-white/80 backdrop-blur-md shadow-sm border-b sticky top-0 z-50">
@@ -42,14 +54,37 @@ function Navbar() {
         <Link to="/" className="cursor-pointer">
           <SafarExpressLogo />
         </Link>
-        <nav className="hidden md:flex items-center gap-4 text-sm">
+        <nav className="hidden md:flex items-center gap-6 text-sm">
           <Link to="/">Search</Link>
           {isAuthenticated && <Link to="/bookings">Bookings</Link>}
           {user?.role === 'admin' && <Link to="/admin">Admin</Link>}
           {!isAuthenticated && <Link to="/login">Login</Link>}
           {!isAuthenticated && <Link to="/register">Register</Link>}
-          {isAuthenticated && <span className="text-slate-500">{user?.email}</span>}
-          {isAuthenticated && <button className="text-red-600" onClick={handleLogout}>Logout</button>}
+          {isAuthenticated && (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setAvatarOpen((prev) => !prev)}
+                className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 font-bold flex items-center justify-center cursor-pointer border border-blue-100"
+                aria-label="User menu"
+              >
+                {initials || 'SE'}
+              </button>
+              {avatarOpen && (
+                <div className="absolute right-0 mt-3 w-56 rounded-xl border border-slate-100 bg-white shadow-lg p-3 z-50">
+                  <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Signed in</p>
+                  <p className="text-sm text-slate-600 mt-1 break-all">{user?.email}</p>
+                  <div className="my-3 h-px bg-slate-100" />
+                  <button
+                    className="w-full text-left text-red-600 hover:bg-red-50 px-3 py-2 rounded-md font-medium transition-colors"
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </nav>
 
         <button
