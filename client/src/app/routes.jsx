@@ -137,6 +137,38 @@ function Navbar() {
 export function AppRoutes() {
   const { user, isAuthenticated } = useAuth();
   const [isCorporateModalOpen, setIsCorporateModalOpen] = useState(false);
+  const [corporateForm, setCorporateForm] = useState({
+    company: '',
+    contactName: '',
+    email: '',
+    phone: '',
+    city: 'Delhi NCR',
+    rides: '10-50',
+    requirements: '',
+  });
+  const [isSubmittingCorporate, setIsSubmittingCorporate] = useState(false);
+  const [isCorporateSuccess, setIsCorporateSuccess] = useState(false);
+
+  function handleCorporateChange(e) {
+    const { name, value } = e.target;
+    setCorporateForm((prev) => ({ ...prev, [name]: value }));
+  }
+
+  function handleCloseCorporateModal() {
+    setIsCorporateModalOpen(false);
+    setIsSubmittingCorporate(false);
+    setIsCorporateSuccess(false);
+  }
+
+  function handleCorporateSubmit(e) {
+    e.preventDefault();
+    if (isSubmittingCorporate) return;
+    setIsSubmittingCorporate(true);
+    setTimeout(() => {
+      setIsSubmittingCorporate(false);
+      setIsCorporateSuccess(true);
+    }, 1500);
+  }
 
   return (
     <div className="min-h-screen mesh-gradient text-slate-800 antialiased flex flex-col">
@@ -211,7 +243,7 @@ export function AppRoutes() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative">
             <button
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
-              onClick={() => setIsCorporateModalOpen(false)}
+              onClick={handleCloseCorporateModal}
               aria-label="Close"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -222,30 +254,131 @@ export function AppRoutes() {
               <h3 className="text-xl font-semibold text-slate-900">Partner with Safar Express</h3>
               <p className="text-sm text-slate-500 mt-1">Reliable corporate fleets and hotel transfers.</p>
             </div>
-            <form className="p-6 space-y-4">
-              <input className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Company / Hotel Name" />
-              <input className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Contact Person" />
-              <input type="email" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Official Email" />
-              <input type="tel" className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Phone Number" />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <select className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            {isCorporateSuccess ? (
+              <div className="p-10 flex flex-col items-center text-center">
+                <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mb-4">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <p className="text-xl font-semibold text-slate-900">Proposal Request Sent!</p>
+                <p className="text-sm text-slate-500 mt-2">Our corporate team will contact you within 24 hours.</p>
+              </div>
+            ) : (
+              <form className="p-6 space-y-4" onSubmit={handleCorporateSubmit}>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M3 21h18M5 21V7l7-4 7 4v14" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M9 21v-6h6v6" />
+                    </svg>
+                  </span>
+                  <input
+                    name="company"
+                    value={corporateForm.company}
+                    onChange={handleCorporateChange}
+                    className="w-full p-3 pl-10 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Company / Hotel Name"
+                    required
+                  />
+                </div>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M4 20a8 8 0 0116 0" />
+                    </svg>
+                  </span>
+                  <input
+                    name="contactName"
+                    value={corporateForm.contactName}
+                    onChange={handleCorporateChange}
+                    className="w-full p-3 pl-10 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Contact Person"
+                    required
+                  />
+                </div>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M3 8l9 6 9-6" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M21 8v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8" />
+                    </svg>
+                  </span>
+                  <input
+                    type="email"
+                    name="email"
+                    value={corporateForm.email}
+                    onChange={handleCorporateChange}
+                    className="w-full p-3 pl-10 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Official Email"
+                    required
+                  />
+                </div>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.75} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  </span>
+                  <input
+                    type="tel"
+                    name="phone"
+                    value={corporateForm.phone}
+                    onChange={handleCorporateChange}
+                    className="w-full p-3 pl-10 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Phone Number"
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <select
+                    name="city"
+                    value={corporateForm.city}
+                    onChange={handleCorporateChange}
+                    className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
                   <option>Delhi NCR</option>
                   <option>Mumbai</option>
                   <option>Bengaluru</option>
                   <option>Hyderabad</option>
                   <option>Other</option>
-                </select>
-                <select className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  </select>
+                  <select
+                    name="rides"
+                    value={corporateForm.rides}
+                    onChange={handleCorporateChange}
+                    className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
                   <option>10-50</option>
                   <option>50-200</option>
                   <option>200+</option>
-                </select>
-              </div>
-              <textarea className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500" rows="4" placeholder="Specific Requirements" />
-              <button type="button" className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-lg hover:brightness-110 transition">
-                Request a Proposal
-              </button>
-            </form>
+                  </select>
+                </div>
+                <textarea
+                  name="requirements"
+                  value={corporateForm.requirements}
+                  onChange={handleCorporateChange}
+                  className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows="4"
+                  placeholder="Specific Requirements"
+                />
+                <button
+                  type="submit"
+                  disabled={isSubmittingCorporate}
+                  className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-lg hover:brightness-110 transition flex items-center justify-center gap-2 disabled:opacity-70"
+                >
+                  {isSubmittingCorporate ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-white/60 border-t-white rounded-full animate-spin"></span>
+                      Sending...
+                    </>
+                  ) : (
+                    'Request a Proposal'
+                  )}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       )}
