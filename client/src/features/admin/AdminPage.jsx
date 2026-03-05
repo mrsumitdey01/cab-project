@@ -48,13 +48,7 @@ function classifyBooking(booking) {
   return 'past';
 }
 
-function statusBadge(status) {
-  const base = 'px-2 py-1 rounded-full text-xs font-semibold';
-  if (status === 'CONFIRMED') return `${base} bg-emerald-100 text-emerald-700`;
-  if (status === 'COMPLETED') return `${base} bg-indigo-100 text-indigo-700`;
-  if (status === 'CANCELLED') return `${base} bg-rose-100 text-rose-700`;
-  return `${base} bg-amber-100 text-amber-700`;
-}
+
 export function AdminPage() {
   const [health, setHealth] = useState(null);
   const [logs, setLogs] = useState([]);
