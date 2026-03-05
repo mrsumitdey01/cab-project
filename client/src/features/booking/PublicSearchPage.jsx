@@ -477,10 +477,12 @@ export function PublicSearchPage() {
       >
           <span className="absolute inset-0 rounded-full bg-emerald-400/40 blur-lg opacity-70 animate-pulse"></span>
           <span className="absolute inset-0 rounded-full bg-emerald-400/30 animate-ping"></span>
-          <span className="relative inline-flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-xl hover:brightness-110 transition">
-            <svg className="w-5 h-5" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+          <span className="relative inline-flex items-center gap-3 px-4 py-3 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-xl hover:brightness-110 transition">
+            <span className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
+              <svg className="w-4 h-4" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
               <path d="M16.002 3C9.384 3 4 8.384 4 15c0 2.36.69 4.56 1.87 6.41L4 28l6.78-1.78A12.93 12.93 0 0 0 16 27c6.616 0 12-5.384 12-12S22.616 3 16.002 3zm0 21.75c-2.2 0-4.27-.65-6.03-1.88l-.43-.25-4.02 1.06 1.07-3.91-.27-.41A9.72 9.72 0 0 1 6.25 15c0-5.38 4.37-9.75 9.75-9.75S25.75 9.62 25.75 15 21.38 24.75 16 24.75zm5.4-7.08c-.3-.15-1.77-.87-2.04-.97-.28-.1-.48-.15-.68.15-.2.3-.78.97-.96 1.17-.18.2-.36.22-.66.07-.3-.15-1.26-.46-2.4-1.47-.88-.78-1.48-1.75-1.66-2.05-.18-.3-.02-.46.13-.61.13-.13.3-.36.45-.54.15-.18.2-.3.3-.5.1-.2.05-.38-.03-.53-.08-.15-.68-1.64-.93-2.25-.24-.58-.49-.5-.68-.51-.17-.01-.37-.01-.57-.01-.2 0-.53.07-.8.38-.27.3-1.05 1.03-1.05 2.5s1.07 2.9 1.22 3.1c.15.2 2.1 3.21 5.08 4.5.71.31 1.26.5 1.69.64.71.23 1.36.2 1.87.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.08-.12-.28-.2-.58-.35z" />
-            </svg>
+              </svg>
+            </span>
             <span className="text-sm font-semibold hidden sm:inline">WhatsApp</span>
           </span>
       </a>
