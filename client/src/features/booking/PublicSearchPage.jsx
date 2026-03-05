@@ -90,6 +90,12 @@ export function PublicSearchPage() {
   }
 
   function handlePopularRoute(route) {
+    const fromLoc = { id: `popular-from-${route.pickup}`, name: route.pickup, hub: route.pickup, keywords: [] };
+    const toLoc = { id: `popular-to-${route.dropoff}`, name: route.dropoff, hub: route.dropoff, keywords: [] };
+    setSelectedFrom(fromLoc);
+    setSelectedTo(toLoc);
+    setFromQuery(route.pickup);
+    setToQuery(route.dropoff);
     setFormData((prev) => ({
       ...prev,
       pickup: { address: route.pickup },
