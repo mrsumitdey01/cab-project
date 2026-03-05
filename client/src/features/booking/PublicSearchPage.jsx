@@ -448,7 +448,7 @@ export function PublicSearchPage() {
           <h2 className="text-xl font-semibold text-slate-900">Popular Routes</h2>
           <span className="text-xs text-slate-500">Tap to pre-fill</span>
         </div>
-        <div className="flex gap-4 overflow-x-auto pb-2">
+        <div className="flex overflow-x-auto gap-4 pb-4 snap-x scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {popularRoutes.map((route) => (
             <button
               key={route.label}
@@ -566,38 +566,6 @@ export function PublicSearchPage() {
           </div>
         </div>
       )}
-
-      <footer className="bg-slate-900 text-slate-400 py-12 mt-20">
-        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center">SE</div>
-              <span className="text-white text-lg font-semibold">Safar Express</span>
-            </div>
-            <p className="text-sm text-slate-400 mt-3">Premium intercity cab experiences with trusted drivers and transparent pricing.</p>
-          </div>
-          <div className="grid grid-cols-2 gap-6 md:col-span-2">
-            <div>
-              <p className="text-sm font-semibold text-white mb-3">Quick Links</p>
-              <ul className="space-y-2 text-sm">
-                <li><Link className="hover:text-white transition-colors" to="/">Search</Link></li>
-                <li><Link className="hover:text-white transition-colors" to="/bookings">Bookings</Link></li>
-                <li><Link className="hover:text-white transition-colors" to="/admin">Admin</Link></li>
-              </ul>
-            </div>
-            <div>
-              <p className="text-sm font-semibold text-white mb-3">Legal</p>
-              <ul className="space-y-2 text-sm">
-                <li><span className="hover:text-white transition-colors cursor-pointer">Privacy Policy</span></li>
-                <li><span className="hover:text-white transition-colors cursor-pointer">Terms of Service</span></li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div className="max-w-6xl mx-auto px-6 border-t border-slate-800 pt-8 mt-8 text-sm text-slate-500">
-          © 2026 Safar Express. All rights reserved.
-        </div>
-      </footer>
     </div>
   );
 }
