@@ -34,7 +34,7 @@ jobs:
       run:
         working-directory: client
     env:
-      CI: true   # makes react-scripts test exit instead of hanging in watch mode
+      CI: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
