@@ -1,0 +1,13 @@
+# Force LF line endings for all text files stored in the repository.
+# This prevents CRLF corruption on Windows for YAML/shell scripts.
+* text=auto eol=lf
+
+# Explicitly enforce LF for workflow and config files
+*.yml  eol=lf
+*.yaml eol=lf
+*.sh   eol=lf
+*.json text eol=lf
+*.jsx  text eol=lf
+*.js   text eol=lf
+*.css  text eol=lf
+*.md   text eol=lf
