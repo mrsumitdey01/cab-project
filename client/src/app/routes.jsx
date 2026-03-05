@@ -72,7 +72,7 @@ function Navbar() {
     <header ref={headerRef} className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${navBgClass}`}>
       <div className="max-w-6xl mx-auto p-4 flex items-center justify-between relative">
         <Link to="/" className="cursor-pointer">
-          <SafarExpressLogo />
+          <SafarExpressLogo light={isHome && !scrolled} />
         </Link>
         <nav className={`hidden md:flex items-center gap-6 text-sm font-medium transition-colors ${linkClass}`}>
           <Link to="/" className="transition-colors drop-shadow-sm">Search</Link>

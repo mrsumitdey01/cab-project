@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function SafarExpressLogo() {
+export default function SafarExpressLogo({ light = false }) {
   return (
     <div className="flex items-center gap-3 cursor-pointer group transition-transform origin-left sm:scale-100 scale-90">
       <div className="relative flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-blue-700 shadow-[0_0_15px_rgba(59,130,246,0.5)] border-2 border-white z-10">
@@ -18,7 +18,10 @@ export default function SafarExpressLogo() {
       </div>
 
       <div className="flex flex-col justify-center z-10">
-        <span className="text-2xl font-extrabold text-blue-950 tracking-tight leading-none group-hover:text-blue-600 transition-colors duration-300">
+        <span className={`text-2xl font-extrabold tracking-tight leading-none transition-colors duration-300 ${light
+            ? 'text-white drop-shadow-md'
+            : 'text-blue-950 group-hover:text-blue-600'
+          }`}>
           SAFAREXPRESS
         </span>
       </div>
