@@ -544,80 +544,140 @@ export function PublicSearchPage() {
 
 
       {bookingFormOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 px-4 modal-backdrop">
-          <div className="glass-card w-full max-w-2xl rounded-2xl shadow-2xl p-6 relative modal-panel">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/40 backdrop-blur-sm transition-all duration-300">
+          <div className="w-full max-w-xl bg-white/95 backdrop-blur-2xl border border-white/40 shadow-[0_0_50px_-12px_rgba(0,0,0,0.25)] rounded-[2rem] p-8 relative overflow-hidden">
+            <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
+
             <button
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
+              className="absolute top-6 right-6 w-9 h-9 flex items-center justify-center rounded-full bg-slate-100/80 text-slate-500 hover:text-slate-800 hover:bg-slate-200 transition-all focus:outline-none"
               onClick={() => setBookingFormOpen(false)}
               aria-label="Close"
             >
-              X
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
-            <h2 className="text-xl font-semibold mb-3">Passenger Details</h2>
+
             {isSubmitted ? (
-              <div className="flex flex-col items-center justify-center p-10 text-center">
-                <svg className="mb-4" width="72" height="72" viewBox="0 0 72 72" fill="none" aria-hidden="true">
-                  <circle className="tick-circle" cx="36" cy="36" r="30" stroke="#2563eb" strokeWidth="5" />
-                  <path className="tick-check" d="M22 37L32 47L50 29" stroke="#2563eb" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
+              <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
+                <svg className="mb-6 w-24 h-24 drop-shadow-md" viewBox="0 0 72 72" fill="none" aria-hidden="true">
+                  <circle className="tick-circle" cx="36" cy="36" r="30" stroke="#3b82f6" strokeWidth="5" />
+                  <path className="tick-check" d="M22 37L32 47L50 29" stroke="#3b82f6" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                <p className="text-2xl font-bold text-slate-900">Thank You!</p>
-                <p className="text-slate-500 mt-2">We will connect with you shortly.</p>
+                <h3 className="text-3xl font-black text-slate-800 mb-2 tracking-tight">Booking Confirmed!</h3>
+                <p className="text-slate-500 font-medium max-w-sm mx-auto">We've received your request. We will connect with you shortly to finalize details.</p>
+                <button
+                  onClick={() => setBookingFormOpen(false)}
+                  className="mt-8 px-8 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold transition-colors w-full sm:w-auto"
+                >
+                  Close Window
+                </button>
               </div>
             ) : (
-              <form onSubmit={handleBookingSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {showSkeleton && (
-                  <div className="md:col-span-2 space-y-3">
-                    <div className="h-4 w-40 bg-slate-200/80 rounded-full animate-pulse"></div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {[...Array(4)].map((_, i) => (
-                        <div key={`route-skel-${i}`} className="h-12 rounded-xl bg-slate-200/80 animate-pulse"></div>
-                      ))}
-                    </div>
-                    <div className="h-4 w-32 bg-slate-200/80 rounded-full animate-pulse mt-4"></div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {[...Array(4)].map((_, i) => (
-                        <div key={`cab-skel-${i}`} className="h-12 rounded-xl bg-slate-200/80 animate-pulse"></div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                {results && !showSkeleton && (
-                  <div className="md:col-span-2">
-                    <div className="p-4 rounded-xl shadow-sm bg-white/70 border border-white/60">
-                      <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold">Trip Summary</p>
-                      <div className="mt-2 space-y-1 text-sm text-slate-600">
-                        <p><span className="font-semibold text-slate-800">From:</span> {formData.pickup.address || 'N/A'}</p>
-                        <p><span className="font-semibold text-slate-800">To:</span> {formData.dropoff.address || 'N/A'}</p>
-                        <p><span className="font-semibold text-slate-800">Route:</span> {selectedRoute?.label || 'N/A'}</p>
+              <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
+                <div className="mb-6">
+                  <h2 className="text-2xl font-black text-slate-800 tracking-tight">Passenger Details</h2>
+                  <p className="text-sm text-slate-500 font-medium mt-1">Provide your details to confirm your ride.</p>
+                </div>
+
+                <form onSubmit={handleBookingSubmit} className="space-y-6">
+                  {showSkeleton && (
+                    <div className="space-y-4">
+                      <div className="h-4 w-40 bg-slate-200 rounded-full animate-pulse"></div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {[...Array(4)].map((_, i) => (
+                          <div key={`route-skel-${i}`} className="h-14 rounded-2xl bg-slate-200 animate-pulse"></div>
+                        ))}
                       </div>
-                      <div className="mt-3 text-sm">
+                    </div>
+                  )}
+                  {results && !showSkeleton && (
+                    <div className="p-5 rounded-2xl bg-slate-50/80 border border-slate-100">
+                      <div className="flex items-center gap-2 mb-4">
+                        <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <p className="text-xs uppercase tracking-widest text-slate-500 font-bold">Trip Summary</p>
+                      </div>
+                      <div className="space-y-2 mb-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-5 flex justify-center mt-1"><div className="w-2.5 h-2.5 rounded-full border-2 border-emerald-500 bg-white"></div></div>
+                          <p className="text-sm font-semibold text-slate-800">{formData.pickup.address || 'N/A'}</p>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="w-5 flex justify-center py-1"><div className="w-0.5 h-3 bg-slate-200"></div></div>
+                          <div className="text-sm font-semibold text-slate-400">Route: {selectedRoute?.label || 'N/A'}</div>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <div className="w-5 flex justify-center mt-1"><div className="w-2.5 h-2.5 rounded-full bg-rose-500"></div></div>
+                          <p className="text-sm font-semibold text-slate-800">{formData.dropoff.address || 'N/A'}</p>
+                        </div>
+                      </div>
+                      <div className="pt-3 border-t border-slate-200/60 flex items-center justify-between">
+                        <span className="text-sm font-semibold text-slate-500">Estimated Fare</span>
                         {estimatedFare > 0 ? (
-                          <p className="font-semibold text-indigo-700">Estimated Fare: ₹{estimatedFare}</p>
+                          <span className="text-lg font-black text-indigo-600">₹{estimatedFare}</span>
                         ) : (
-                          <p className="text-slate-500">{priceMessage}</p>
+                          <span className="text-sm font-semibold text-slate-500">{priceMessage}</span>
                         )}
                       </div>
                     </div>
+                  )}
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Full Name</label>
+                      <input
+                        className="w-full bg-white border border-slate-200 hover:border-blue-300 text-slate-800 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium placeholder:text-slate-400 shadow-sm"
+                        placeholder="John Doe"
+                        value={contact.name}
+                        onChange={(e) => setContact((prev) => ({ ...prev, name: e.target.value }))}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Email Address <span className="opacity-60">(Optional)</span></label>
+                      <input
+                        className="w-full bg-white border border-slate-200 hover:border-blue-300 text-slate-800 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium placeholder:text-slate-400 shadow-sm"
+                        placeholder="john@example.com"
+                        type="email"
+                        value={contact.email}
+                        onChange={(e) => setContact((prev) => ({ ...prev, email: e.target.value }))}
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">WhatsApp Number</label>
+                      <div className="relative">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+                        </div>
+                        <input
+                          className="w-full bg-white border border-slate-200 hover:border-emerald-300 text-slate-800 rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium placeholder:text-slate-400 shadow-sm"
+                          placeholder="+91 9999999999"
+                          value={contact.phone}
+                          onChange={(e) => setContact((prev) => ({ ...prev, phone: e.target.value.replace(/[^+0-9]/g, '') }))}
+                          required
+                        />
+                      </div>
+                      <p className="text-xs text-slate-500 ml-1 mt-1.5 font-medium">We'll send booking updates and driver details here.</p>
+                    </div>
                   </div>
-                )}
-                <>
-                  <input className="p-3 rounded-xl border" placeholder="Passenger Full Name" value={contact.name} onChange={(e) => setContact((prev) => ({ ...prev, name: e.target.value }))} required />
-                  <input className="p-3 rounded-xl border" placeholder="Email (optional)" type="email" value={contact.email} onChange={(e) => setContact((prev) => ({ ...prev, email: e.target.value }))} />
-                  <input
-                    className="p-3 rounded-xl border"
-                    placeholder="WhatsApp Number (for updates)"
-                    value={contact.phone}
-                    onChange={(e) => setContact((prev) => ({ ...prev, phone: e.target.value.replace(/[^+0-9]/g, '') }))}
-                    required
-                  />
-                </>
-                <button
-                  className="md:col-span-2 p-3 rounded-xl bg-indigo-600 text-white font-semibold"
-                  disabled={loading || showSkeleton || (!contact.name || !/^[+]?[0-9]{7,13}$/.test(contact.phone || ''))}
-                >
-                  {loading ? 'Sending...' : 'Send Your Enquiry'}
-                </button>
-              </form>
+
+                  <button
+                    className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg shadow-[0_8px_20px_-6px_rgba(59,130,246,0.5)] hover:shadow-[0_12px_25px_-6px_rgba(59,130,246,0.6)] sweep-hover transition-all duration-300 disabled:opacity-60 disabled:shadow-none disabled:hover:shadow-none disabled:cursor-not-allowed"
+                    disabled={loading || showSkeleton || (!contact.name || !/^[+]?[0-9]{7,13}$/.test(contact.phone || ''))}
+                  >
+                    {loading ? (
+                      <>
+                        <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Processing Request...
+                      </>
+                    ) : 'Confirm Booking Enquiry'}
+                    {loading ? null : (
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                    )}
+                  </button>
+                </form>
+              </div>
             )}
           </div>
         </div>
