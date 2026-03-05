@@ -41,6 +41,28 @@ export function PublicSearchPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+
+  /** Parse backend validation errors into a human-readable string */
+  function parseApiError(err) {
+    const data = err?.response?.data;
+    // Backend returns { error: { details: [{field, message}] } } on validation failure
+    const details = data?.error?.details;
+    if (Array.isArray(details) && details.length > 0) {
+      return details
+        .map((d) => {
+          const field = d.field ? `${d.field}: ` : '';
+          return `${field}${d.message || d.msg || JSON.stringify(d)}`;
+        })
+        .join(' • ');
+    }
+    return (
+      data?.error?.detail ||
+      data?.error?.message ||
+      data?.message ||
+      err?.message ||
+      null
+    );
+  }
   const warmup = useWarmup();
   const [, setWarming] = useState(getWarmState().status);
   const contactBarRef = useRef(null);
@@ -164,7 +186,7 @@ export function PublicSearchPage() {
       }));
       setBookingFormOpen(true);
     } catch (err) {
-      setError(err?.response?.data?.error?.detail || 'Search failed.');
+      setError(parseApiError(err) || 'Search failed.');
     } finally {
       setLoading(false);
     }
@@ -231,12 +253,7 @@ export function PublicSearchPage() {
       setIsSubmitted(true);
     } catch (err) {
       console.error('Booking error:', err?.response?.data || err);
-      setError(
-        err?.response?.data?.error?.detail ||
-        err?.response?.data?.message ||
-        err?.message ||
-        'Booking failed.'
-      );
+      setError(parseApiError(err) || 'Booking failed.');
     } finally {
       setLoading(false);
     }
@@ -323,7 +340,14 @@ export function PublicSearchPage() {
                   label="From"
                   placeholder="Enter Pickup Location"
                   value={selectedFrom}
-                  onQueryChange={setFromQuery}
+                  onQueryChange={(q) => {
+                    setFromQuery(q);
+                    // If user is typing a new value, clear the stale selection
+                    // so the next search uses the fresh typed text, not the old pick.
+                    if (selectedFrom && selectedFrom.name !== q) {
+                      setSelectedFrom(null);
+                    }
+                  }}
                   onChange={(loc) => {
                     const withHub = loc ? { ...loc, hub: loc.hub || loc.name || '' } : null;
                     setSelectedFrom(withHub);
@@ -337,7 +361,12 @@ export function PublicSearchPage() {
                   placeholder="Enter Drop Location"
                   value={selectedTo}
                   showPopular
-                  onQueryChange={setToQuery}
+                  onQueryChange={(q) => {
+                    setToQuery(q);
+                    if (selectedTo && selectedTo.name !== q) {
+                      setSelectedTo(null);
+                    }
+                  }}
                   onChange={(loc) => {
                     const withHub = loc ? { ...loc, hub: loc.hub || loc.name || '' } : null;
                     setSelectedTo(withHub);
