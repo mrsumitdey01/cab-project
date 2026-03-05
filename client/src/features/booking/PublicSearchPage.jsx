@@ -147,8 +147,21 @@ export function PublicSearchPage() {
     setError('');
     setSuccess('');
     try {
-      const nextFrom = selectedFrom || (fromQuery.trim() ? { id: `custom-from-${fromQuery}`, name: fromQuery, hub: fromQuery.trim(), keywords: [] } : null);
-      const nextTo = selectedTo || (toQuery.trim() ? { id: `custom-to-${toQuery}`, name: toQuery, hub: toQuery.trim(), keywords: [] } : null);
+      const nextFrom = selectedFrom || (fromQuery.trim() ? { id: `custom-from-${fromQuery}`, name: fromQuery.trim(), hub: fromQuery.trim(), keywords: [] } : null);
+      const nextTo = selectedTo || (toQuery.trim() ? { id: `custom-to-${toQuery}`, name: toQuery.trim(), hub: toQuery.trim(), keywords: [] } : null);
+
+      // --- Client-side location length validation ---
+      const MIN_LOC_LEN = 3;
+      const fromName = nextFrom?.name || '';
+      const toName = nextTo?.name || '';
+      const badFields = [];
+      if (!fromName || fromName.length < MIN_LOC_LEN) badFields.push(`"From" location (must be at least ${MIN_LOC_LEN} characters)`);
+      if (!toName || toName.length < MIN_LOC_LEN) badFields.push(`"To" location (must be at least ${MIN_LOC_LEN} characters)`);
+      if (badFields.length > 0) {
+        setError(`Please fix the following: ${badFields.join(', ')}.`);
+        setLoading(false);
+        return;
+      }
       if (nextFrom) {
         setSelectedFrom(nextFrom);
         setFormData((prev) => ({ ...prev, pickup: { address: nextFrom.name } }));
