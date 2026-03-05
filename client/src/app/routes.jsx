@@ -217,45 +217,123 @@ export function AppRoutes() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
-      <footer className="bg-slate-900 text-slate-400 py-12 mt-20 w-full">
-        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center">SE</div>
-              <span className="text-white text-lg font-semibold">Safar Express</span>
+      <footer className="relative w-full mt-20 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-slate-400 overflow-hidden">
+        {/* top glow divider */}
+        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-blue-500/60 to-transparent" />
+        <div className="absolute top-0 inset-x-0 h-10 bg-gradient-to-b from-blue-600/10 to-transparent pointer-events-none" />
+
+        <div className="relative max-w-6xl mx-auto px-6 pt-14 pb-10">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+
+            {/* Brand column */}
+            <div className="md:col-span-1 space-y-4">
+              <p className="text-white font-bold text-lg tracking-tight">Safar Express</p>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                Premium intercity cab experiences with trusted drivers and transparent pricing.
+              </p>
+              {/* Call button */}
+              <a
+                href="tel:+919999999999"
+                className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-300 hover:bg-blue-500/20 hover:border-blue-400 hover:text-white transition-all duration-200 text-sm font-semibold"
+              >
+                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                Call Us · 9999999999
+              </a>
             </div>
-            <p className="text-sm text-slate-400 mt-3">Premium intercity cab experiences with trusted drivers and transparent pricing.</p>
-          </div>
-          <div className="grid grid-cols-2 gap-6 md:col-span-2">
+
+            {/* Quick Links */}
             <div>
-              <p className="text-sm font-semibold text-white mb-3">Quick Links</p>
-              <ul className="space-y-2 text-sm">
-                <li><Link className="hover:text-white transition-colors" to="/">Search</Link></li>
-                <li><Link className="hover:text-white transition-colors" to="/bookings">Bookings</Link></li>
-                <li><Link className="hover:text-white transition-colors" to="/admin">Admin</Link></li>
+              <p className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-5">Quick Links</p>
+              <ul className="space-y-3 text-sm">
+                {[
+                  { label: 'Search Rides', to: '/' },
+                  { label: 'My Bookings', to: '/bookings' },
+                  { label: 'Admin Panel', to: '/admin' },
+                ].map(({ label, to }) => (
+                  <li key={to}>
+                    <Link
+                      to={to}
+                      className="group flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors duration-200"
+                    >
+                      <svg className="w-3 h-3 text-blue-500 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                      </svg>
+                      <span className="relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-white after:transition-all after:duration-200 group-hover:after:w-full">
+                        {label}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
                 <li>
                   <button
                     onClick={() => setIsCorporateModalOpen(true)}
-                    className="text-slate-400 hover:text-white transition-colors"
+                    className="group flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors duration-200"
                   >
-                    Corporate Partnerships
+                    <svg className="w-3 h-3 text-blue-500 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                    </svg>
+                    <span className="relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-white after:transition-all after:duration-200 group-hover:after:w-full">
+                      Corporate Partnerships
+                    </span>
                   </button>
                 </li>
               </ul>
             </div>
+
+            {/* Legal */}
             <div>
-              <p className="text-sm font-semibold text-white mb-3">Legal</p>
-              <ul className="space-y-2 text-sm">
-                <li><Link className="hover:text-white transition-colors" to="/privacy">Privacy Policy</Link></li>
-                <li><Link className="hover:text-white transition-colors" to="/terms">Terms of Service</Link></li>
+              <p className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-5">Legal</p>
+              <ul className="space-y-3 text-sm">
+                {[
+                  { label: 'Privacy Policy', to: '/privacy' },
+                  { label: 'Terms of Service', to: '/terms' },
+                ].map(({ label, to }) => (
+                  <li key={to}>
+                    <Link
+                      to={to}
+                      className="group flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors duration-200"
+                    >
+                      <svg className="w-3 h-3 text-blue-500 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                      </svg>
+                      <span className="relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-white after:transition-all after:duration-200 group-hover:after:w-full">
+                        {label}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Why Choose Us */}
+            <div>
+              <p className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-5">Why Choose Us</p>
+              <ul className="space-y-3 text-sm text-slate-400">
+                {['Transparent flat-rate pricing', 'Verified & background-checked drivers', '24/7 live support', 'GPS-tracked every ride', 'Sanitized cabs'].map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <svg className="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                    </svg>
+                    {item}
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
-        </div>
-        <div className="max-w-6xl mx-auto px-6 border-t border-slate-800 pt-8 mt-8 text-sm text-slate-500">
-          © 2026 Safar Express. All rights reserved.
+
+          {/* Bottom legal bar */}
+          <div className="mt-12 pt-6 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+            <span>© {new Date().getFullYear()} Safar Express. All rights reserved.</span>
+            <div className="flex gap-4">
+              <Link to="/privacy" className="hover:text-slate-300 transition-colors">Privacy</Link>
+              <Link to="/terms" className="hover:text-slate-300 transition-colors">Terms</Link>
+            </div>
+          </div>
         </div>
       </footer>
+
       {isCorporateModalOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden relative">
