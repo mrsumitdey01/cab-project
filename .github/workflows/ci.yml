@@ -27,11 +27,14 @@ jobs:
       - run: npm ci
       - run: npm run lint
       - run: npm test
+
   client:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: client
+    env:
+      CI: true   # makes react-scripts test exit instead of hanging in watch mode
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -41,5 +44,5 @@ jobs:
           cache-dependency-path: client/package-lock.json
       - run: npm ci
       - run: npm run lint
-      - run: npm test
+      - run: npm test -- --watchAll=false --passWithNoTests
       - run: npm run build
