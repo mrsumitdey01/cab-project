@@ -16,6 +16,7 @@ function Navbar() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [avatarOpen, setAvatarOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const headerRef = useRef(null);
 
@@ -28,6 +29,15 @@ function Navbar() {
     setIsOpen(false);
     setAvatarOpen(false);
   }, [location.pathname]);
+
+  useEffect(() => {
+    function handleScroll() {
+      setScrolled(window.scrollY > 20);
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -50,18 +60,26 @@ function Navbar() {
       .join('')
     : 'SE';
 
+  const isHome = location.pathname === '/';
+  const navBgClass = isHome
+    ? scrolled ? 'bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200' : 'bg-transparent border-transparent'
+    : 'bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200';
+
+  const linkClass = isHome && !scrolled ? 'text-white hover:text-blue-300' : 'text-slate-600 hover:text-blue-600';
+  const menuIconColor = isHome && !scrolled && !isOpen ? 'text-white' : 'text-slate-600';
+
   return (
-    <header ref={headerRef} className="bg-white/80 backdrop-blur-md shadow-sm border-b sticky top-0 z-50">
+    <header ref={headerRef} className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${navBgClass}`}>
       <div className="max-w-6xl mx-auto p-4 flex items-center justify-between relative">
         <Link to="/" className="cursor-pointer">
           <SafarExpressLogo />
         </Link>
-        <nav className="hidden md:flex items-center gap-6 text-sm">
-          <Link to="/">Search</Link>
-          {isAuthenticated && <Link to="/bookings">Bookings</Link>}
-          {user?.role === 'admin' && <Link to="/admin">Admin</Link>}
-          {!isAuthenticated && <Link to="/login">Login</Link>}
-          {!isAuthenticated && <Link to="/register">Register</Link>}
+        <nav className={`hidden md:flex items-center gap-6 text-sm font-medium transition-colors ${linkClass}`}>
+          <Link to="/" className="transition-colors drop-shadow-sm">Search</Link>
+          {isAuthenticated && <Link to="/bookings" className="transition-colors drop-shadow-sm">Bookings</Link>}
+          {user?.role === 'admin' && <Link to="/admin" className="transition-colors drop-shadow-sm">Admin</Link>}
+          {!isAuthenticated && <Link to="/login" className="transition-colors drop-shadow-sm">Login</Link>}
+          {!isAuthenticated && <Link to="/register" className="transition-colors drop-shadow-sm">Register</Link>}
           {isAuthenticated && (
             <div className="relative">
               <button
@@ -90,7 +108,7 @@ function Navbar() {
         </nav>
 
         <button
-          className="md:hidden p-2 text-slate-600 hover:bg-slate-50 rounded-md"
+          className={`md:hidden p-2 rounded-md ${menuIconColor} hover:bg-white/10`}
           onClick={() => setIsOpen((prev) => !prev)}
           aria-label="Toggle menu"
         >
@@ -338,11 +356,11 @@ export function AppRoutes() {
                     onChange={handleCorporateChange}
                     className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                  <option>Delhi NCR</option>
-                  <option>Mumbai</option>
-                  <option>Bengaluru</option>
-                  <option>Hyderabad</option>
-                  <option>Other</option>
+                    <option>Delhi NCR</option>
+                    <option>Mumbai</option>
+                    <option>Bengaluru</option>
+                    <option>Hyderabad</option>
+                    <option>Other</option>
                   </select>
                   <select
                     name="rides"
@@ -350,9 +368,9 @@ export function AppRoutes() {
                     onChange={handleCorporateChange}
                     className="w-full p-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                  <option>10-50</option>
-                  <option>50-200</option>
-                  <option>200+</option>
+                    <option>10-50</option>
+                    <option>50-200</option>
+                    <option>200+</option>
                   </select>
                 </div>
                 <textarea
