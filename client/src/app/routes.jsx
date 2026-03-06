@@ -461,9 +461,9 @@ export function AppRoutes() {
                           onChange={handleCorporateChange}
                           className="w-full bg-white border border-slate-200 hover:border-blue-300 text-slate-800 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium shadow-sm appearance-none"
                         >
-                          <option>10-50</option>
-                          <option>50-200</option>
-                          <option>200+</option>
+                          <option value="10-50">10-50 People</option>
+                          <option value="50-200">50-200 People</option>
+                          <option value="200+">200+ People</option>
                         </select>
                         <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
                           <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
