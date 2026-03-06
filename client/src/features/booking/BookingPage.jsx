@@ -14,8 +14,11 @@ const STATUS_CONFIG = {
 };
 
 function parsePickupDateTime(booking) {
-  const dateValue = booking?.schedule?.pickupDate;
+  let dateValue = booking?.schedule?.pickupDate;
   if (!dateValue) return null;
+  if (dateValue.includes('T')) {
+    dateValue = dateValue.split('T')[0];
+  }
   const timeValue = booking?.schedule?.pickupTime || '00:00';
   const combined = new Date(`${dateValue}T${timeValue}`);
   if (Number.isNaN(combined.getTime())) {
@@ -39,7 +42,12 @@ function classifyBooking(booking) {
 function formatDate(dateStr, timeStr) {
   if (!dateStr) return 'N/A';
   try {
-    let d = new Date(`${dateStr}T${timeStr || '00:00'}`);
+    let cleanDate = dateStr;
+    if (cleanDate.includes('T')) {
+      cleanDate = cleanDate.split('T')[0];
+    }
+
+    let d = new Date(`${cleanDate}T${timeStr || '00:00'}`);
 
     if (Number.isNaN(d.getTime())) {
       d = new Date(dateStr); // fallback to parse just the date string if it already contains time or is in a different format
