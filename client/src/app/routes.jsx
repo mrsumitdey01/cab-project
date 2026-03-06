@@ -250,7 +250,6 @@ export function AppRoutes() {
                 {[
                   { label: 'Search Rides', to: '/' },
                   { label: 'My Bookings', to: '/bookings' },
-                  { label: 'Admin Panel', to: '/admin' },
                 ].map(({ label, to }) => (
                   <li key={to}>
                     <Link
