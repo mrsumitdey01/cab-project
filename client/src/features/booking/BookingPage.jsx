@@ -151,7 +151,7 @@ export function BookingPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-6 py-10">
+    <div className="max-w-6xl mx-auto px-6 pt-24 pb-10">
 
       {/* ── Page header ── */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 mb-8">

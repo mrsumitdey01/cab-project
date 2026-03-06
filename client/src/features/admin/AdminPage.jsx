@@ -291,7 +291,7 @@ export function AdminPage() {
   return (
     <div className="bg-slate-50 min-h-screen pb-20">
       {/* ── Premium Hero ── */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white pb-12 pt-10 px-6 shadow-2xl">
+      <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white pb-12 pt-24 px-6 shadow-2xl">
         <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.15),_transparent_60%)] pointer-events-none" />
         <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
           <div className="space-y-3">
