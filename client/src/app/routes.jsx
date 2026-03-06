@@ -217,7 +217,7 @@ export function AppRoutes() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
-      <footer className="relative w-full mt-20 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-slate-400 overflow-hidden">
+      <footer className="relative w-full mt-8 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-slate-400 overflow-hidden">
         {/* top glow divider */}
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-blue-500/60 to-transparent" />
         <div className="absolute top-0 inset-x-0 h-10 bg-gradient-to-b from-blue-600/10 to-transparent pointer-events-none" />
