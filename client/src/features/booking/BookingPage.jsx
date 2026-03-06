@@ -39,9 +39,20 @@ function classifyBooking(booking) {
 function formatDate(dateStr, timeStr) {
   if (!dateStr) return 'N/A';
   try {
-    const d = new Date(`${dateStr}T${timeStr || '00:00'}`);
+    let d = new Date(`${dateStr}T${timeStr || '00:00'}`);
+
+    if (Number.isNaN(d.getTime())) {
+      d = new Date(dateStr); // fallback to parse just the date string if it already contains time or is in a different format
+    }
+
+    if (Number.isNaN(d.getTime())) {
+      return dateStr; // return the raw string if it's completely unparseable
+    }
+
+    const hasTimeInfo = timeStr || d.getHours() !== 0 || d.getMinutes() !== 0;
+
     return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) +
-      (timeStr ? `, ${d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}` : '');
+      (hasTimeInfo ? `, ${d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}` : '');
   } catch {
     return dateStr;
   }
@@ -230,8 +241,8 @@ export function BookingPage() {
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={`relative px-5 py-2 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center gap-2 ${activeTab === tab
-                ? 'bg-white text-indigo-600 shadow-md'
-                : 'text-slate-500 hover:text-slate-800'
+              ? 'bg-white text-indigo-600 shadow-md'
+              : 'text-slate-500 hover:text-slate-800'
               }`}
           >
             {TAB_LABELS[tab]}
