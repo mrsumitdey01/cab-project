@@ -14,8 +14,7 @@ export default function SafarExpressLogo({ light = false }) {
             <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none">
               {/* Roof sign */}
               <rect x="10" y="3" width="4" height="2" rx="0.5" fill="currentColor" />
-              {/* Cab Body */}
-              <path d="M22 11h-3.5L15 6H8L4.5 11H2v5h2.23c.39 1.68 1.9 3 3.77 3s3.38-1.32 3.77-3h4.46c.39 1.68 1.9 3 3.77 3s3.38-1.32 3.77-3H22v-5z" fill="currentColor" />
+              <path d="M22 11h-3.5L15 6H8L4.5 11H2v5h2.23c.39-1.68 1.9-3 3.77-3s3.38 1.32 3.77 3h4.46c.39-1.68 1.9-3 3.77-3s3.38 1.32 3.77 3H22v-5z" fill="currentColor" />
               {/* Windows */}
               <path d="M12 11V7h2.8l1.6 4H12z" fill="#0f172a" />
               <path d="M7 11l1.2-4H11v4H7z" fill="#0f172a" />
