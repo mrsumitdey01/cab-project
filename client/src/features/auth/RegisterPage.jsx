@@ -13,7 +13,7 @@ export function RegisterPage() {
     e.preventDefault();
     try {
       await register(form);
-      navigate('/bookings');
+      navigate('/');
     } catch (err) {
       // handled in context
     }

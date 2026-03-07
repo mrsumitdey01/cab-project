@@ -23,7 +23,7 @@ export function LoginPage() {
     }
     try {
       const session = await login(form);
-      navigate(session.user.role === 'admin' ? '/admin' : '/bookings');
+      navigate(session.user.role === 'admin' ? '/admin' : '/');
     } catch (err) {
       // handled in context
     }
