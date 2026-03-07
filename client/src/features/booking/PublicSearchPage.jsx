@@ -320,12 +320,12 @@ export function PublicSearchPage() {
       <div className="max-w-6xl mx-auto px-6 relative z-10 mb-8">
         <div className="glass-card bg-white/80 backdrop-blur-2xl border border-white/60 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)] rounded-3xl overflow-hidden">
           <div className="px-6 pt-6">
-            <div className="flex bg-slate-200/60 rounded-full p-1.5 gap-2 overflow-x-auto">
+            <div className="flex bg-slate-200/60 rounded-full p-1.5 gap-1 sm:gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               {TRIP_TYPES.map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setFormData((prev) => ({ ...prev, tripType: tab }))}
-                  className={`flex-1 py-2.5 px-4 text-center text-sm whitespace-nowrap rounded-full transition-all duration-300 ${formData.tripType === tab ? 'bg-white text-blue-600 font-bold shadow-md' : 'text-slate-600 font-semibold hover:text-slate-900'
+                  className={`flex-1 py-2.5 px-2 sm:px-4 text-center text-xs sm:text-sm whitespace-nowrap rounded-full transition-all duration-300 ${formData.tripType === tab ? 'bg-white text-blue-600 font-bold shadow-md' : 'text-slate-600 font-semibold hover:text-slate-900'
                     }`}
                 >
                   {tab.replace('_', ' ')}
