@@ -22,8 +22,8 @@ export function LoginPage() {
       return;
     }
     try {
-      const session = await login(form);
-      navigate(session.user.role === 'admin' ? '/admin' : '/');
+      await login(form);
+      navigate('/');
     } catch (err) {
       // handled in context
     }
