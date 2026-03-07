@@ -158,7 +158,7 @@ export function LoginPage() {
                 disabled={loading}
               >
                 <span className="relative z-10 flex items-center gap-2">
-                  {loading ? 'Authenticating...' : 'Sign In to Dashboard'}
+                  {loading ? 'Authenticating...' : 'Sign In'}
                   {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
                 </span>
                 <div className="absolute inset-0 h-full w-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full ease-out duration-1000"></div>
