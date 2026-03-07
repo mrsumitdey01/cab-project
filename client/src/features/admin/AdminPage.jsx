@@ -36,6 +36,26 @@ function parsePickupDateTime(booking) {
   return combined;
 }
 
+function formatDate(dateStr, timeStr) {
+  if (!dateStr) return 'N/A';
+  try {
+    let cleanDate = dateStr;
+    if (typeof cleanDate === 'object' && cleanDate instanceof Date) {
+      cleanDate = cleanDate.toISOString().split('T')[0];
+    } else if (typeof cleanDate === 'string' && cleanDate.includes('T')) {
+      cleanDate = cleanDate.split('T')[0];
+    }
+    let d = new Date(`${cleanDate}T${timeStr || '00:00'}`);
+    if (Number.isNaN(d.getTime())) d = new Date(dateStr);
+    if (Number.isNaN(d.getTime())) return String(dateStr);
+    const hasTime = timeStr || d.getHours() !== 0 || d.getMinutes() !== 0;
+    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) +
+      (hasTime ? `, ${d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}` : '');
+  } catch {
+    return String(dateStr);
+  }
+}
+
 function classifyBooking(booking) {
   if (booking?.status === 'COMPLETED' || booking?.status === 'CANCELLED') return 'past';
   const pickupDateTime = parsePickupDateTime(booking);
@@ -73,6 +93,9 @@ export function AdminPage() {
   const [passengerModalOpen, setPassengerModalOpen] = useState(false);
   const [selectedPassenger, setSelectedPassenger] = useState(null);
   const [exportingBookings, setExportingBookings] = useState(false);
+  const [overrideFare, setOverrideFare] = useState('');
+  const [overrideCabType, setOverrideCabType] = useState('');
+  const [overrideCarModel, setOverrideCarModel] = useState('');
 
   const load = useCallback(async () => {
     try {
@@ -158,9 +181,23 @@ export function AdminPage() {
       return;
     }
     try {
-      const booking = await updateBookingStatus(bookingId, status);
+      const overrides = {};
+      if (status === 'CONFIRMED') {
+        if (overrideFare !== '' && !Number.isNaN(Number(overrideFare))) {
+          overrides.fare = { totalAmount: Number(overrideFare) };
+        }
+        if (overrideCabType || overrideCarModel) {
+          overrides.selection = {};
+          if (overrideCabType) overrides.selection.cabType = overrideCabType;
+          if (overrideCarModel) overrides.selection.carModel = overrideCarModel;
+        }
+      }
+      const booking = await updateBookingStatus(bookingId, status, Object.keys(overrides).length > 0 ? overrides : undefined);
       setSuccess(`Updated booking ${booking._id} to ${booking.status}`);
       setEditingBooking(null);
+      setOverrideFare('');
+      setOverrideCabType('');
+      setOverrideCarModel('');
       await load();
     } catch (err) {
       setError(err?.response?.data?.error?.detail || 'Status update failed.');
@@ -640,14 +677,14 @@ export function AdminPage() {
                           </p>
                           <p className="text-xs text-slate-500 font-medium flex items-center gap-1">
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                            {booking.schedule?.pickupDate} • {booking.schedule?.pickupTime || 'Anytime'}
+                            {formatDate(booking.schedule?.pickupDate, booking.schedule?.pickupTime)}
                           </p>
                         </div>
                       </td>
                       <td className="px-6 py-4">
                         <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 text-xs font-bold border border-slate-200">
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
-                          {booking.cabId?.type || 'Assigned Cab'}
+                          {booking.selection?.cabType || booking.cabId?.type || 'N/A'}{booking.selection?.carModel ? ` · ${booking.selection.carModel}` : ''}
                         </span>
                       </td>
                       <td className="px-6 py-4">
@@ -829,8 +866,7 @@ export function AdminPage() {
                     </div>
                     <div>
                       <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">Date & Time</p>
-                      <p className="text-sm font-semibold text-slate-800">{selectedPassenger.schedule?.pickupDate}</p>
-                      <p className="text-xs text-slate-500 font-medium">{selectedPassenger.schedule?.pickupTime || 'Anytime'}</p>
+                      <p className="text-sm font-semibold text-slate-800">{formatDate(selectedPassenger.schedule?.pickupDate, selectedPassenger.schedule?.pickupTime)}</p>
                     </div>
                     <div>
                       <p className="text-[10px] uppercase tracking-widest text-slate-400 font-bold mb-1">Booking Ref</p>
@@ -870,12 +906,43 @@ export function AdminPage() {
                     )}
                     <div>
                       <label className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-2">New State</label>
-                      <select className="w-full appearance-none px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all font-bold text-slate-700 bg-white" value={status} onChange={(e) => setStatus(e.target.value)}>
+                      <select className="w-full appearance-none px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition-all font-bold text-slate-700 bg-white" value={status} onChange={(e) => { setStatus(e.target.value); setOverrideFare(''); setOverrideCabType(''); setOverrideCarModel(''); }}>
                         <option value="CONFIRMED">CONFIRMED (Approve)</option>
                         <option value="COMPLETED">COMPLETED (Finish)</option>
                         <option value="CANCELLED">CANCELLED (Reject/Fail)</option>
                       </select>
                     </div>
+                    {status === 'CONFIRMED' && (
+                      <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 space-y-3">
+                        <p className="text-xs font-bold text-emerald-700 uppercase tracking-widest">Booking Details Override (Optional)</p>
+                        <div className="relative">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">₹</span>
+                          <input
+                            type="number"
+                            min="0"
+                            className="w-full px-4 py-3 pl-8 rounded-xl border border-slate-200 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all font-medium text-sm"
+                            placeholder="Confirmed Fare (e.g. 3500)"
+                            value={overrideFare}
+                            onChange={(e) => setOverrideFare(e.target.value)}
+                          />
+                        </div>
+                        <input
+                          type="text"
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all font-medium text-sm"
+                          placeholder="Cab Type (e.g. SUV, Sedan)"
+                          value={overrideCabType}
+                          onChange={(e) => setOverrideCabType(e.target.value)}
+                        />
+                        <input
+                          type="text"
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all font-medium text-sm"
+                          placeholder="Car Model (e.g. Toyota Innova)"
+                          value={overrideCarModel}
+                          onChange={(e) => setOverrideCarModel(e.target.value)}
+                        />
+                        <p className="text-[10px] text-emerald-600 font-medium">Leave blank to keep existing values. Changes reflect in BookingPage for this booking.</p>
+                      </div>
+                    )}
                     <button className="w-full py-3.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition-all shadow-lg shadow-indigo-500/20">Apply Forced Update</button>
                     <div className="empty:hidden">
                       {error && <Alert type="error" message={error} />}

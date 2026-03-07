@@ -46,8 +46,8 @@ export async function listBookings() {
   return res.data.data.bookings;
 }
 
-export async function updateBookingStatus(id, status) {
-  const res = await http.patch(`/bookings/${id}/status`, { status });
+export async function updateBookingStatus(id, status, overrides = {}) {
+  const res = await http.patch(`/bookings/${id}/status`, { status, ...overrides });
   return res.data.data.booking;
 }
 

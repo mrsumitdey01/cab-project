@@ -40,6 +40,13 @@ const publicBookingSchema = bookingCreateSchema.extend({
 
 const bookingStatusSchema = z.object({
   status: z.enum(statuses),
+  fare: z.object({
+    totalAmount: z.number().min(0).optional(),
+  }).optional(),
+  selection: z.object({
+    cabType: z.string().optional(),
+    carModel: z.string().optional(),
+  }).optional(),
 });
 
 module.exports = { bookingCreateSchema, bookingStatusSchema, publicBookingSchema, statuses };

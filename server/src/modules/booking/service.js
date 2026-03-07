@@ -154,7 +154,7 @@ async function getBookingById(id, actor) {
   return booking;
 }
 
-async function updateBookingStatus(id, status, actor, requestId) {
+async function updateBookingStatus(id, status, actor, requestId, overrides) {
   const booking = await Booking.findById(id);
   if (!booking) {
     throw new ApiError({ status: 404, title: 'Not Found', detail: 'Booking not found.', code: 'booking_not_found' });
@@ -172,6 +172,20 @@ async function updateBookingStatus(id, status, actor, requestId) {
 
   const previousStatus = booking.status;
   booking.status = status;
+
+  // Apply optional fare and selection overrides (e.g. when confirming a booking)
+  if (overrides?.fare?.totalAmount !== undefined && overrides.fare.totalAmount >= 0) {
+    booking.fare = { totalAmount: overrides.fare.totalAmount };
+  }
+  if (overrides?.selection) {
+    if (overrides.selection.cabType !== undefined) {
+      booking.selection.cabType = overrides.selection.cabType;
+    }
+    if (overrides.selection.carModel !== undefined) {
+      booking.selection.carModel = overrides.selection.carModel;
+    }
+  }
+
   await booking.save();
 
   await BookingEvent.create({
@@ -202,6 +216,8 @@ async function updateBookingStatus(id, status, actor, requestId) {
     metadata: {
       from: previousStatus,
       to: status,
+      ...(overrides?.fare?.totalAmount !== undefined && { fareOverride: overrides.fare.totalAmount }),
+      ...(overrides?.selection && { selectionOverride: overrides.selection }),
     },
     requestId,
   });

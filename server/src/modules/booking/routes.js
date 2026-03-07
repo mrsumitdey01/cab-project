@@ -50,7 +50,8 @@ function createBookingRouter(config) {
         req.params.id,
         req.body.status,
         { userId: req.user.sub, role: req.user.role, email: req.user.email },
-        res.locals.requestId
+        res.locals.requestId,
+        { fare: req.body.fare, selection: req.body.selection }
       );
       return success(res, { booking });
     } catch (err) {
