@@ -9,14 +9,6 @@ import { useWarmup } from '../../shared/contexts/WarmupContext';
 import { AutocompleteDropdown } from '../../components/AutocompleteDropdown';
 
 const TRIP_TYPES = ['ONE_WAY', 'ROUND_TRIP', 'HOURLY'];
-const FLAT_RATE_MATRIX = {
-  'Delhi-Noida': 800,
-  'Gurgaon-Delhi': 1000,
-  'Chandigarh-Delhi': 3000,
-  'Mumbai-Mumbai Airport': 1200,
-  'Bengaluru-Whitefield': 900,
-  'Hyderabad-Gachibowli': 850,
-};
 
 export function PublicSearchPage() {
   const navigate = useNavigate();
@@ -273,11 +265,7 @@ export function PublicSearchPage() {
   }
 
   const showSkeleton = warmup.status !== 'ready' || loading;
-  const hubKey = selectedFrom?.hub && selectedTo?.hub ? `${selectedFrom.hub}-${selectedTo.hub}` : '';
-  const baseRate = hubKey && FLAT_RATE_MATRIX[hubKey] ? FLAT_RATE_MATRIX[hubKey] : 0;
-  const cabMultiplier = selectedCab?.multiplier || results?.cabs?.[0]?.multiplier || 1;
-  const estimatedFare = baseRate ? Math.round(baseRate * cabMultiplier) : 0;
-  const priceMessage = hubKey && !baseRate ? 'Price calculated on request.' : '';
+
 
   return (
     <div className="w-full pb-10">
@@ -609,14 +597,6 @@ export function PublicSearchPage() {
                           <p className="text-sm font-semibold text-slate-800">{formData.dropoff.address || 'N/A'}</p>
                         </div>
                       </div>
-                      <div className="pt-3 border-t border-slate-200/60 flex items-center justify-between">
-                        <span className="text-sm font-semibold text-slate-500">Estimated Fare</span>
-                        {estimatedFare > 0 ? (
-                          <span className="text-lg font-black text-indigo-600">₹{estimatedFare}</span>
-                        ) : (
-                          <span className="text-sm font-semibold text-slate-500">{priceMessage}</span>
-                        )}
-                      </div>
                     </div>
                   )}
 
@@ -661,7 +641,7 @@ export function PublicSearchPage() {
 
                   <button
                     className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg shadow-[0_8px_20px_-6px_rgba(59,130,246,0.5)] hover:shadow-[0_12px_25px_-6px_rgba(59,130,246,0.6)] sweep-hover transition-all duration-300 disabled:opacity-60 disabled:shadow-none disabled:hover:shadow-none disabled:cursor-not-allowed"
-                    disabled={loading || showSkeleton || (!contact.name || !/^[+]?[0-9]{7,13}$/.test(contact.phone || ''))}
+                    disabled={loading || showSkeleton || (!contact.name || !/^(?:\+91|91)?\d{10}$/.test(contact.phone || ''))}
                   >
                     {loading ? (
                       <>
@@ -680,9 +660,10 @@ export function PublicSearchPage() {
               </div>
             )}
           </div>
-        </div>
-      )}
-    </div>
+        </div >
+      )
+      }
+    </div >
   );
 }
 
