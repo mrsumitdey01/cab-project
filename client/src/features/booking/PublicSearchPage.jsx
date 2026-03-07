@@ -29,6 +29,7 @@ export function PublicSearchPage() {
   const [selectedFrom, setSelectedFrom] = useState(null);
   const [selectedTo, setSelectedTo] = useState(null);
   const [contact, setContact] = useState({ name: '', email: '', phone: '' });
+  const [emailError, setEmailError] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -614,12 +615,26 @@ export function PublicSearchPage() {
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Email Address <span className="opacity-60">(Optional)</span></label>
                       <input
-                        className="w-full bg-white border border-slate-200 hover:border-blue-300 text-slate-800 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium placeholder:text-slate-400 shadow-sm"
+                        className={`w-full bg-white border ${emailError ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500 focus:ring-blue-500/20'} text-slate-800 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 transition-all font-medium placeholder:text-slate-400 shadow-sm`}
                         placeholder="john@example.com"
                         type="email"
                         value={contact.email}
-                        onChange={(e) => setContact((prev) => ({ ...prev, email: e.target.value }))}
+                        onChange={(e) => { setContact((prev) => ({ ...prev, email: e.target.value })); if (emailError) setEmailError(''); }}
+                        onBlur={(e) => {
+                          const val = e.target.value.trim();
+                          if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+                            setEmailError('Please enter a valid email address (e.g. john@example.com)');
+                          } else {
+                            setEmailError('');
+                          }
+                        }}
                       />
+                      {emailError && (
+                        <p className="text-xs text-rose-500 font-medium mt-1.5 ml-1 flex items-center gap-1">
+                          <svg className="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /></svg>
+                          {emailError}
+                        </p>
+                      )}
                     </div>
                     <div className="md:col-span-2">
                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">WhatsApp Number</label>
@@ -641,7 +656,7 @@ export function PublicSearchPage() {
 
                   <button
                     className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg shadow-[0_8px_20px_-6px_rgba(59,130,246,0.5)] hover:shadow-[0_12px_25px_-6px_rgba(59,130,246,0.6)] sweep-hover transition-all duration-300 disabled:opacity-60 disabled:shadow-none disabled:hover:shadow-none disabled:cursor-not-allowed"
-                    disabled={loading || showSkeleton || (!contact.name || !/^(?:\+91|91)?\d{10}$/.test(contact.phone || ''))}
+                    disabled={loading || showSkeleton || emailError !== '' || (!contact.name || !/^(?:\+91|91)?\d{10}$/.test(contact.phone || ''))}
                   >
                     {loading ? (
                       <>
