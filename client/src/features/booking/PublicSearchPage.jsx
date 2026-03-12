@@ -431,7 +431,7 @@ export function PublicSearchPage() {
                   className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg shadow-[0_8px_20px_-6px_rgba(59,130,246,0.6)] hover:shadow-[0_12px_25px_-6px_rgba(59,130,246,0.7)] sweep-hover transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
                   disabled={loading || warmup.status !== 'ready'}
                 >
-                  {loading ? 'Searching...' : warmup.status !== 'ready' ? 'Find Best Rides...' : 'Book Cab'}
+                  {loading ? 'Searching...' : warmup.status !== 'ready' ? 'Finding Best Rides...' : 'Book Cab'}
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M14 5l7 7m0 0l-7 7m7-7H3" />
                   </svg>
