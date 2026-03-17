@@ -28,8 +28,15 @@ function createBookingRouter(config) {
 
   router.get('/', authenticate(config), async (req, res, next) => {
     try {
-      const bookings = await bookingService.listBookings({ userId: req.user.sub, role: req.user.role });
-      return success(res, { bookings });
+      const bookingsResult = await bookingService.listBookings(
+        { userId: req.user.sub, role: req.user.role },
+        {
+          query: req.query.q,
+          page: req.query.page,
+          pageSize: req.query.pageSize,
+        }
+      );
+      return success(res, bookingsResult, { meta: bookingsResult.meta || null });
     } catch (err) {
       return next(err);
     }

@@ -1,13 +1,20 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../shared/contexts/AuthContext';
 import { Alert } from '../../shared/ui/Alert';
-import { User, Mail, Lock, ArrowRight, Zap } from 'lucide-react';
+import { User, Mail, Lock, ArrowRight, Zap, Eye, EyeOff, ShieldCheck, BadgeCheck } from 'lucide-react';
 
 export function RegisterPage() {
   const navigate = useNavigate();
   const { register, loading, error } = useAuth();
   const [form, setForm] = useState({ name: '', email: '', password: '' });
+  const [showPassword, setShowPassword] = useState(false);
+  const brandingItems = useMemo(() => ([
+    { icon: User, color: 'text-blue-400', label: 'Save passenger profiles' },
+    { icon: Zap, color: 'text-amber-400', label: '1-click booking history' },
+    { icon: ShieldCheck, color: 'text-emerald-400', label: 'Secure account access across devices' },
+    { icon: BadgeCheck, color: 'text-indigo-300', label: 'Priority access to premium cab classes' },
+  ]), []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -52,14 +59,12 @@ export function RegisterPage() {
             </p>
 
             <div className="space-y-4">
-              <div className="flex items-center gap-3 text-sm text-slate-300 bg-white/5 p-3 rounded-xl border border-white/10 backdrop-blur-sm w-max">
-                <User className="w-5 h-5 text-blue-400" />
-                <span>Save passenger profiles</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-slate-300 bg-white/5 p-3 rounded-xl border border-white/10 backdrop-blur-sm w-max">
-                <Zap className="w-5 h-5 text-amber-400" />
-                <span>1-click booking history</span>
-              </div>
+              {brandingItems.map(({ icon: Icon, color, label }) => (
+                <div key={label} className="flex items-center gap-3 text-sm text-slate-300 bg-white/5 p-3 rounded-xl border border-white/10 backdrop-blur-sm w-max transition-all duration-300 hover:bg-white/10 hover:-translate-y-0.5 hover:border-white/20">
+                  <Icon className={`w-5 h-5 ${color}`} />
+                  <span>{label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -74,21 +79,21 @@ export function RegisterPage() {
             </div>
 
             {error && (
-              <div className="mb-6">
+              <div className="mb-6 animate-shake-in">
                 <Alert type="error" message={error} />
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
 
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 animate-slide-up-fade" style={{ animationDelay: '60ms' }}>
                 <label className="text-sm font-bold text-slate-700 block">Full Name</label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                     <User className="h-5 w-5" />
                   </div>
                   <input
-                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all outline-none font-medium text-base"
+                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all outline-none font-medium text-base focus-ring-consistent"
                     placeholder="Enter your full name"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
@@ -97,14 +102,14 @@ export function RegisterPage() {
                 </div>
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 animate-slide-up-fade" style={{ animationDelay: '120ms' }}>
                 <label className="text-sm font-bold text-slate-700 block">Email Address</label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                     <Mail className="h-5 w-5" />
                   </div>
                   <input
-                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all outline-none font-medium text-base"
+                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all outline-none font-medium text-base focus-ring-consistent"
                     placeholder="Enter your email"
                     type="email"
                     value={form.email}
@@ -114,21 +119,24 @@ export function RegisterPage() {
                 </div>
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 animate-slide-up-fade" style={{ animationDelay: '180ms' }}>
                 <label className="text-sm font-bold text-slate-700 block">Password</label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                     <Lock className="h-5 w-5" />
                   </div>
                   <input
-                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all outline-none font-medium text-base"
+                    className="block w-full pl-11 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all outline-none font-medium text-base focus-ring-consistent"
                     placeholder="Create a password (min. 8 chars)"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
                     minLength={8}
                     required
                   />
+                  <button type="button" onClick={() => setShowPassword((prev) => !prev)} className="absolute inset-y-0 right-0 px-4 text-slate-400 hover:text-slate-700 transition-colors" aria-label={showPassword ? 'Hide password' : 'Show password'}>
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
               </div>
 

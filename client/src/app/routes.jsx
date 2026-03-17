@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Link, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { LoginPage } from '../features/auth/LoginPage';
 import { RegisterPage } from '../features/auth/RegisterPage';
 import { BookingPage } from '../features/booking/BookingPage';
@@ -10,6 +10,7 @@ import { TermsOfServicePage } from '../features/legal/TermsOfServicePage';
 import { ProtectedRoute } from '../shared/ui/ProtectedRoute';
 import { useAuth } from '../shared/contexts/AuthContext';
 import SafarExpressLogo from '../components/SafarExpressLogo';
+import { createCorporateEnquiry } from '../shared/api/endpoints';
 
 function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -19,6 +20,8 @@ function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   const headerRef = useRef(null);
+  const avatarButtonRef = useRef(null);
+  const avatarMenuRef = useRef(null);
 
   async function handleLogout() {
     await logout();
@@ -50,6 +53,34 @@ function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (!avatarOpen) return undefined;
+    function handleKeyDown(event) {
+      if (event.key === 'Escape') {
+        setAvatarOpen(false);
+        avatarButtonRef.current?.focus();
+      }
+      if (event.key === 'Tab' && avatarMenuRef.current) {
+        const focusable = avatarMenuRef.current.querySelectorAll('button, [href], [tabindex]:not([tabindex="-1"])');
+        const items = Array.from(focusable);
+        if (!items.length) return;
+        const first = items[0];
+        const last = items[items.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    const firstButton = avatarMenuRef.current?.querySelector('button');
+    firstButton?.focus();
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [avatarOpen]);
+
   const displayName = user?.name || user?.fullName || user?.email || '';
   const initials = displayName
     ? displayName
@@ -67,6 +98,13 @@ function Navbar() {
 
   const linkClass = isHome && !scrolled ? 'text-white hover:text-blue-300' : 'text-slate-600 hover:text-blue-600';
   const menuIconColor = isHome && !scrolled && !isOpen ? 'text-white' : 'text-slate-600';
+  const navItems = useMemo(() => ([
+    { to: '/', label: 'Search', show: true },
+    { to: '/bookings', label: 'Bookings', show: isAuthenticated },
+    { to: '/admin', label: 'Admin', show: user?.role === 'admin' },
+    { to: '/login', label: 'Login', show: !isAuthenticated },
+    { to: '/register', label: 'Register', show: !isAuthenticated },
+  ].filter((item) => item.show)), [isAuthenticated, user?.role]);
 
   return (
     <header ref={headerRef} className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${navBgClass}`}>
@@ -75,25 +113,35 @@ function Navbar() {
           <SafarExpressLogo light={isHome && !scrolled} />
         </Link>
         <nav className={`hidden md:flex items-center gap-6 text-sm font-medium transition-colors ${linkClass}`}>
-          <Link to="/" className="transition-colors drop-shadow-sm">Search</Link>
-          {isAuthenticated && <Link to="/bookings" className="transition-colors drop-shadow-sm">Bookings</Link>}
-          {user?.role === 'admin' && <Link to="/admin" className="transition-colors drop-shadow-sm">Admin</Link>}
-          {!isAuthenticated && <Link to="/login" className="transition-colors drop-shadow-sm">Login</Link>}
-          {!isAuthenticated && <Link to="/register" className="transition-colors drop-shadow-sm">Register</Link>}
+          {navItems.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              // className={({ isActive }) => `transition-colors drop-shadow-sm nav-link-underline ${isActive ? 'font-bold' : ''}`}
+              // data-active={location.pathname === item.to}
+              className="transition-colors drop-shadow-sm"
+            >
+              {item.label}
+            </NavLink>
+          ))}
           {isAuthenticated && (
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setAvatarOpen((prev) => !prev)}
-                className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 font-bold flex items-center justify-center cursor-pointer border border-blue-100"
+                ref={avatarButtonRef}
+                className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 font-bold flex items-center justify-center cursor-pointer border border-blue-100 focus-ring-consistent"
                 aria-label="User menu"
+                aria-expanded={avatarOpen}
+                aria-haspopup="menu"
               >
                 {initials || 'SE'}
               </button>
               {avatarOpen && (
-                <div className="absolute right-0 mt-3 w-56 rounded-xl border border-slate-100 bg-white shadow-lg p-3 z-50">
+                <div ref={avatarMenuRef} className="absolute right-0 mt-3 w-56 rounded-xl border border-slate-200 bg-white shadow-2xl p-3 z-50 ring-1 ring-slate-100/80 animate-slide-up-fade">
                   <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Signed in</p>
-                  <p className="text-sm text-slate-600 mt-1 break-all">{user?.email}</p>
+                  <p className="text-sm text-slate-800 mt-1 font-semibold break-all">{displayName}</p>
+                  <p className="text-xs text-slate-500 mt-1 break-all">{user?.email}</p>
                   <div className="my-3 h-px bg-slate-100" />
                   <button
                     className="w-full text-left text-red-600 hover:bg-red-50 px-3 py-2 rounded-md font-medium transition-colors"
@@ -124,16 +172,22 @@ function Navbar() {
         </button>
 
         {isOpen && (
-          <div className="absolute top-full left-0 w-full bg-white shadow-xl border-t border-slate-100 flex flex-col p-4 gap-4 md:hidden">
-            <Link to="/" className="text-slate-600 hover:text-blue-600 font-medium px-2 py-1" onClick={() => setIsOpen(false)}>Search</Link>
-            {isAuthenticated && <Link to="/bookings" className="text-slate-600 hover:text-blue-600 font-medium px-2 py-1" onClick={() => setIsOpen(false)}>Bookings</Link>}
-            {user?.role === 'admin' && <Link to="/admin" className="text-slate-600 hover:text-blue-600 font-medium px-2 py-1" onClick={() => setIsOpen(false)}>Admin</Link>}
-            {!isAuthenticated && <Link to="/login" className="text-slate-600 hover:text-blue-600 font-medium px-2 py-1" onClick={() => setIsOpen(false)}>Login</Link>}
-            {!isAuthenticated && <Link to="/register" className="text-slate-600 hover:text-blue-600 font-medium px-2 py-1" onClick={() => setIsOpen(false)}>Register</Link>}
+          <div className="absolute top-full left-0 w-full bg-white/65 backdrop-blur-2xl shadow-2xl border-t border-white/40 flex flex-col p-4 gap-4 md:hidden animate-slide-up-fade">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                className={({ isActive }) => `text-slate-700 hover:text-blue-600 font-medium px-2 py-2 rounded-xl transition-all ${isActive ? 'bg-white/70 shadow-sm text-blue-600' : 'hover:bg-white/50'}`}
+                onClick={() => setIsOpen(false)}
+              >
+                {item.label}
+              </NavLink>
+            ))}
             {isAuthenticated && (
               <>
                 <hr className="border-slate-100" />
-                <span className="text-slate-400 text-sm px-2">{user?.email}</span>
+                <span className="text-slate-700 text-sm px-2 font-semibold">{displayName}</span>
+                <span className="text-slate-400 text-xs px-2">{user?.email}</span>
                 <button
                   className="text-red-500 hover:bg-red-50 px-2 py-2 rounded-md text-left font-medium transition-colors"
                   onClick={() => {
@@ -178,14 +232,26 @@ export function AppRoutes() {
     setIsCorporateSuccess(false);
   }
 
-  function handleCorporateSubmit(e) {
+  async function handleCorporateSubmit(e) {
     e.preventDefault();
     if (isSubmittingCorporate) return;
     setIsSubmittingCorporate(true);
-    setTimeout(() => {
+    try {
+      await createCorporateEnquiry(corporateForm);
       setIsSubmittingCorporate(false);
       setIsCorporateSuccess(true);
-    }, 1500);
+      setCorporateForm({
+        company: '',
+        contactName: '',
+        email: '',
+        phone: '',
+        city: 'Delhi NCR',
+        rides: '10-50',
+        requirements: '',
+      });
+    } catch (_err) {
+      setIsSubmittingCorporate(false);
+    }
   }
 
   return (

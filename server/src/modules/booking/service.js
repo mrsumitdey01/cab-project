@@ -127,18 +127,42 @@ async function searchOptions(input) {
   };
 }
 
-async function listBookings(actor) {
+async function listBookings(actor, options = {}) {
+  const page = Math.max(1, Number(options.page || 1));
+  const pageSize = Math.min(100, Math.max(1, Number(options.pageSize || 100)));
+  const skip = (page - 1) * pageSize;
+  const queryText = String(options.query || '').trim();
+  const regex = queryText ? new RegExp(queryText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i') : null;
+  const baseQuery = actor.role === 'admin' ? {} : { userId: actor.userId };
+  const searchQuery = regex ? {
+    $or: [
+      { 'pickup.address': regex },
+      { 'dropoff.address': regex },
+      { 'selection.route': regex },
+      { 'selection.cabType': regex },
+      { 'selection.carModel': regex },
+      { _id: queryText.match(/^[a-f\d]{24}$/i) ? queryText : null },
+    ],
+  } : {};
+  const finalQuery = { ...baseQuery, ...(regex ? searchQuery : {}) };
+
   if (actor.role === 'admin') {
-    return Booking.find({})
-      .populate('passengerId')
-      .sort({ createdAt: -1 })
-      .limit(100);
+    const [bookings, total] = await Promise.all([
+      Booking.find(finalQuery)
+        .populate('passengerId')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(pageSize),
+      Booking.countDocuments(finalQuery),
+    ]);
+    return { bookings, meta: { page, pageSize, total } };
   }
 
-  return Booking.find({ userId: actor.userId })
+  const bookings = await Booking.find({ userId: actor.userId })
     .populate('passengerId')
     .sort({ createdAt: -1 })
     .limit(100);
+  return { bookings };
 }
 
 async function getBookingById(id, actor) {

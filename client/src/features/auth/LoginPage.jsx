@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../shared/contexts/AuthContext';
 import { Alert } from '../../shared/ui/Alert';
 import { getWarmState, warmBackend } from '../../shared/api/warmup';
 import { useWarmup } from '../../shared/contexts/WarmupContext';
-import { Mail, Lock, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
+import { Mail, Lock, ArrowRight, ShieldCheck, Zap, Eye, EyeOff, BadgeCheck } from 'lucide-react';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -13,9 +13,20 @@ export function LoginPage() {
   const warmup = useWarmup();
   const [, setWarming] = useState(getWarmState().status);
   const [forgotEmailSent, setForgotEmailSent] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [emailError, setEmailError] = useState('');
+  const brandingItems = useMemo(() => ([
+    { icon: ShieldCheck, color: 'text-emerald-400', label: 'Bank-level security & encryption' },
+    { icon: Zap, color: 'text-amber-400', label: 'Instant booking confirmations' },
+    { icon: BadgeCheck, color: 'text-blue-300', label: 'Verified drivers on premium routes' },
+  ]), []);
 
   async function handleSubmit(e) {
     e.preventDefault();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+      setEmailError('Enter a valid email address before signing in.');
+      return;
+    }
     if (warmup.status !== 'ready') {
       setWarming('warming');
       await warmBackend();
@@ -73,14 +84,12 @@ export function LoginPage() {
             </p>
 
             <div className="space-y-4">
-              <div className="flex items-center gap-3 text-sm text-slate-300 bg-white/5 p-3 rounded-xl border border-white/10 backdrop-blur-sm w-max">
-                <ShieldCheck className="w-5 h-5 text-emerald-400" />
-                <span>Bank-level security & encryption</span>
-              </div>
-              <div className="flex items-center gap-3 text-sm text-slate-300 bg-white/5 p-3 rounded-xl border border-white/10 backdrop-blur-sm w-max">
-                <Zap className="w-5 h-5 text-amber-400" />
-                <span>Instant booking confirmations</span>
-              </div>
+              {brandingItems.map(({ icon: Icon, color, label }) => (
+                <div key={label} className="flex items-center gap-3 text-sm text-slate-300 bg-white/5 p-3 rounded-xl border border-white/10 backdrop-blur-sm w-max transition-all duration-300 hover:bg-white/10 hover:-translate-y-0.5 hover:border-white/20">
+                  <Icon className={`w-5 h-5 ${color} transition-transform duration-300 group-hover:scale-110`} />
+                  <span>{label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -102,31 +111,37 @@ export function LoginPage() {
             </div>
 
             {error && (
-              <div className="mb-6">
+              <div className="mb-6 animate-shake-in">
                 <Alert type="error" message={error} />
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6">
 
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 animate-slide-up-fade" style={{ animationDelay: '60ms' }}>
                 <label className="text-sm font-bold text-slate-700 block">Email Address</label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
                     <Mail className="h-5 w-5" />
                   </div>
                   <input
-                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all outline-none font-medium"
+                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all outline-none font-medium focus-ring-consistent"
                     placeholder="Enter your email"
                     type="email"
                     value={form.email}
-                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    onChange={(e) => { setForm({ ...form, email: e.target.value }); if (emailError) setEmailError(''); }}
+                    onBlur={() => {
+                      if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+                        setEmailError('Enter a valid email address before signing in.');
+                      }
+                    }}
                     required
                   />
                 </div>
+                {emailError ? <p className="text-xs text-rose-500 font-medium">{emailError}</p> : null}
               </div>
 
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 animate-slide-up-fade" style={{ animationDelay: '140ms' }}>
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-bold text-slate-700 block">Password</label>
                   <button
@@ -142,20 +157,23 @@ export function LoginPage() {
                     <Lock className="h-5 w-5" />
                   </div>
                   <input
-                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all outline-none font-medium"
+                    className="block w-full pl-11 pr-12 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all outline-none font-medium focus-ring-consistent"
                     placeholder="Enter your password"
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     value={form.password}
                     onChange={(e) => setForm({ ...form, password: e.target.value })}
                     required
                   />
+                  <button type="button" onClick={() => setShowPassword((prev) => !prev)} className="absolute inset-y-0 right-0 px-4 text-slate-400 hover:text-slate-700 transition-colors" aria-label={showPassword ? 'Hide password' : 'Show password'}>
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
               </div>
 
               <button
                 type="submit"
                 className="w-full flex items-center justify-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-sm text-base font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden"
-                disabled={loading}
+                disabled={loading || !!emailError}
               >
                 <span className="relative z-10 flex items-center gap-2">
                   {loading ? 'Authenticating...' : 'Sign In'}

@@ -94,6 +94,8 @@ export function PublicSearchPage() {
     const timeout = setTimeout(() => {
       setBookingFormOpen(false);
       setIsSubmitted(false);
+      setContact({ name: '', email: '', phone: '' });
+      setEmailError('');
       navigate('/');
     }, 4000);
     return () => clearTimeout(timeout);
@@ -256,6 +258,8 @@ export function PublicSearchPage() {
         : await createPublicBooking(payload, requestIdempotencyKey));
 
       setSuccess('Enquiry submitted.');
+      setContact({ name: '', email: '', phone: '' });
+      setEmailError('');
       setIsSubmitted(true);
     } catch (err) {
       console.error('Booking error:', err?.response?.data || err);
@@ -271,6 +275,7 @@ export function PublicSearchPage() {
   return (
     <div className="w-full pb-10">
       <div className="hero-premium-bg pt-20 pb-32 px-6 rounded-b-[3rem] shadow-2xl relative mb-[-80px] z-0">
+        {/* <div className="hero-mesh" /> */}
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mt-2 mb-10">
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white text-sm font-medium mb-6 animate-float">
@@ -429,7 +434,7 @@ export function PublicSearchPage() {
               <div className="flex flex-col justify-center h-full">
                 <button
                   className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg shadow-[0_8px_20px_-6px_rgba(59,130,246,0.6)] hover:shadow-[0_12px_25px_-6px_rgba(59,130,246,0.7)] sweep-hover transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
-                  disabled={loading || warmup.status !== 'ready'}
+                  disabled={loading || warmup.status !== 'ready' || (!fromQuery.trim() && !toQuery.trim())}
                 >
                   {loading ? 'Searching...' : warmup.status !== 'ready' ? 'Finding Best Rides...' : 'Book Cab'}
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -533,8 +538,8 @@ export function PublicSearchPage() {
 
 
       {bookingFormOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/40 backdrop-blur-sm transition-all duration-300">
-          <div className="w-full max-w-xl bg-white/95 backdrop-blur-2xl border border-white/40 shadow-[0_0_50px_-12px_rgba(0,0,0,0.25)] rounded-[2rem] p-8 relative overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-slate-900/40 backdrop-blur-sm transition-all duration-300 modal-backdrop">
+          <div className="w-full max-w-xl bg-white/95 backdrop-blur-2xl border border-white/40 shadow-[0_0_50px_-12px_rgba(0,0,0,0.25)] rounded-[2rem] p-8 relative overflow-hidden modal-panel-slide-up">
             <div className="absolute top-0 inset-x-0 h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500"></div>
 
             <button
@@ -546,16 +551,18 @@ export function PublicSearchPage() {
             </button>
 
             {isSubmitted ? (
-              <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
-                <svg className="mb-6 w-24 h-24 drop-shadow-md" viewBox="0 0 72 72" fill="none" aria-hidden="true">
+              <div className="flex flex-col items-center justify-center py-12 px-6 text-center relative overflow-hidden">
+                <div className="absolute inset-x-8 top-5 h-20 rounded-full bg-gradient-to-r from-emerald-100 via-blue-100 to-indigo-100 blur-2xl opacity-80" />
+                <svg className="mb-6 w-24 h-24 drop-shadow-md relative z-10" viewBox="0 0 72 72" fill="none" aria-hidden="true">
                   <circle className="tick-circle" cx="36" cy="36" r="30" stroke="#3b82f6" strokeWidth="5" />
                   <path className="tick-check" d="M22 37L32 47L50 29" stroke="#3b82f6" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                <h3 className="text-3xl font-black text-slate-800 mb-2 tracking-tight">Booking Confirmed!</h3>
-                <p className="text-slate-500 font-medium max-w-sm mx-auto">We've received your request. We will connect with you shortly to finalize details.</p>
+                <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-1 text-xs font-bold uppercase tracking-[0.28em] text-emerald-700 relative z-10">Request Locked In</div>
+                <h3 className="text-3xl font-black text-slate-800 mb-2 tracking-tight mt-4 relative z-10">Booking Confirmed!</h3>
+                <p className="text-slate-500 font-medium max-w-sm mx-auto relative z-10">We've received your request. Our team will confirm the cab and contact you shortly.</p>
                 <button
                   onClick={() => setBookingFormOpen(false)}
-                  className="mt-8 px-8 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold transition-colors w-full sm:w-auto"
+                  className="mt-8 px-8 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl font-bold transition-colors w-full sm:w-auto relative z-10"
                 >
                   Close Window
                 </button>
@@ -598,6 +605,41 @@ export function PublicSearchPage() {
                           <p className="text-sm font-semibold text-slate-800">{formData.dropoff.address || 'N/A'}</p>
                         </div>
                       </div>
+                      {!!results.cabs?.length && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {results.cabs.map((cab) => {
+                            const isActive = selectedCab?.cabType === cab.cabType && selectedCab?.carModel === cab.carModel;
+                            return (
+                              <button
+                                key={`${cab.cabType}-${cab.carModel}`}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedCab(cab);
+                                  setSelection((prev) => ({
+                                    ...prev,
+                                    cabType: cab.cabType || '',
+                                    carModel: cab.carModel || '',
+                                    multiplier: cab.multiplier || 1,
+                                  }));
+                                }}
+                                className={`relative overflow-hidden rounded-2xl border p-4 text-left transition-all duration-300 ${isActive ? 'border-blue-500 bg-blue-50 shadow-lg shadow-blue-100' : 'border-slate-200 bg-white hover:border-blue-300 hover:bg-slate-50'}`}
+                              >
+                                <div className={`absolute inset-0 bg-gradient-to-r from-blue-100/0 via-blue-100/70 to-blue-100/0 transition-transform duration-500 ${isActive ? 'translate-x-0' : '-translate-x-full'}`} />
+                                <div className="relative flex items-start gap-3">
+                                  <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${isActive ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500'}`}>
+                                    <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2 1m8-1l2 1m-2-1V6m2 10V6a1 1 0 00-1-1h-1" /></svg>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-bold text-slate-900">{cab.cabType}</p>
+                                    <p className="text-sm text-slate-600">{cab.carModel}</p>
+                                    <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-slate-400">Fare multiplier x{cab.multiplier}</p>
+                                  </div>
+                                </div>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   )}
 

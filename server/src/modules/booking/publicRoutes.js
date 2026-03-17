@@ -3,6 +3,7 @@ const { success } = require('../../lib/response');
 const { validate } = require('../../middleware/validate');
 const { bookingCreateSchema, publicBookingSchema } = require('./schemas');
 const bookingService = require('./service');
+const AuditLog = require('../../../models/AuditLog');
 
 function createPublicRouter(_config) {
   const router = express.Router();
@@ -30,6 +31,30 @@ function createPublicRouter(_config) {
       );
 
       return success(res, result, { status: result.replayed ? result.replayStatus : 201 });
+    } catch (err) {
+      return next(err);
+    }
+  });
+
+  router.post('/corporate-enquiries', async (req, res, next) => {
+    try {
+      const { company, contactName, email, phone, city, rides, requirements } = req.body || {};
+      await AuditLog.create({
+        action: 'CORPORATE_ENQUIRY_SUBMITTED',
+        actor: {
+          userId: null,
+          role: 'guest',
+          email: email || 'corporate@guest.local',
+        },
+        target: { type: 'corporate-enquiry', id: `${Date.now()}` },
+        metadata: { company, contactName, email, phone, city, rides, requirements },
+        requestId: res.locals.requestId,
+      });
+
+      return success(res, {
+        received: true,
+        message: 'Corporate enquiry submitted successfully.',
+      }, { status: 201 });
     } catch (err) {
       return next(err);
     }

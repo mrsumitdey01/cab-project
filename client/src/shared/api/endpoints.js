@@ -34,6 +34,11 @@ export async function createPublicBooking(payload, idempotencyKey) {
   return res.data.data;
 }
 
+export async function createCorporateEnquiry(payload) {
+  const res = await http.post('/public/corporate-enquiries', payload);
+  return res.data.data;
+}
+
 export async function createBooking(payload, idempotencyKey) {
   const res = await http.post('/bookings', payload, {
     headers: idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {},
@@ -41,9 +46,14 @@ export async function createBooking(payload, idempotencyKey) {
   return res.data.data;
 }
 
-export async function listBookings() {
-  const res = await http.get('/bookings');
-  return res.data.data.bookings;
+export async function listBookings(options = {}) {
+  const params = new URLSearchParams();
+  if (options.q) params.set('q', options.q);
+  if (options.page) params.set('page', options.page);
+  if (options.pageSize) params.set('pageSize', options.pageSize);
+  const query = params.toString();
+  const res = await http.get(`/bookings${query ? `?${query}` : ''}`);
+  return { bookings: res.data.data.bookings, meta: res.data.meta };
 }
 
 export async function updateBookingStatus(id, status, overrides = {}) {
