@@ -89,12 +89,13 @@ export function BookingPage() {
     try {
       setLoading(true);
       const data = await listBookings();
+      const nextBookings = data.bookings || [];
       setRecentStatusIds((prev) => {
         const previous = new Map(previousBookingsRef.current.map((item) => [item._id, item.status]));
-        return data.filter((item) => previous.has(item._id) && previous.get(item._id) !== item.status).map((item) => item._id);
+        return nextBookings.filter((item) => previous.has(item._id) && previous.get(item._id) !== item.status).map((item) => item._id);
       });
-      setBookings(data.bookings || []);
-      previousBookingsRef.current = data.bookings || [];
+      setBookings(nextBookings);
+      previousBookingsRef.current = nextBookings;
     } catch (err) {
       setError(err?.response?.data?.error?.detail || 'Failed to load bookings.');
     } finally {
