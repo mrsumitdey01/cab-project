@@ -4,8 +4,8 @@ function Section({ title, children }) {
   return (
     <div className="mt-8">
       <div className="mb-3 flex items-center gap-3">
-        <div className="h-px flex-1 bg-gradient-to-r from-indigo-200 via-slate-200 to-transparent" />
         <h2 className="text-xl font-bold text-slate-800">{title}</h2>
+        <div className="h-px flex-1 bg-gradient-to-r from-indigo-200 via-slate-200 to-transparent" />
       </div>
       <div className="space-y-3 text-slate-600 leading-relaxed">{children}</div>
     </div>

@@ -605,7 +605,7 @@ export function PublicSearchPage() {
                           <p className="text-sm font-semibold text-slate-800">{formData.dropoff.address || 'N/A'}</p>
                         </div>
                       </div>
-                      {!!results.cabs?.length && (
+                      {/* {!!results.cabs?.length && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           {results.cabs.map((cab) => {
                             const isActive = selectedCab?.cabType === cab.cabType && selectedCab?.carModel === cab.carModel;
@@ -639,7 +639,7 @@ export function PublicSearchPage() {
                             );
                           })}
                         </div>
-                      )}
+                      )} */}
                     </div>
                   )}
 

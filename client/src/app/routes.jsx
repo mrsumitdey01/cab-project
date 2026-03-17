@@ -172,7 +172,7 @@ function Navbar() {
         </button>
 
         {isOpen && (
-          <div className="absolute top-full left-0 w-full bg-white/65 backdrop-blur-2xl shadow-2xl border-t border-white/40 flex flex-col p-4 gap-4 md:hidden animate-slide-up-fade">
+          <div className="absolute top-full left-0 w-full bg-white/90 backdrop-blur-md shadow-2xl border-t border-slate-200 flex flex-col p-4 gap-4 md:hidden animate-slide-up-fade">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
