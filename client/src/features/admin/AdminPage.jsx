@@ -16,6 +16,7 @@ import {
   getAdminRoutes,
   getAuditLogs,
   getBookingAlerts,
+  getCorporateEnquiries,
   getHealthSummary,
   listBookings,
   updateBookingStatus,
@@ -85,6 +86,7 @@ export function AdminPage() {
   const [routes, setRoutes] = useState([]);
   const [cabs, setCabs] = useState([]);
   const [bookings, setBookings] = useState([]);
+  const [corporateEnquiries, setCorporateEnquiries] = useState([]);
   const [routeForm, setRouteForm] = useState({ fromHub: '', toHub: '', flatRate: '' });
   const [cabForm, setCabForm] = useState({ cabType: '', carModel: '', multiplier: '', availableFrom: '', availableTo: '' });
   const [routeModalOpen, setRouteModalOpen] = useState(false);
@@ -102,13 +104,14 @@ export function AdminPage() {
 
   const load = useCallback(async () => {
     try {
-      const [healthData, auditData, alerts, routesData, cabsData, bookingsData] = await Promise.all([
+      const [healthData, auditData, alerts, routesData, cabsData, bookingsData, corporateEnquiriesData] = await Promise.all([
         getHealthSummary(),
         getAuditLogs(auditPage, 50),
         getBookingAlerts(since),
         getAdminRoutes(),
         getAdminCabs(),
         listBookings({ q: query, page: 1, pageSize: 100 }),
+        getCorporateEnquiries(),
       ]);
       setHealth(healthData);
       setLogs(auditData.logs);
@@ -118,6 +121,7 @@ export function AdminPage() {
       setCabs(cabsData);
       setBookings(bookingsData.bookings || []);
       setBookingMeta(bookingsData.meta || { page: 1, pageSize: 100, total: (bookingsData.bookings || []).length });
+      setCorporateEnquiries(corporateEnquiriesData || []);
     } catch (err) {
       setError(err?.response?.data?.error?.detail || 'Failed to load admin data.');
     }
@@ -366,7 +370,7 @@ export function AdminPage() {
       {/* ── Sticky Nav ── */}
       <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm px-6">
         <div className="max-w-7xl mx-auto flex gap-6 overflow-x-auto hide-scrollbar">
-          {['Overview', 'Bookings', 'Routes & Cabs', 'System Health', 'Audit Logs'].map((tab) => (
+          {['Overview', 'Bookings', 'Corporate Leads', 'Routes & Cabs', 'System Health', 'Audit Logs'].map((tab) => (
             <a key={tab} href={`#section-${tab.toLowerCase().replace(/ /g, '-')}`} className="py-4 text-sm font-bold text-slate-500 hover:text-indigo-600 whitespace-nowrap transition-colors border-b-2 border-transparent hover:border-indigo-600">
               {tab}
             </a>
@@ -748,6 +752,51 @@ export function AdminPage() {
             </div>
           </div>
           {/* ── Modals ── */}
+          <div id="section-corporate-leads" className="max-w-7xl mx-auto mb-8 pt-4">
+            <h2 className="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2">
+              <svg className="w-5 h-5 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M6 7V5a2 2 0 012-2h8a2 2 0 012 2v2m-1 4H7m2 0v6m6-6v6" /></svg>
+              Corporate Partnership Leads
+            </h2>
+            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/60 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-bold text-slate-800">Inbound corporate enquiries</p>
+                  <p className="text-xs text-slate-500 mt-1">Saved from the public footer partnership form.</p>
+                </div>
+                <span className="inline-flex items-center rounded-full bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700 border border-violet-100">{corporateEnquiries.length} leads</span>
+              </div>
+              <div className="divide-y divide-slate-100">
+                {corporateEnquiries.map((enquiry, index) => (
+                  <div key={enquiry._id} className="p-6 grid grid-cols-1 lg:grid-cols-4 gap-4 stagger-in" style={{ animationDelay: `${index * 40}ms` }}>
+                    <div>
+                      <p className="text-sm font-bold text-slate-900">{enquiry.company}</p>
+                      <p className="text-sm text-slate-600 mt-1">{enquiry.contactName}</p>
+                      <p className="text-xs text-slate-400 mt-2">{formatDate(enquiry.createdAt)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-slate-400 font-bold mb-1">Contact</p>
+                      <p className="text-sm text-slate-700 break-all">{enquiry.email}</p>
+                      <p className="text-sm text-slate-600 mt-1">{enquiry.phone}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-slate-400 font-bold mb-1">Scope</p>
+                      <p className="text-sm text-slate-700">{enquiry.city || 'N/A'}</p>
+                      <p className="text-sm text-slate-600 mt-1">{enquiry.rides || 'N/A'}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs uppercase tracking-widest text-slate-400 font-bold mb-1">Requirements</p>
+                      <p className="text-sm text-slate-600 whitespace-pre-wrap">{enquiry.requirements || 'No additional requirements shared.'}</p>
+                    </div>
+                  </div>
+                ))}
+                {corporateEnquiries.length === 0 && (
+                  <div className="px-6 py-12 text-center">
+                    <p className="text-sm font-semibold text-slate-500">No corporate partnership submissions yet.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
           {routeModalOpen && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm px-4">
               <div className="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">

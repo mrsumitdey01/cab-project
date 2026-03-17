@@ -96,3 +96,8 @@ export async function createAdminCab(payload) {
   const res = await http.post('/admin/cabs', payload);
   return res.data.data.cab;
 }
+
+export async function getCorporateEnquiries() {
+  const res = await http.get('/admin/corporate-enquiries');
+  return res.data.data.enquiries;
+}

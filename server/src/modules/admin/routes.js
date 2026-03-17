@@ -4,6 +4,7 @@ const { getMetricsSnapshot } = require('../../lib/metrics');
 const AuditLog = require('../../../models/AuditLog');
 const RouteOption = require('../../../models/RouteOption');
 const CabOption = require('../../../models/CabOption');
+const CorporateEnquiry = require('../../../models/CorporateEnquiry');
 const { authenticate, requireRole } = require('../../middleware/auth');
 
 function createAdminRouter(config) {
@@ -115,6 +116,15 @@ function createAdminRouter(config) {
       const Booking = require('../../../models/Booking');
       const count = await Booking.countDocuments({ createdAt: { $gte: since } });
       return success(res, { since, count });
+    } catch (err) {
+      return next(err);
+    }
+  });
+
+  router.get('/corporate-enquiries', async (req, res, next) => {
+    try {
+      const enquiries = await CorporateEnquiry.find({}).sort({ createdAt: -1 }).limit(200);
+      return success(res, { enquiries });
     } catch (err) {
       return next(err);
     }

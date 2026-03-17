@@ -4,6 +4,7 @@ const { validate } = require('../../middleware/validate');
 const { bookingCreateSchema, publicBookingSchema } = require('./schemas');
 const bookingService = require('./service');
 const AuditLog = require('../../../models/AuditLog');
+const CorporateEnquiry = require('../../../models/CorporateEnquiry');
 
 function createPublicRouter(_config) {
   const router = express.Router();
@@ -39,6 +40,15 @@ function createPublicRouter(_config) {
   router.post('/corporate-enquiries', async (req, res, next) => {
     try {
       const { company, contactName, email, phone, city, rides, requirements } = req.body || {};
+      const enquiry = await CorporateEnquiry.create({
+        company,
+        contactName,
+        email,
+        phone,
+        city,
+        rides,
+        requirements,
+      });
       await AuditLog.create({
         action: 'CORPORATE_ENQUIRY_SUBMITTED',
         actor: {
@@ -46,12 +56,13 @@ function createPublicRouter(_config) {
           role: 'guest',
           email: email || 'corporate@guest.local',
         },
-        target: { type: 'corporate-enquiry', id: `${Date.now()}` },
+        target: { type: 'corporate-enquiry', id: enquiry._id },
         metadata: { company, contactName, email, phone, city, rides, requirements },
         requestId: res.locals.requestId,
       });
 
       return success(res, {
+        enquiry,
         received: true,
         message: 'Corporate enquiry submitted successfully.',
       }, { status: 201 });
