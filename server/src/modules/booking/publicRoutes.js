@@ -3,7 +3,6 @@ const { success } = require('../../lib/response');
 const { validate } = require('../../middleware/validate');
 const { bookingCreateSchema, publicBookingSchema } = require('./schemas');
 const bookingService = require('./service');
-const AuditLog = require('../../../models/AuditLog');
 const CorporateEnquiry = require('../../../models/CorporateEnquiry');
 
 function createPublicRouter(_config) {
@@ -49,17 +48,17 @@ function createPublicRouter(_config) {
         rides,
         requirements,
       });
-      await AuditLog.create({
-        action: 'CORPORATE_ENQUIRY_SUBMITTED',
-        actor: {
-          userId: null,
-          role: 'guest',
-          email: email || 'corporate@guest.local',
-        },
-        target: { type: 'corporate-enquiry', id: enquiry._id },
-        metadata: { company, contactName, email, phone, city, rides, requirements },
-        requestId: res.locals.requestId,
-      });
+      // await AuditLog.create({
+      //   action: 'CORPORATE_ENQUIRY_SUBMITTED',
+      //   actor: {
+      //     userId: null,
+      //     role: 'guest',
+      //     email: email || 'corporate@guest.local',
+      //   },
+      //   target: { type: 'corporate-enquiry', id: enquiry._id },
+      //   metadata: { company, contactName, email, phone, city, rides, requirements },
+      //   requestId: res.locals.requestId,
+      // });
 
       return success(res, {
         enquiry,
