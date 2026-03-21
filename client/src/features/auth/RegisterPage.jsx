@@ -7,7 +7,7 @@ import { User, Mail, Lock, ArrowRight, Zap, Eye, EyeOff, ShieldCheck, BadgeCheck
 export function RegisterPage() {
   const navigate = useNavigate();
   const { register, loading, error } = useAuth();
-  const [mode, setMode] = useState('email'); // 'email' | 'phone'
+  const [mode, setMode] = useState('phone'); // 'email' | 'phone'
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [identifierError, setIdentifierError] = useState('');

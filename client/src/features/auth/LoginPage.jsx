@@ -9,7 +9,7 @@ import { Mail, Lock, ArrowRight, ShieldCheck, Zap, Eye, EyeOff, BadgeCheck, Phon
 export function LoginPage() {
   const navigate = useNavigate();
   const { login, loading, error } = useAuth();
-  const [mode, setMode] = useState('email'); // 'email' | 'phone'
+  const [mode, setMode] = useState('phone'); // 'email' | 'phone'
   const [form, setForm] = useState({ identifier: '', password: '' });
   const warmup = useWarmup();
   const [, setWarming] = useState(getWarmState().status);
