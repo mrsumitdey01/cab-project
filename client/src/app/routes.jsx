@@ -81,7 +81,7 @@ function Navbar() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [avatarOpen]);
 
-  const displayName = user?.name || user?.fullName || user?.email || '';
+  const displayName = user?.name || user?.fullName || user?.email || user?.phone || '';
   const initials = displayName
     ? displayName
       .split(' ')
@@ -141,7 +141,7 @@ function Navbar() {
                 <div ref={avatarMenuRef} className="absolute right-0 mt-3 w-56 rounded-xl border border-slate-200 bg-white shadow-2xl p-3 z-50 ring-1 ring-slate-100/80 animate-slide-up-fade">
                   <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Signed in</p>
                   <p className="text-sm text-slate-800 mt-1 font-semibold break-all">{displayName}</p>
-                  <p className="text-xs text-slate-500 mt-1 break-all">{user?.email}</p>
+                  <p className="text-xs text-slate-500 mt-1 break-all">{user?.email || user?.phone}</p>
                   <div className="my-3 h-px bg-slate-100" />
                   <button
                     className="w-full text-left text-red-600 hover:bg-red-50 px-3 py-2 rounded-md font-medium transition-colors"
@@ -187,7 +187,7 @@ function Navbar() {
               <>
                 <hr className="border-slate-100" />
                 <span className="text-slate-700 text-sm px-2 font-semibold">{displayName}</span>
-                <span className="text-slate-400 text-xs px-2">{user?.email}</span>
+                <span className="text-slate-400 text-xs px-2">{user?.email || user?.phone}</span>
                 <button
                   className="text-red-500 hover:bg-red-50 px-2 py-2 rounded-md text-left font-medium transition-colors"
                   onClick={() => {

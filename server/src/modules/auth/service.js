@@ -5,34 +5,61 @@ const RefreshToken = require('../../../models/RefreshToken');
 const { hashToken, signAccessToken, signRefreshToken, verifyRefreshToken } = require('./tokens');
 
 async function register(input, config) {
-  const existing = await User.findOne({ email: input.email.toLowerCase() });
-  if (existing) {
-    throw new ApiError({
-      status: 409,
-      title: 'Conflict',
-      detail: 'Email already registered.',
-      code: 'email_exists',
-    });
+  // Check for duplicate email
+  if (input.email) {
+    const existingByEmail = await User.findOne({ email: input.email.toLowerCase() });
+    if (existingByEmail) {
+      throw new ApiError({
+        status: 409,
+        title: 'Conflict',
+        detail: 'Email already registered.',
+        code: 'email_exists',
+      });
+    }
+  }
+
+  // Check for duplicate phone
+  if (input.phone) {
+    const existingByPhone = await User.findOne({ phone: input.phone });
+    if (existingByPhone) {
+      throw new ApiError({
+        status: 409,
+        title: 'Conflict',
+        detail: 'Phone number already registered.',
+        code: 'phone_exists',
+      });
+    }
   }
 
   const passwordHash = await bcrypt.hash(input.password, config.bcryptRounds);
-  const user = await User.create({
+
+  const userData = {
     name: input.name,
-    email: input.email.toLowerCase(),
     passwordHash,
     role: 'user',
-  });
+  };
+  if (input.email) userData.email = input.email.toLowerCase();
+  if (input.phone) userData.phone = input.phone;
 
+  const user = await User.create(userData);
   return createSession(user, config);
 }
 
 async function login(input, config) {
-  const user = await User.findOne({ email: input.email.toLowerCase() });
+  const { identifier, password } = input;
+
+  // Detect whether identifier is email (contains @) or phone
+  const isEmail = identifier.includes('@');
+  const query = isEmail
+    ? { email: identifier.toLowerCase() }
+    : { phone: identifier };
+
+  const user = await User.findOne(query);
   if (!user) {
     throw new ApiError({ status: 401, title: 'Unauthorized', detail: 'Invalid credentials.', code: 'invalid_credentials' });
   }
 
-  const validPassword = await bcrypt.compare(input.password, user.passwordHash);
+  const validPassword = await bcrypt.compare(password, user.passwordHash);
   if (!validPassword) {
     throw new ApiError({ status: 401, title: 'Unauthorized', detail: 'Invalid credentials.', code: 'invalid_credentials' });
   }
@@ -81,8 +108,9 @@ async function createSession(user, config) {
   const tokenPayload = {
     sub: user._id.toString(),
     role: user.role,
-    email: user.email,
   };
+  if (user.email) tokenPayload.email = user.email;
+  if (user.phone) tokenPayload.phone = user.phone;
 
   const accessToken = signAccessToken(tokenPayload, config);
   const refreshToken = signRefreshToken(tokenPayload, config);
@@ -98,7 +126,8 @@ async function createSession(user, config) {
     user: {
       id: user._id,
       name: user.name,
-      email: user.email,
+      email: user.email || null,
+      phone: user.phone || null,
       role: user.role,
     },
     accessToken,

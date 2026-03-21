@@ -4,36 +4,50 @@ import { useAuth } from '../../shared/contexts/AuthContext';
 import { Alert } from '../../shared/ui/Alert';
 import { getWarmState, warmBackend } from '../../shared/api/warmup';
 import { useWarmup } from '../../shared/contexts/WarmupContext';
-import { Mail, Lock, ArrowRight, ShieldCheck, Zap, Eye, EyeOff, BadgeCheck } from 'lucide-react';
+import { Mail, Lock, ArrowRight, ShieldCheck, Zap, Eye, EyeOff, BadgeCheck, Phone } from 'lucide-react';
 
 export function LoginPage() {
   const navigate = useNavigate();
   const { login, loading, error } = useAuth();
-  const [form, setForm] = useState({ email: '', password: '' });
+  const [mode, setMode] = useState('email'); // 'email' | 'phone'
+  const [form, setForm] = useState({ identifier: '', password: '' });
   const warmup = useWarmup();
   const [, setWarming] = useState(getWarmState().status);
   const [forgotEmailSent, setForgotEmailSent] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [emailError, setEmailError] = useState('');
+  const [identifierError, setIdentifierError] = useState('');
   const brandingItems = useMemo(() => ([
     { icon: ShieldCheck, color: 'text-emerald-400', label: 'Bank-level security & encryption' },
     { icon: Zap, color: 'text-amber-400', label: 'Instant booking confirmations' },
     { icon: BadgeCheck, color: 'text-blue-300', label: 'Verified drivers on premium routes' },
   ]), []);
 
+  function validateIdentifier() {
+    const val = form.identifier.trim();
+    if (!val) return 'Enter your email or phone number.';
+    if (mode === 'email') {
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return 'Enter a valid email address.';
+    } else {
+      if (!/^(?:\+91|91)?\d{10}$/.test(val.replace(/[^+0-9]/g, ''))) return 'Enter a valid 10-digit phone number.';
+    }
+    return '';
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-      setEmailError('Enter a valid email address before signing in.');
-      return;
-    }
+    const err = validateIdentifier();
+    if (err) { setIdentifierError(err); return; }
+
     if (warmup.status !== 'ready') {
       setWarming('warming');
       await warmBackend();
       return;
     }
     try {
-      await login(form);
+      const identifier = mode === 'phone'
+        ? form.identifier.trim().replace(/[^+0-9]/g, '')
+        : form.identifier.trim();
+      await login({ identifier, password: form.password });
       navigate('/');
     } catch (err) {
       // handled in context
@@ -42,14 +56,22 @@ export function LoginPage() {
 
   function handleForgotPassword(e) {
     e.preventDefault();
-    // Frontend-only simulation for forgot password
-    if (form.email) {
+    if (form.identifier) {
       setForgotEmailSent(true);
       setTimeout(() => setForgotEmailSent(false), 4000);
     } else {
       alert("Please enter your email address first to reset your password.");
     }
   }
+
+  function switchMode(newMode) {
+    setMode(newMode);
+    setForm({ identifier: '', password: form.password });
+    setIdentifierError('');
+  }
+
+  const isPhone = mode === 'phone';
+  const accentColor = isPhone ? 'emerald' : 'blue';
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col p-4 sm:p-6 lg:p-8 pt-28 lg:pt-32 relative overflow-hidden">
@@ -107,7 +129,7 @@ export function LoginPage() {
           <div className="max-w-md w-full mx-auto">
             <div className="mb-10 text-center md:text-left">
               <h1 className="text-3xl font-black text-slate-900 mb-2">Welcome Back</h1>
-              <p className="text-slate-500 font-medium">Please enter your details to sign in.</p>
+              <p className="text-slate-500 font-medium">Sign in with your email or phone number.</p>
             </div>
 
             {error && (
@@ -116,41 +138,70 @@ export function LoginPage() {
               </div>
             )}
 
+            {/* Email / Phone Toggle */}
+            <div className="flex bg-slate-100 rounded-xl p-1 gap-1 mb-6">
+              <button
+                type="button"
+                onClick={() => switchMode('email')}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${mode === 'email' ? 'bg-white text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+              >
+                <Mail className="w-4 h-4" />
+                Email
+              </button>
+              <button
+                type="button"
+                onClick={() => switchMode('phone')}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${mode === 'phone' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+              >
+                <Phone className="w-4 h-4" />
+                Phone
+              </button>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-6">
 
               <div className="space-y-1.5 animate-slide-up-fade" style={{ animationDelay: '60ms' }}>
-                <label className="text-sm font-bold text-slate-700 block">Email Address</label>
+                <label className="text-sm font-bold text-slate-700 block">
+                  {isPhone ? 'Phone Number' : 'Email Address'}
+                </label>
                 <div className="relative group">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
-                    <Mail className="h-5 w-5" />
+                  <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-${accentColor}-500 transition-colors`}>
+                    {isPhone ? <Phone className="h-5 w-5" /> : <Mail className="h-5 w-5" />}
                   </div>
                   <input
-                    className="block w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all outline-none font-medium focus-ring-consistent"
-                    placeholder="Enter your email"
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => { setForm({ ...form, email: e.target.value }); if (emailError) setEmailError(''); }}
+                    className={`block w-full pl-11 pr-4 py-3.5 bg-slate-50 border rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:bg-white transition-all outline-none font-medium focus-ring-consistent ${identifierError ? `border-rose-400 focus:border-rose-500 focus:ring-rose-500/20` : `border-slate-200 focus:ring-${accentColor}-500/20 focus:border-${accentColor}-500`}`}
+                    placeholder={isPhone ? 'Enter your phone number' : 'Enter your email'}
+                    type={isPhone ? 'tel' : 'email'}
+                    value={form.identifier}
+                    onChange={(e) => {
+                      const val = isPhone ? e.target.value.replace(/[^+0-9]/g, '') : e.target.value;
+                      setForm({ ...form, identifier: val });
+                      if (identifierError) setIdentifierError('');
+                    }}
                     onBlur={() => {
-                      if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
-                        setEmailError('Enter a valid email address before signing in.');
+                      if (form.identifier.trim()) {
+                        const err = validateIdentifier();
+                        if (err) setIdentifierError(err);
                       }
                     }}
                     required
                   />
                 </div>
-                {emailError ? <p className="text-xs text-rose-500 font-medium">{emailError}</p> : null}
+                {identifierError && <p className="text-xs text-rose-500 font-medium">{identifierError}</p>}
               </div>
 
               <div className="space-y-1.5 animate-slide-up-fade" style={{ animationDelay: '140ms' }}>
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-bold text-slate-700 block">Password</label>
-                  <button
-                    type="button"
-                    onClick={handleForgotPassword}
-                    className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
-                  >
-                    Forgot password?
-                  </button>
+                  {mode === 'email' && (
+                    <button
+                      type="button"
+                      onClick={handleForgotPassword}
+                      className="text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                    >
+                      Forgot password?
+                    </button>
+                  )}
                 </div>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-blue-500 transition-colors">
@@ -173,7 +224,7 @@ export function LoginPage() {
               <button
                 type="submit"
                 className="w-full flex items-center justify-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-sm text-base font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden"
-                disabled={loading || !!emailError}
+                disabled={loading || !!identifierError}
               >
                 <span className="relative z-10 flex items-center gap-2">
                   {loading ? 'Authenticating...' : 'Sign In'}

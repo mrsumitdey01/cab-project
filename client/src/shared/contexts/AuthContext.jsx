@@ -18,7 +18,7 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     const payload = decodeJwtPayload(getAccessToken());
     if (!payload) return null;
-    return { id: payload.sub, role: payload.role, email: payload.email };
+    return { id: payload.sub, role: payload.role, email: payload.email || null, phone: payload.phone || null };
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
