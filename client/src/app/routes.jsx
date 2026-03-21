@@ -252,7 +252,7 @@ export function AppRoutes() {
       setTimeout(() => {
         setIsCorporateModalOpen(false);
         setIsCorporateSuccess(false);
-      }, 3000);
+      }, 4000);
     } catch (_err) {
       setIsSubmittingCorporate(false);
     }
