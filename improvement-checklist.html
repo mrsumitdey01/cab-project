@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Safar Express — Improvement Checklist</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f8fafc; color: #1e293b; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 100%); color: #fff; padding: 32px 24px 28px; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 24px rgba(0,0,0,0.18); }
+  .header h1 { font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; }
+  .header p { font-size: 0.85rem; color: #94a3b8; margin-top: 4px; }
+  .header-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+  .badge.high { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+  .badge.med { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+  .badge.low { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+  .counter-bar { background: #1e293b; padding: 10px 24px; display: flex; align-items: center; gap: 12px; font-size: 0.8rem; color: #94a3b8; flex-wrap: wrap; }
+  .counter-bar strong { color: #38bdf8; font-size: 1rem; }
+  .copy-btn { margin-left: auto; padding: 6px 14px; background: #2563eb; color: #fff; border: none; border-radius: 8px; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+  .copy-btn:hover { background: #1d4ed8; }
+  .clear-btn { padding: 6px 14px; background: transparent; color: #64748b; border: 1px solid #334155; border-radius: 8px; font-size: 0.78rem; font-weight: 600; cursor: pointer; transition: all 0.15s; }
+  .clear-btn:hover { background: #1e293b; color: #f1f5f9; }
+  main { max-width: 860px; margin: 0 auto; padding: 24px 16px 60px; }
+  .section { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.04); }
+  .section-header { padding: 14px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; }
+  .section-title { font-size: 0.95rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px; }
+  .section-count { font-size: 0.75rem; padding: 2px 8px; background: #e0e7ff; color: #4338ca; border-radius: 999px; font-weight: 700; }
+  .section-body { padding: 8px 0; }
+  .group-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; padding: 10px 20px 4px; }
+  .item { display: flex; align-items: flex-start; gap: 12px; padding: 9px 20px; cursor: pointer; transition: background 0.1s; border-radius: 8px; margin: 0 6px; }
+  .item:hover { background: #f1f5f9; }
+  .item.checked { background: #f0fdf4; }
+  .item.checked .item-text { color: #16a34a; }
+  .item input[type=checkbox] { width: 17px; height: 17px; accent-color: #2563eb; margin-top: 2px; flex-shrink: 0; cursor: pointer; }
+  .item-text { font-size: 0.875rem; color: #334155; line-height: 1.45; }
+  .priority { display: inline-block; font-size: 0.68rem; padding: 1px 6px; border-radius: 4px; font-weight: 700; margin-right: 6px; vertical-align: middle; }
+  .p-high { background: #fef2f2; color: #dc2626; }
+  .p-med { background: #fffbeb; color: #d97706; }
+  .p-low { background: #f0fdf4; color: #16a34a; }
+  #copy-output { display: none; position: fixed; bottom: 20px; right: 20px; background: #1e293b; color: #f1f5f9; padding: 12px 18px; border-radius: 12px; font-size: 0.8rem; z-index: 999; animation: fadeIn 0.2s; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-row">
+    <div>
+      <h1>🚗 Safar Express — Improvement Checklist</h1>
+      <p>Tick items you want implemented, then click "Copy Selected" to share with me.</p>
+    </div>
+  </div>
+  <div class="badges">
+    <span class="badge high">🔴 High priority</span>
+    <span class="badge med">🟡 Medium priority</span>
+    <span class="badge low">🟢 Low priority</span>
+  </div>
+</div>
+
+<div class="counter-bar">
+  <span>Selected: <strong id="sel-count">0</strong> items</span>
+  <button class="clear-btn" onclick="clearAll()">Clear All</button>
+  <button class="copy-btn" onclick="copySelected()">📋 Copy Selected Items</button>
+</div>
+
+<main id="main"></main>
+<div id="copy-output"></div>
+
+<script>
+const data = [
+  { section: "1. Navbar", groups: [
+    { label: "Functional", items: [
+      { id: "1.1", p: "high", text: "Active link in nav has no visual highlight for the current page" },
+      { id: "1.2", p: "high", text: "Mobile menu has no open/close animation (appears instantly)" },
+      { id: "1.3", p: "med",  text: "Avatar dropdown not keyboard accessible (Escape key / focus trap missing)" },
+      { id: "1.4", p: "med",  text: "Show user's display name (not just email) in the avatar dropdown" },
+      { id: "1.5", p: "low",  text: "Style \"Register\" as a button CTA, not a plain text link" },
+    ]},
+    { label: "Design", items: [
+      { id: "1.6", p: "med", text: "Avatar dropdown lacks depth — add shadow + border" },
+      { id: "1.7", p: "med", text: "Mobile menu uses plain white — no glassmorphism, disconnected from hero" },
+    ]},
+    { label: "Animation", items: [
+      { id: "1.8", p: "high", text: "Mobile menu: slide down + fade in (currently instant pop-in)" },
+      { id: "1.9", p: "low",  text: "Nav link underline slide animation on hover" },
+    ]},
+  ]},
+  { section: "2. Home / Search Page", groups: [
+    { label: "Functional", items: [
+      { id: "2.1", p: "high", text: "Date picker allows past dates — add a min date of today" },
+      { id: "2.2", p: "high", text: "Round Trip selected but no return date field is shown" },
+      { id: "2.3", p: "med",  text: "No loading skeleton during search — spinner only, layout jumps" },
+      { id: "2.4", p: "med",  text: "Passenger name field: no max-length or invalid character guard" },
+      { id: "2.5", p: "high", text: "Search button not disabled when pickup/dropoff are both empty" },
+      { id: "2.6", p: "med",  text: "After booking submitted, contact fields not reset for next enquiry" },
+      { id: "2.7", p: "med",  text: "Cab selection displayed in modal but user cannot change their choice" },
+      { id: "2.8", p: "low",  text: "Popular route chips: auto-fill today's date on click" },
+    ]},
+    { label: "Design", items: [
+      { id: "2.9",  p: "med",  text: "Hero gradient is static — add animated mesh or wave" },
+      { id: "2.10", p: "high", text: "Booking success state is basic — proper celebration card with tick animation" },
+      { id: "2.11", p: "med",  text: "Cab cards in booking modal are too compact — show icon, type and model clearly" },
+      { id: "2.12", p: "low",  text: "Feature/trust badges below hero lack visual hierarchy" },
+    ]},
+    { label: "Animation", items: [
+      { id: "2.13", p: "high", text: "Booking modal open/close: add slide-up + fade animation (currently jumps in)" },
+      { id: "2.14", p: "med",  text: "Cab card selection: add ripple/highlight transition on select" },
+      { id: "2.15", p: "low",  text: "Hero stat numbers count-up on scroll enter" },
+      { id: "2.16", p: "med",  text: "Add step progress indicator (Search → Pick Cab → Your Details)" },
+    ]},
+  ]},
+  { section: "3. My Bookings Page", groups: [
+    { label: "Functional", items: [
+      { id: "3.1", p: "high", text: "No loading skeleton while fetching — content jumps in" },
+      { id: "3.2", p: "high", text: "No refresh button — user must reload the page" },
+      { id: "3.3", p: "med",  text: "Full booking ID shown — truncate + add copy-to-clipboard button" },
+      { id: "3.4", p: "low",  text: "Search only works on current tab — no cross-tab search" },
+      { id: "3.5", p: "med",  text: "Empty state has no CTA — add a \"Book a Ride\" button" },
+      { id: "3.6", p: "high", text: "Pending bookings show ₹0 fare — show \"Pending\" or \"TBD\" instead" },
+    ]},
+    { label: "Design", items: [
+      { id: "3.7", p: "low", text: "Left accent bar on cards is 1px — increase to 3–4px" },
+      { id: "3.8", p: "med", text: "PENDING and CONFIRMED cards look identical beyond the badge — add per-status background tint" },
+      { id: "3.9", p: "med", text: "Next Ride banner: add animated shimmer or subtle pulsing glow" },
+    ]},
+    { label: "Animation", items: [
+      { id: "3.10", p: "med", text: "Booking cards load all at once — add staggered entrance animation" },
+      { id: "3.11", p: "med", text: "Tab switch has no content transition (fade/slide between panels)" },
+      { id: "3.12", p: "low", text: "Status badges briefly pulse when refresh brings a new status" },
+    ]},
+  ]},
+  { section: "4. Login & Register Pages", groups: [
+    { label: "Functional", items: [
+      { id: "4.1", p: "high", text: "Forgot password uses native alert() — replace with styled in-page message" },
+      { id: "4.2", p: "med",  text: "Forgot password is frontend-only simulation — improve UX messaging" },
+      { id: "4.3", p: "high", text: "No show/hide password toggle on either page" },
+      { id: "4.4", p: "med",  text: "Login: no inline validation for email format before submit" },
+      { id: "4.5", p: "med",  text: "Register: no password strength indicator" },
+      { id: "4.6", p: "high", text: "Register: no confirm password field" },
+    ]},
+    { label: "Design", items: [
+      { id: "4.7", p: "low", text: "Left branding panel: add icons + hover animations to bullet points" },
+      { id: "4.8", p: "low", text: "Focus ring style inconsistent between Login and Register" },
+    ]},
+    { label: "Animation", items: [
+      { id: "4.9",  p: "high", text: "Check animate-blob keyframe is defined in CSS — blobs may not animate at all" },
+      { id: "4.10", p: "low",  text: "Form fields: subtle slide-up stagger animation on page load" },
+      { id: "4.11", p: "med",  text: "Error alert: shake animation on appear instead of instant show" },
+    ]},
+  ]},
+  { section: "5. Admin Page", groups: [
+    { label: "Functional", items: [
+      { id: "5.1", p: "med",  text: "Booking search is client-side on 100-row cap — older bookings unsearchable" },
+      { id: "5.2", p: "med",  text: "No full booking detail view in admin (only passenger modal exposed)" },
+      { id: "5.3", p: "med",  text: "Status override form doesn't reset when clicking a different booking row" },
+      { id: "5.4", p: "med",  text: "Revenue chart uses plain HTML divs — use a real chart library e.g. Recharts" },
+      { id: "5.5", p: "med",  text: "Audit log pagination exists in API but UI has no Next/Prev controls" },
+      { id: "5.6", p: "high", text: "No confirmation dialog before applying status — accidental CANCEL is irreversible" },
+      { id: "5.7", p: "med",  text: "Cab column shows N/A for older bookings with no selection.cabType" },
+    ]},
+    { label: "Design", items: [
+      { id: "5.8",  p: "low", text: "Stat cards have no sparkline or mini trend indicator" },
+      { id: "5.9",  p: "med", text: "Revenue by Day/Cab/Route: replace bar divs with Recharts bar chart" },
+      { id: "5.10", p: "med", text: "Sticky section nav: no active section indicator as you scroll" },
+    ]},
+    { label: "Animation", items: [
+      { id: "5.11", p: "med", text: "Stat card numbers should count up from 0 on page load" },
+      { id: "5.12", p: "low", text: "Table rows: stagger entrance animation" },
+      { id: "5.13", p: "low", text: "Audit log timeline dots: subtle pulse animation" },
+    ]},
+  ]},
+  { section: "6. Legal Pages", groups: [
+    { label: "Functional", items: [
+      { id: "6.1", p: "med", text: "No \"Back to Top\" button on long pages" },
+      { id: "6.2", p: "med", text: "No table of contents / jump-to-section links" },
+      { id: "6.3", p: "low", text: "No PDF download or social share option" },
+    ]},
+    { label: "Design", items: [
+      { id: "6.4", p: "low", text: "Section dividers are plain borders — add subtle styled dividers" },
+      { id: "6.5", p: "low", text: "Last Updated date should be a styled timestamp badge" },
+    ]},
+  ]},
+  { section: "7. Footer", groups: [
+    { label: "Functional", items: [
+      { id: "7.1", p: "high", text: "Phone number is a placeholder (+919999999999) — update to real number" },
+      { id: "7.2", p: "med",  text: "No social media links (WhatsApp, Instagram, etc.)" },
+      { id: "7.3", p: "med",  text: "Corporate form submit is simulated — should POST to backend or send email" },
+      { id: "7.4", p: "high", text: "No WhatsApp link/icon in footer — critical for Indian audience" },
+    ]},
+    { label: "Design", items: [
+      { id: "7.5", p: "med", text: "Footer brand column shows plain text — use the styled SVG logo" },
+    ]},
+  ]},
+  { section: "8. Global", groups: [
+    { label: "Functional", items: [
+      { id: "8.1", p: "med",  text: "No 404 page — unknown routes silently redirect to /" },
+      { id: "8.2", p: "high", text: "No global error boundary — runtime crash shows a blank white screen" },
+      { id: "8.3", p: "med",  text: "No per-page <title> tag — all tabs show the same name" },
+      { id: "8.4", p: "med",  text: "No meta description per page (SEO gap)" },
+      { id: "8.5", p: "low",  text: "No PWA manifest or service worker" },
+    ]},
+    { label: "Design", items: [
+      { id: "8.6", p: "med", text: "No consistent toast notification system — all messages are inline only" },
+      { id: "8.7", p: "low", text: "Default browser scrollbar breaks premium feel — add custom styles" },
+    ]},
+    { label: "Animation", items: [
+      { id: "8.8", p: "med", text: "No page transition animation between routes (instant swap)" },
+      { id: "8.9", p: "med", text: "No scroll-triggered fade-in-up animations for below-fold sections" },
+    ]},
+  ]},
+];
+
+const pLabel = { high: "🔴 High", med: "🟡 Med", low: "🟢 Low" };
+const pClass = { high: "p-high", med: "p-med", low: "p-low" };
+const checked = new Set(JSON.parse(localStorage.getItem("se-checklist") || "[]"));
+
+function save() { localStorage.setItem("se-checklist", JSON.stringify([...checked])); }
+
+function render() {
+  const main = document.getElementById("main");
+  main.innerHTML = "";
+  data.forEach(sec => {
+    const allItems = sec.groups.flatMap(g => g.items);
+    const selCount = allItems.filter(i => checked.has(i.id)).length;
+    const div = document.createElement("div");
+    div.className = "section";
+    let html = `<div class="section-header" onclick="toggleSection(this)">
+      <div class="section-title">${sec.section} <span class="section-count">${selCount}/${allItems.length}</span></div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </div><div class="section-body">`;
+    sec.groups.forEach(g => {
+      html += `<div class="group-label">${g.label}</div>`;
+      g.items.forEach(item => {
+        const isChecked = checked.has(item.id);
+        html += `<label class="item${isChecked ? " checked" : ""}">
+          <input type="checkbox" ${isChecked ? "checked" : ""} onchange="toggle('${item.id}', this)">
+          <span class="item-text"><span class="priority ${pClass[item.p]}">${item.id}</span>${item.text}</span>
+        </label>`;
+      });
+    });
+    html += "</div>";
+    div.innerHTML = html;
+    main.appendChild(div);
+  });
+  updateCount();
+}
+
+function toggle(id, el) {
+  const label = el.closest(".item");
+  if (el.checked) { checked.add(id); label.classList.add("checked"); label.querySelector(".item-text").style.color="#16a34a"; }
+  else { checked.delete(id); label.classList.remove("checked"); label.querySelector(".item-text").style.color=""; }
+  save(); updateCount();
+  const header = label.closest(".section").querySelector(".section-count");
+  const allInSection = [...label.closest(".section").querySelectorAll("input[type=checkbox]")];
+  header.textContent = `${allInSection.filter(c=>c.checked).length}/${allInSection.length}`;
+}
+
+function toggleSection(header) {
+  const body = header.nextElementSibling;
+  body.style.display = body.style.display === "none" ? "" : "none";
+}
+
+function updateCount() {
+  document.getElementById("sel-count").textContent = checked.size;
+}
+
+function clearAll() {
+  checked.clear(); save(); render();
+}
+
+function copySelected() {
+  if (checked.size === 0) { flash("Nothing selected yet!"); return; }
+  const lines = ["Selected improvement items for Safar Express:\n"];
+  data.forEach(sec => {
+    const secItems = sec.groups.flatMap(g => g.items).filter(i => checked.has(i.id));
+    if (secItems.length) {
+      lines.push(`${sec.section}`);
+      secItems.forEach(i => lines.push(`  • [${i.id}] ${i.text}`));
+      lines.push("");
+    }
+  });
+  navigator.clipboard.writeText(lines.join("\n")).then(() => flash("✅ Copied! Paste into chat.")).catch(() => flash("Copy failed — try Ctrl+C"));
+}
+
+function flash(msg) {
+  const el = document.getElementById("copy-output");
+  el.textContent = msg;
+  el.style.display = "block";
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.style.display = "none", 3000);
+}
+
+render();
+</script>
+</body>
+</html>

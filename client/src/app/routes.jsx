@@ -249,6 +249,10 @@ export function AppRoutes() {
         rides: '10-50',
         requirements: '',
       });
+      setTimeout(() => {
+        setIsCorporateModalOpen(false);
+        setIsCorporateSuccess(false);
+      }, 3000);
     } catch (_err) {
       setIsSubmittingCorporate(false);
     }
