@@ -223,7 +223,7 @@ export function LoginPage() {
 
               <button
                 type="submit"
-                className="w-full flex items-center justify-center gap-2 py-4 px-4 border border-transparent rounded-xl shadow-sm text-base font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden"
+                className="w-full flex items-center justify-center gap-2 py-4 px-4 border border-transparent rounded-xl text-base font-bold text-white btn-premium focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden"
                 disabled={loading || !!identifierError}
               >
                 <span className="relative z-10 flex items-center gap-2">
@@ -242,6 +242,15 @@ export function LoginPage() {
               </Link>
             </div>
 
+          </div>
+
+          {/* Footer legal links */}
+          <div className="text-center mt-6 text-xs text-slate-400 space-x-3">
+            <Link to="/privacy" className="hover:text-slate-600 transition-colors">Privacy Policy</Link>
+            <span>·</span>
+            <Link to="/terms" className="hover:text-slate-600 transition-colors">Terms of Service</Link>
+            <span>·</span>
+            <a href="mailto:support@safarexpress.in" className="hover:text-slate-600 transition-colors">Support</a>
           </div>
         </div>
       </div>

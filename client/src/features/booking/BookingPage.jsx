@@ -195,19 +195,19 @@ export function BookingPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="bg-white border border-slate-100 rounded-2xl px-4 py-2.5 shadow-sm flex items-center gap-2.5">
+          <div className="bg-white border border-slate-100/60 rounded-2xl px-4 py-2.5 shadow-ambient flex items-center gap-2.5">
             <div className="w-2 h-2 rounded-full bg-slate-400" />
             <div><p className="text-xs text-slate-400 leading-none">Total</p><p className="text-lg font-bold text-slate-800 leading-tight">{stats.total}</p></div>
           </div>
-          <div className="bg-emerald-50 border border-emerald-100 rounded-2xl px-4 py-2.5 shadow-sm flex items-center gap-2.5">
+          <div className="bg-emerald-50 border border-emerald-100/60 rounded-2xl px-4 py-2.5 shadow-ambient flex items-center gap-2.5">
             <div className="w-2 h-2 rounded-full bg-emerald-400" />
             <div><p className="text-xs text-emerald-600 leading-none">Confirmed</p><p className="text-lg font-bold text-emerald-700 leading-tight">{stats.confirmed}</p></div>
           </div>
-          <div className="bg-indigo-50 border border-indigo-100 rounded-2xl px-4 py-2.5 shadow-sm flex items-center gap-2.5">
+          <div className="bg-indigo-50 border border-indigo-100/60 rounded-2xl px-4 py-2.5 shadow-ambient flex items-center gap-2.5">
             <div className="w-2 h-2 rounded-full bg-indigo-400" />
             <div><p className="text-xs text-indigo-500 leading-none">Completed</p><p className="text-lg font-bold text-indigo-700 leading-tight">{stats.completed}</p></div>
           </div>
-          <div className="bg-rose-50 border border-rose-100 rounded-2xl px-4 py-2.5 shadow-sm flex items-center gap-2.5">
+          <div className="bg-rose-50 border border-rose-100/60 rounded-2xl px-4 py-2.5 shadow-ambient flex items-center gap-2.5">
             <div className="w-2 h-2 rounded-full bg-rose-400" />
             <div><p className="text-xs text-rose-500 leading-none">Cancelled</p><p className="text-lg font-bold text-rose-700 leading-tight">{stats.cancelled}</p></div>
           </div>
@@ -252,9 +252,9 @@ export function BookingPage() {
       <div className="flex flex-col md:flex-row gap-3 mb-6">
         <div className="relative flex-1">
           <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1111 5a6 6 0 016 6z" /></svg>
-          <input className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-slate-200 shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-300 transition-all" placeholder="Search across all tabs by route, cab, booking ID or location..." value={query} onChange={(e) => setQuery(e.target.value)} />
+          <input className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-slate-100/60 shadow-ambient focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-300 transition-all" placeholder="Search across all tabs by route, cab, booking ID or location..." value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
-        <select className="px-4 py-3 rounded-xl bg-white border border-slate-200 shadow-sm focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-300 text-slate-700 transition-all" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+        <select className="px-4 py-3 rounded-xl bg-white border border-slate-100/60 shadow-ambient focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-300 text-slate-700 transition-all" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
           <option value="ALL">All Status</option>
           <option value="PENDING">Pending</option>
           <option value="CONFIRMED">Confirmed</option>
@@ -280,7 +280,7 @@ export function BookingPage() {
         {!loading && filtered.map((booking, i) => {
           const cfg = STATUS_CONFIG[booking.status] || STATUS_CONFIG.PENDING;
           return (
-            <div key={booking._id} className={`relative flex rounded-2xl overflow-hidden border border-slate-100 shadow-sm hover:shadow-indigo-500/10 hover:border-indigo-100 transition-all duration-300 stagger-in ${cfg.tint}`} style={{ animationDelay: `${i * 50}ms` }}>
+            <div key={booking._id} className={`relative flex rounded-2xl overflow-hidden border border-slate-100/60 shadow-ambient hover:shadow-elevated hover:border-indigo-100/60 transition-all duration-300 stagger-in ${cfg.tint}`} style={{ animationDelay: `${i * 50}ms` }}>
               <div className={`w-1.5 shrink-0 ${cfg.bar}`} />
               <div className="flex-1 p-5">
                 <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">

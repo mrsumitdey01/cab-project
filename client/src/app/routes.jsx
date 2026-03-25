@@ -93,8 +93,8 @@ function Navbar() {
 
   const isHome = location.pathname === '/';
   const navBgClass = isHome
-    ? scrolled ? 'bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200' : 'bg-transparent border-transparent'
-    : 'bg-white/80 backdrop-blur-md shadow-sm border-b border-slate-200';
+    ? scrolled ? 'bg-white/80 backdrop-blur-xl shadow-ambient border-b border-slate-200/60' : 'bg-transparent border-transparent'
+    : 'bg-white/80 backdrop-blur-xl shadow-ambient border-b border-slate-200/60';
 
   const linkClass = isHome && !scrolled ? 'text-white hover:text-blue-300' : 'text-slate-600 hover:text-blue-600';
   const menuIconColor = isHome && !scrolled && !isOpen ? 'text-white' : 'text-slate-600';
@@ -138,7 +138,7 @@ function Navbar() {
                 {initials || 'SE'}
               </button>
               {avatarOpen && (
-                <div ref={avatarMenuRef} className="absolute right-0 mt-3 w-56 rounded-xl border border-slate-200 bg-white shadow-2xl p-3 z-50 ring-1 ring-slate-100/80 animate-slide-up-fade">
+                <div ref={avatarMenuRef} className="absolute right-0 mt-3 w-56 rounded-xl border border-slate-100/60 bg-white shadow-ambient p-3 z-50 animate-slide-up-fade">
                   <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">Signed in</p>
                   <p className="text-sm text-slate-800 mt-1 font-semibold break-all">{displayName}</p>
                   <p className="text-xs text-slate-500 mt-1 break-all">{user?.email || user?.phone}</p>
@@ -172,7 +172,7 @@ function Navbar() {
         </button>
 
         {isOpen && (
-          <div className="absolute top-full left-0 w-full bg-white/90 backdrop-blur-md shadow-2xl border-t border-slate-200 flex flex-col p-4 gap-4 md:hidden animate-slide-up-fade">
+          <div className="absolute top-full left-0 w-full bg-white/90 backdrop-blur-xl shadow-ambient border-t border-slate-100/60 flex flex-col p-4 gap-4 md:hidden animate-slide-up-fade">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}

@@ -454,35 +454,35 @@ export function PublicSearchPage() {
 
       <div className="max-w-6xl mx-auto px-6 mt-16 pb-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-          <div className="bg-white border text-center border-slate-100 rounded-2xl p-6 shadow-sm feature-card-hover group">
+          <div className="bg-white border text-center border-slate-100/60 rounded-2xl p-6 shadow-ambient feature-card-hover group">
             <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5 icon-box group-hover:text-indigo-600">
               <ShieldCheck size={28} />
             </div>
             <h3 className="font-semibold text-slate-900 group-hover:text-indigo-900 transition-colors">Transparent Pricing</h3>
             <p className="text-sm text-slate-500 mt-2">No hidden fees. Clear fare breakdown on every route.</p>
           </div>
-          <div className="bg-white border text-center border-slate-100 rounded-2xl p-6 shadow-sm feature-card-hover group">
+          <div className="bg-white border text-center border-slate-100/60 rounded-2xl p-6 shadow-ambient feature-card-hover group">
             <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5 icon-box group-hover:text-indigo-600">
               <Headphones size={28} />
             </div>
             <h3 className="font-semibold text-slate-900 group-hover:text-indigo-900 transition-colors">24/7 Support</h3>
             <p className="text-sm text-slate-500 mt-2">Dedicated team for quick updates and live assistance.</p>
           </div>
-          <div className="bg-white border text-center border-slate-100 rounded-2xl p-6 shadow-sm feature-card-hover group">
+          <div className="bg-white border text-center border-slate-100/60 rounded-2xl p-6 shadow-ambient feature-card-hover group">
             <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5 icon-box group-hover:text-indigo-600">
               <BadgeCheck size={28} />
             </div>
             <h3 className="font-semibold text-slate-900 group-hover:text-indigo-900 transition-colors">Verified Drivers</h3>
             <p className="text-sm text-slate-500 mt-2">Background-checked professionals for your safety.</p>
           </div>
-          <div className="bg-white border text-center border-slate-100 rounded-2xl p-6 shadow-sm feature-card-hover group">
+          <div className="bg-white border text-center border-slate-100/60 rounded-2xl p-6 shadow-ambient feature-card-hover group">
             <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5 icon-box group-hover:text-indigo-600">
               <Sparkles size={28} />
             </div>
             <h3 className="font-semibold text-slate-900 group-hover:text-indigo-900 transition-colors">Sanitized Cabs</h3>
             <p className="text-sm text-slate-500 mt-2">Clean, fresh rides for every journey.</p>
           </div>
-          <div className="bg-white border text-center border-slate-100 rounded-2xl p-6 shadow-sm feature-card-hover group">
+          <div className="bg-white border text-center border-slate-100/60 rounded-2xl p-6 shadow-ambient feature-card-hover group">
             <div className="w-14 h-14 mx-auto rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mb-5 icon-box group-hover:text-indigo-600">
               <LocateFixed size={28} />
             </div>
@@ -502,7 +502,7 @@ export function PublicSearchPage() {
                 key={route.label}
                 type="button"
                 onClick={() => handlePopularRoute(route)}
-                className="group min-w-[240px] text-left border border-slate-200 bg-white rounded-2xl p-5 hover:border-blue-400 focus:ring-4 focus:ring-blue-100 feature-card-hover transition-all duration-300 cursor-pointer"
+                className="group min-w-[240px] text-left border border-slate-100/60 bg-white rounded-2xl p-5 shadow-ambient hover:border-blue-400 focus:ring-4 focus:ring-blue-100 feature-card-hover transition-all duration-300 cursor-pointer"
               >
                 <div className="flex items-center justify-between mb-2">
                   <p className="font-bold text-slate-800 text-lg">{route.label}</p>
@@ -510,7 +510,7 @@ export function PublicSearchPage() {
                     <span className="text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all">→</span>
                   </div>
                 </div>
-                <p className="text-sm text-slate-500">One tap to book faster</p>
+                <p className="text-xs text-slate-400 font-medium">Tap to pre-fill route</p>
               </button>
             ))}
           </div>
