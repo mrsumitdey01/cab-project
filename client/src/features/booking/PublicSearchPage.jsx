@@ -301,7 +301,7 @@ export function PublicSearchPage() {
             <div className="flex gap-3">
               <button
                 type="button"
-                className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-6 py-2.5 rounded-full font-semibold shadow-[0_6px_18px_rgba(16,185,129,0.35)] hover:shadow-[0_8px_22px_rgba(16,185,129,0.45)] sweep-hover transition-all duration-200"
+                className="btn-accent flex items-center gap-2 text-white px-6 py-2.5 rounded-full font-semibold sweep-hover transition-all duration-200"
               >
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
@@ -326,12 +326,15 @@ export function PublicSearchPage() {
       <div className="max-w-6xl mx-auto px-6 relative z-10 mb-8">
         <div className="glass-card bg-white/80 backdrop-blur-2xl border border-white/60 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.15)] rounded-3xl overflow-hidden">
           <div className="px-6 pt-6">
-            <div className="flex bg-slate-200/60 rounded-full p-1.5 gap-1 sm:gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <div
+              className="segmented-control segmented-control-3 flex rounded-full bg-slate-200/60 p-1.5 gap-1 sm:gap-2 overflow-x-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+              style={{ '--segment-active': TRIP_TYPES.indexOf(formData.tripType) }}
+            >
               {TRIP_TYPES.map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setFormData((prev) => ({ ...prev, tripType: tab }))}
-                  className={`flex-1 py-2.5 px-2 sm:px-4 text-center text-xs sm:text-sm whitespace-nowrap rounded-full transition-all duration-300 ${formData.tripType === tab ? 'bg-white text-blue-600 font-bold shadow-md' : 'text-slate-600 font-semibold hover:text-slate-900'
+                  className={`segmented-option flex-1 py-2.5 px-2 sm:px-4 text-center text-xs sm:text-sm whitespace-nowrap rounded-full transition-all duration-300 ${formData.tripType === tab ? 'text-blue-600 font-bold' : 'text-slate-600 font-semibold hover:text-slate-900'
                     }`}
                 >
                   {tab.replace('_', ' ')}
@@ -342,7 +345,7 @@ export function PublicSearchPage() {
 
           <form onSubmit={handleSearch} className="p-6 md:p-10 bg-white/70">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6 relative">
-              <div className="bg-slate-50 hover:bg-slate-100/50 border border-slate-200 rounded-2xl p-4 transition-all duration-200 focus-within:bg-white focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-500/10">
+              <div className="input-tonal-surface rounded-2xl p-4">
                 <AutocompleteDropdown
                   label="From"
                   placeholder="Enter Pickup Location"
@@ -362,7 +365,7 @@ export function PublicSearchPage() {
                   }}
                 />
               </div>
-              <div className="bg-slate-50 hover:bg-slate-100/50 border border-slate-200 rounded-2xl p-4 transition-all duration-200 focus-within:bg-white focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-500/10">
+              <div className="input-tonal-surface rounded-2xl p-4">
                 <AutocompleteDropdown
                   label="To"
                   placeholder="Enter Drop Location"
@@ -397,10 +400,10 @@ export function PublicSearchPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-              <div className="bg-slate-50 hover:bg-slate-100/50 border border-slate-200 rounded-2xl p-4 transition-all duration-200 focus-within:bg-white focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-500/10">
+              <div className="input-tonal-surface rounded-2xl p-4">
                 <label className="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Pick-Up Date</label>
                 <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-600">
+                  <div className="input-tonal-icon absolute left-4 top-1/2 -translate-y-1/2 flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-600">
                     <CalendarDays size={16} />
                   </div>
                   <input
@@ -414,10 +417,10 @@ export function PublicSearchPage() {
                   />
                 </div>
               </div>
-              <div className="bg-slate-50 hover:bg-slate-100/50 border border-slate-200 rounded-2xl p-4 transition-all duration-200 focus-within:bg-white focus-within:border-blue-400 focus-within:ring-4 focus-within:ring-blue-500/10">
+              <div className="input-tonal-surface rounded-2xl p-4">
                 <label className="block text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Pick-Up Time</label>
                 <div className="relative">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-600">
+                  <div className="input-tonal-icon absolute left-4 top-1/2 -translate-y-1/2 flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-600">
                     <Clock size={16} />
                   </div>
                   <input
@@ -497,7 +500,7 @@ export function PublicSearchPage() {
             <span className="text-sm font-medium text-slate-500 px-3 py-1 bg-slate-100 rounded-full">Tap to pre-fill</span>
           </div>
           <div className="flex overflow-x-auto gap-4 pb-6 pt-2 snap-x scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            {popularRoutes.map((route) => (
+            {popularRoutes.map((route, index) => (
               <button
                 key={route.label}
                 type="button"
@@ -510,7 +513,12 @@ export function PublicSearchPage() {
                     <span className="text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all">→</span>
                   </div>
                 </div>
-                <p className="text-xs text-slate-400 font-medium">Tap to pre-fill route</p>
+                <div className="mt-2 flex items-center justify-between gap-3">
+                  <p className="text-xs text-slate-400 font-medium">Tap to pre-fill route</p>
+                  <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
+                    {['45 mins', '1h 20m', '55 mins', '40 mins', '35 mins'][index]}
+                  </span>
+                </div>
               </button>
             ))}
           </div>
@@ -525,9 +533,9 @@ export function PublicSearchPage() {
           }`}
         aria-label="Chat on WhatsApp"
       >
-        <span className="absolute inset-0 rounded-full bg-emerald-400/40 blur-lg opacity-70 animate-pulse"></span>
-        <span className="absolute inset-0 rounded-full bg-emerald-400/30 animate-ping"></span>
-        <span className="relative inline-flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 text-white shadow-xl hover:brightness-110 transition">
+        <span className="absolute inset-0 rounded-full bg-[color:var(--color-tertiary-accent)]/40 blur-lg opacity-70 animate-pulse"></span>
+        <span className="absolute inset-0 rounded-full bg-[color:var(--color-tertiary-accent)]/30 animate-ping"></span>
+        <span className="btn-accent relative inline-flex items-center gap-2 px-4 py-3 rounded-full text-white shadow-xl transition">
           <svg className="w-5 h-5" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
             <path d="M16.002 3C9.384 3 4 8.384 4 15c0 2.36.69 4.56 1.87 6.41L4 28l6.78-1.78A12.93 12.93 0 0 0 16 27c6.616 0 12-5.384 12-12S22.616 3 16.002 3zm0 21.75c-2.2 0-4.27-.65-6.03-1.88l-.43-.25-4.02 1.06 1.07-3.91-.27-.41A9.72 9.72 0 0 1 6.25 15c0-5.38 4.37-9.75 9.75-9.75S25.75 9.62 25.75 15 21.38 24.75 16 24.75zm5.4-7.08c-.3-.15-1.77-.87-2.04-.97-.28-.1-.48-.15-.68.15-.2.3-.78.97-.96 1.17-.18.2-.36.22-.66.07-.3-.15-1.26-.46-2.4-1.47-.88-.78-1.48-1.75-1.66-2.05-.18-.3-.02-.46.13-.61.13-.13.3-.36.45-.54.15-.18.2-.3.3-.5.1-.2.05-.38-.03-.53-.08-.15-.68-1.64-.93-2.25-.24-.58-.49-.5-.68-.51-.17-.01-.37-.01-.57-.01-.2 0-.53.07-.8.38-.27.3-1.05 1.03-1.05 2.5s1.07 2.9 1.22 3.1c.15.2 2.1 3.21 5.08 4.5.71.31 1.26.5 1.69.64.71.23 1.36.2 1.87.12.57-.09 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.08-.12-.28-.2-.58-.35z" />
           </svg>
@@ -647,7 +655,7 @@ export function PublicSearchPage() {
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Full Name</label>
                       <input
-                        className="w-full bg-white border border-slate-200 hover:border-blue-300 text-slate-800 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium placeholder:text-slate-400 shadow-sm"
+                        className="w-full bg-white border border-slate-200 text-slate-800 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all font-medium placeholder:text-slate-400 shadow-sm input-tonal"
                         placeholder="John Doe"
                         value={contact.name}
                         onChange={(e) => setContact((prev) => ({ ...prev, name: e.target.value }))}
@@ -657,7 +665,7 @@ export function PublicSearchPage() {
                     <div>
                       <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5 ml-1">Email Address <span className="opacity-60">(Optional)</span></label>
                       <input
-                        className={`w-full bg-white border ${emailError ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20' : 'border-slate-200 hover:border-blue-300 focus:border-blue-500 focus:ring-blue-500/20'} text-slate-800 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 transition-all font-medium placeholder:text-slate-400 shadow-sm`}
+                        className={`w-full bg-white border ${emailError ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-500/20'} text-slate-800 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 transition-all font-medium placeholder:text-slate-400 shadow-sm input-tonal`}
                         placeholder="john@example.com"
                         type="email"
                         value={contact.email}
@@ -685,7 +693,7 @@ export function PublicSearchPage() {
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
                         </div>
                         <input
-                          className="w-full bg-white border border-slate-200 hover:border-emerald-300 text-slate-800 rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium placeholder:text-slate-400 shadow-sm"
+                          className="w-full bg-white border border-slate-200 text-slate-800 rounded-xl pl-11 pr-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all font-medium placeholder:text-slate-400 shadow-sm input-tonal"
                           placeholder="+91 9999999999"
                           value={contact.phone}
                           onChange={(e) => setContact((prev) => ({ ...prev, phone: e.target.value.replace(/[^+0-9]/g, '') }))}
@@ -697,7 +705,7 @@ export function PublicSearchPage() {
                   </div>
 
                   <button
-                    className="w-full flex items-center justify-center gap-2 py-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-lg shadow-[0_8px_20px_-6px_rgba(59,130,246,0.5)] hover:shadow-[0_12px_25px_-6px_rgba(59,130,246,0.6)] sweep-hover transition-all duration-300 disabled:opacity-60 disabled:shadow-none disabled:hover:shadow-none disabled:cursor-not-allowed"
+                    className="btn-premium w-full flex items-center justify-center gap-2 py-4 rounded-xl text-white font-bold text-lg sweep-hover transition-all duration-300 disabled:opacity-60 disabled:shadow-none disabled:hover:shadow-none disabled:cursor-not-allowed"
                     disabled={loading || showSkeleton || emailError !== '' || (!contact.name || !/^(?:\+91|91)?\d{10}$/.test(contact.phone || ''))}
                   >
                     {loading ? (
@@ -723,5 +731,3 @@ export function PublicSearchPage() {
     </div >
   );
 }
-
-

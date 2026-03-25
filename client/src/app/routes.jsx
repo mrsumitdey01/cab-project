@@ -103,7 +103,7 @@ function Navbar() {
     { to: '/bookings', label: 'Bookings', show: isAuthenticated },
     { to: '/admin', label: 'Admin', show: user?.role === 'admin' },
     { to: '/login', label: 'Login', show: !isAuthenticated },
-    { to: '/register', label: 'Register', show: !isAuthenticated },
+    { to: '/register', label: 'Register', show: !isAuthenticated, cta: true },
   ].filter((item) => item.show)), [isAuthenticated, user?.role]);
 
   return (
@@ -117,9 +117,10 @@ function Navbar() {
             <NavLink
               key={item.to}
               to={item.to}
-              // className={({ isActive }) => `transition-colors drop-shadow-sm nav-link-underline ${isActive ? 'font-bold' : ''}`}
-              // data-active={location.pathname === item.to}
-              className="transition-colors drop-shadow-sm"
+              className={({ isActive }) => item.cta
+                ? `rounded-full px-4 py-2 text-white shadow-sm transition-all ${isActive ? 'btn-premium' : 'btn-premium hover:-translate-y-0.5'}`
+                : `transition-colors drop-shadow-sm ${isActive ? 'font-semibold' : ''}`
+              }
             >
               {item.label}
             </NavLink>
@@ -297,7 +298,7 @@ export function AppRoutes() {
 
             {/* Brand column */}
             <div className="md:col-span-1 space-y-4">
-              <p className="text-white font-bold text-lg tracking-tight">Safar Express</p>
+              <SafarExpressLogo light />
               <p className="text-sm text-slate-400 leading-relaxed">
                 Premium intercity cab experiences with trusted drivers and transparent pricing.
               </p>
