@@ -5,6 +5,8 @@ const AuditLog = require('../../../models/AuditLog');
 const RouteOption = require('../../../models/RouteOption');
 const CabOption = require('../../../models/CabOption');
 const CorporateEnquiry = require('../../../models/CorporateEnquiry');
+const SiteContent = require('../../../models/SiteContent');
+const { buildSiteContentPayload } = require('../siteContent/defaults');
 const { authenticate, requireRole } = require('../../middleware/auth');
 
 function createAdminRouter(config) {
@@ -125,6 +127,46 @@ function createAdminRouter(config) {
     try {
       const enquiries = await CorporateEnquiry.find({}).sort({ createdAt: -1 }).limit(200);
       return success(res, { enquiries });
+    } catch (err) {
+      return next(err);
+    }
+  });
+
+  router.get('/site-content', async (req, res, next) => {
+    try {
+      let siteContent = await SiteContent.findOne({ key: 'primary' }).lean();
+      if (!siteContent) {
+        siteContent = await SiteContent.create({ key: 'primary', ...buildSiteContentPayload() });
+        siteContent = siteContent.toObject();
+      }
+      return success(res, buildSiteContentPayload(siteContent));
+    } catch (err) {
+      return next(err);
+    }
+  });
+
+  router.put('/site-content', async (req, res, next) => {
+    try {
+      const payload = buildSiteContentPayload(req.body || {});
+      const siteContent = await SiteContent.findOneAndUpdate(
+        { key: 'primary' },
+        { $set: payload, $setOnInsert: { key: 'primary' } },
+        { new: true, upsert: true }
+      );
+
+      await AuditLog.create({
+        action: 'SITE_CONTENT_UPDATED',
+        actor: {
+          userId: req.user.sub,
+          role: req.user.role,
+          email: req.user.email,
+        },
+        target: { type: 'site-content', id: siteContent._id },
+        metadata: { updatedPopularRoutes: payload.popularRoutes.length },
+        requestId: res.locals.requestId,
+      });
+
+      return success(res, buildSiteContentPayload(siteContent.toObject()));
     } catch (err) {
       return next(err);
     }

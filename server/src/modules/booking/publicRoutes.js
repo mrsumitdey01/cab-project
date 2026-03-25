@@ -4,6 +4,8 @@ const { validate } = require('../../middleware/validate');
 const { bookingCreateSchema, publicBookingSchema } = require('./schemas');
 const bookingService = require('./service');
 const CorporateEnquiry = require('../../../models/CorporateEnquiry');
+const SiteContent = require('../../../models/SiteContent');
+const { buildSiteContentPayload } = require('../siteContent/defaults');
 
 function createPublicRouter(_config) {
   const router = express.Router();
@@ -65,6 +67,23 @@ function createPublicRouter(_config) {
         received: true,
         message: 'Corporate enquiry submitted successfully.',
       }, { status: 201 });
+    } catch (err) {
+      return next(err);
+    }
+  });
+
+  router.get('/site-content', async (req, res, next) => {
+    try {
+      let siteContent = await SiteContent.findOne({ key: 'primary' }).lean();
+      if (!siteContent) {
+        siteContent = await SiteContent.create({ key: 'primary', ...buildSiteContentPayload() });
+        siteContent = siteContent.toObject();
+      }
+
+      return success(res, {
+        footer: buildSiteContentPayload(siteContent).footer,
+        popularRoutes: buildSiteContentPayload(siteContent).popularRoutes,
+      });
     } catch (err) {
       return next(err);
     }

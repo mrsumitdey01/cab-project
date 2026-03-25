@@ -39,6 +39,11 @@ export async function createCorporateEnquiry(payload) {
   return res.data.data;
 }
 
+export async function getSiteContent() {
+  const res = await http.get('/public/site-content');
+  return res.data.data;
+}
+
 export async function createBooking(payload, idempotencyKey) {
   const res = await http.post('/bookings', payload, {
     headers: idempotencyKey ? { 'Idempotency-Key': idempotencyKey } : {},
@@ -100,4 +105,14 @@ export async function createAdminCab(payload) {
 export async function getCorporateEnquiries() {
   const res = await http.get('/admin/corporate-enquiries');
   return res.data.data.enquiries;
+}
+
+export async function getAdminSiteContent() {
+  const res = await http.get('/admin/site-content');
+  return res.data.data;
+}
+
+export async function updateAdminSiteContent(payload) {
+  const res = await http.put('/admin/site-content', payload);
+  return res.data.data;
 }

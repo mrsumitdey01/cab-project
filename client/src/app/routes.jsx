@@ -10,7 +10,7 @@ import { TermsOfServicePage } from '../features/legal/TermsOfServicePage';
 import { ProtectedRoute } from '../shared/ui/ProtectedRoute';
 import { useAuth } from '../shared/contexts/AuthContext';
 import SafarExpressLogo from '../components/SafarExpressLogo';
-import { createCorporateEnquiry } from '../shared/api/endpoints';
+import { createCorporateEnquiry, getSiteContent } from '../shared/api/endpoints';
 
 function Navbar() {
   const { user, isAuthenticated, logout } = useAuth();
@@ -206,6 +206,7 @@ function Navbar() {
 
 export function AppRoutes() {
   const { user, isAuthenticated } = useAuth();
+  const [siteContent, setSiteContent] = useState(null);
   const [isCorporateModalOpen, setIsCorporateModalOpen] = useState(false);
   const [corporateForm, setCorporateForm] = useState({
     company: '',
@@ -218,6 +219,39 @@ export function AppRoutes() {
   });
   const [isSubmittingCorporate, setIsSubmittingCorporate] = useState(false);
   const [isCorporateSuccess, setIsCorporateSuccess] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    getSiteContent()
+      .then((data) => {
+        if (active) setSiteContent(data);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const footer = siteContent?.footer || {
+    description: "India's premier intercity travel platform, bridging the gap between comfort and affordability.",
+    phone: '1800-SAFAR-EXP',
+    email: 'support@safarexpress.in',
+    address: 'Safar Express HQ, 24 Horizon Towers, Connaught Place, New Delhi 110001',
+    whatsapp: '919999999999',
+    twitter: 'https://x.com/safarexpress',
+    quickLinks: [
+      { label: 'Book a Ride', to: '/' },
+      { label: 'Ride History', to: '/bookings' },
+      { label: 'Partner with Us', to: '#corporate' },
+      { label: 'Corporate Travel', to: '#corporate' },
+    ],
+    legalLinks: [
+      { label: 'Privacy Policy', to: '/privacy' },
+      { label: 'Terms of Service', to: '/terms' },
+      { label: 'Refund Policy', to: '/terms' },
+      { label: 'Safety Guidelines', to: '/terms' },
+    ],
+  };
 
   function handleCorporateChange(e) {
     const { name, value } = e.target;
@@ -285,21 +319,16 @@ export function AppRoutes() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
-      <footer className="relative w-full mt-8 bg-gradient-to-b from-slate-900 via-slate-900 to-slate-950 text-slate-400 overflow-hidden">
-        {/* top glow divider */}
-        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-blue-500/60 to-transparent" />
-        <div className="absolute top-0 inset-x-0 h-10 bg-gradient-to-b from-blue-600/10 to-transparent pointer-events-none" />
+      <footer className="relative mt-8 w-full overflow-hidden bg-[#000928] text-slate-300">
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#5382ff]/60 to-transparent" />
 
-        <div className="relative max-w-6xl mx-auto px-6 pt-14 pb-10">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="relative mx-auto max-w-6xl px-6 pb-8 pt-16">
+          <div className="grid grid-cols-1 gap-10 md:grid-cols-2 xl:grid-cols-4">
 
             {/* Brand column */}
-            <div className="md:col-span-1 space-y-4">
+            <div className="space-y-5">
               <SafarExpressLogo light orbitingCar={false} />
-              <p className="text-sm text-slate-400 leading-relaxed">
-                Premium intercity cab experiences with trusted drivers and transparent pricing.
-              </p>
-              {/* Call button */}
+              <p className="max-w-sm text-sm leading-7 text-slate-400">{footer.description}</p>
               <a
                 href="tel:+919999999999"
                 className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-300 hover:bg-blue-500/20 hover:border-blue-400 hover:text-white transition-all duration-200 text-sm font-semibold"
