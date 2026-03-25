@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { CalendarDays, Clock, ShieldCheck, Headphones, BadgeCheck, Sparkles, LocateFixed } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { searchTrips, createPublicBooking, createBooking, getSiteContent } from '../../shared/api/endpoints';
+import { searchTrips, createPublicBooking, createBooking } from '../../shared/api/endpoints';
 import { Alert } from '../../shared/ui/Alert';
 import { useAuth } from '../../shared/contexts/AuthContext';
 import { getWarmState, warmBackend } from '../../shared/api/warmup';
@@ -9,12 +9,6 @@ import { useWarmup } from '../../shared/contexts/WarmupContext';
 import { AutocompleteDropdown } from '../../components/AutocompleteDropdown';
 
 const TRIP_TYPES = ['ONE_WAY', 'ROUND_TRIP', 'HOURLY'];
-const FALLBACK_POPULAR_ROUTES = [
-  { from: 'Delhi', to: 'Noida', price: 899, icon: 'city', blurb: 'Fast business commute', image: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1200&q=80' },
-  { from: 'Delhi', to: 'Agra', price: 2499, icon: 'monument', blurb: 'Weekend heritage escape', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80' },
-  { from: 'Gurgaon', to: 'IGI Airport', price: 1199, icon: 'airport', blurb: 'Reliable airport transfer', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=80' },
-  { from: 'Jaipur', to: 'Delhi', price: 3299, icon: 'city', blurb: 'Premium intercity route', image: 'https://images.unsplash.com/photo-1599661046827-dacde6976548?auto=format&fit=crop&w=1200&q=80' },
-];
 
 export function PublicSearchPage() {
   const navigate = useNavigate();
@@ -40,7 +34,6 @@ export function PublicSearchPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [siteContent, setSiteContent] = useState(null);
 
   /** Parse backend validation errors into a human-readable string */
   function parseApiError(err) {
