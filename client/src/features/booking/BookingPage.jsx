@@ -5,13 +5,45 @@ import { listBookings } from '../../shared/api/endpoints';
 
 const tabs = ['present', 'planned', 'past'];
 
-const TAB_LABELS = { present: 'Today', planned: 'Upcoming', past: 'Past' };
+const TAB_LABELS = { present: 'TODAY', planned: 'UPCOMING', past: 'PAST' };
 
 const STATUS_CONFIG = {
-  CONFIRMED: { label: 'Confirmed', bar: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-400', tint: 'bg-emerald-50/50' },
-  COMPLETED: { label: 'Completed', bar: 'bg-indigo-500', badge: 'bg-indigo-100 text-indigo-700', dot: 'bg-indigo-400', tint: 'bg-indigo-50/50' },
-  CANCELLED: { label: 'Cancelled', bar: 'bg-rose-500', badge: 'bg-rose-100 text-rose-700', dot: 'bg-rose-400', tint: 'bg-rose-50/50' },
-  PENDING: { label: 'Pending', bar: 'bg-amber-400', badge: 'bg-amber-100 text-amber-700', dot: 'bg-amber-400', tint: 'bg-amber-50/60' },
+  CONFIRMED: {
+    label: 'Confirmed',
+    bar: 'bg-emerald-500',
+    badge: 'bg-emerald-100 text-emerald-700',
+    dot: 'bg-emerald-500',
+    tint: 'bg-emerald-50/70',
+    action: 'View Details',
+    actionClass: 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-500/20',
+  },
+  COMPLETED: {
+    label: 'Completed',
+    bar: 'bg-indigo-500',
+    badge: 'bg-indigo-100 text-indigo-700',
+    dot: 'bg-indigo-500',
+    tint: 'bg-indigo-50/70',
+    action: 'View Details',
+    actionClass: 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-500/20',
+  },
+  CANCELLED: {
+    label: 'Cancelled',
+    bar: 'bg-rose-500',
+    badge: 'bg-rose-100 text-rose-700',
+    dot: 'bg-rose-500',
+    tint: 'bg-rose-50/70',
+    action: 'View Details',
+    actionClass: 'border border-slate-200 bg-white text-slate-700 hover:border-indigo-200 hover:text-indigo-600',
+  },
+  PENDING: {
+    label: 'Pending',
+    bar: 'bg-amber-400',
+    badge: 'bg-amber-100 text-amber-700',
+    dot: 'bg-amber-400',
+    tint: 'bg-amber-50/80',
+    action: 'Pay Now',
+    actionClass: 'border border-amber-200 bg-white text-amber-700 hover:border-amber-300 hover:bg-amber-50',
+  },
 };
 
 function parsePickupDateTime(booking) {
@@ -60,8 +92,7 @@ function formatDate(dateStr, timeStr) {
 
     const hasTimeInfo = timeStr || d.getHours() !== 0 || d.getMinutes() !== 0;
 
-    return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) +
-      (hasTimeInfo ? `, ${d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}` : '');
+    return `${d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}${hasTimeInfo ? `, ${d.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}` : ''}`;
   } catch {
     return dateStr;
   }
@@ -73,9 +104,76 @@ function truncateBookingId(id) {
   return `${id.slice(0, 6)}...${id.slice(-4)}`;
 }
 
+function CalendarBadgeIcon() {
+  return (
+    <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M8 3v3m8-3v3M4.5 9.5h15M6 5.5h12a1.5 1.5 0 011.5 1.5v11A1.5 1.5 0 0118 19.5H6A1.5 1.5 0 014.5 18V7A1.5 1.5 0 016 5.5z" />
+    </svg>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1111 5a6 6 0 016 6z" />
+    </svg>
+  );
+}
+
+function ClockIcon() {
+  return (
+    <svg className="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 6.5v5l3.5 2M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  );
+}
+
+function CarIcon() {
+  return (
+    <svg className="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M7 16h10M6.5 9.5l1.4-3.3A1.5 1.5 0 019.28 5h5.44a1.5 1.5 0 011.38.92l1.4 3.58M5.5 10.5h13A1.5 1.5 0 0120 12v4a1 1 0 01-1 1h-1m-12 0H5a1 1 0 01-1-1v-4a1.5 1.5 0 011.5-1.5zM7 17a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zm13 0a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+    </svg>
+  );
+}
+
+function RouteIcon({ destination = false }) {
+  if (destination) {
+    return (
+      <svg className="h-4.5 w-4.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M12 21s6-4.35 6-10a6 6 0 10-12 0c0 5.65 6 10 6 10z" />
+        <circle cx="12" cy="11" r="2.5" strokeWidth="1.8" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg className="h-4.5 w-4.5" viewBox="0 0 24 24" fill="currentColor">
+      <circle cx="12" cy="12" r="5" />
+    </svg>
+  );
+}
+
+function EmptyStateIcon() {
+  return (
+    <svg className="h-16 w-16" viewBox="0 0 64 64" fill="none" stroke="currentColor">
+      <rect x="16" y="18" width="24" height="30" rx="5" strokeWidth="2.2" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M24 18v-4a4 4 0 118 0v4M20 28h16M24 36h8" />
+      <circle cx="46" cy="42" r="10" strokeWidth="2.2" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" d="M53 49l6 6" />
+    </svg>
+  );
+}
+
+function formatFare(booking) {
+  if (booking.status === 'PENDING' && (booking.fare?.totalAmount == null || booking.fare?.totalAmount === 0)) {
+    return 'Pending';
+  }
+  return `₹${booking.fare?.totalAmount ?? '—'}`;
+}
+
 export function BookingPage() {
   const [bookings, setBookings] = useState([]);
-  const [activeTab, setActiveTab] = useState('present');
+  const [activeTab, setActiveTab] = useState('planned');
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -128,6 +226,7 @@ export function BookingPage() {
         booking.selection?.cabType,
         booking.selection?.carModel,
         booking._id,
+        booking.schedule?.pickupDate,
       ].filter(Boolean).join(' ').toLowerCase();
       const matchesQuery = !query || haystack.includes(query.toLowerCase());
       const matchesStatus = statusFilter === 'ALL' || booking.status === statusFilter;
@@ -185,146 +284,270 @@ export function BookingPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-6 pt-24 pb-10">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-5 mb-8">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-widest text-indigo-500 mb-1">Customer Dashboard</p>
-          <h1 className="text-3xl font-black text-slate-900 leading-tight">
-            My <span className="relative inline-block">Bookings<span className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-indigo-500 to-blue-400 rounded-full" /></span>
-          </h1>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="bg-white border border-slate-100/60 rounded-2xl px-4 py-2.5 shadow-ambient flex items-center gap-2.5">
-            <div className="w-2 h-2 rounded-full bg-slate-400" />
-            <div><p className="text-xs text-slate-400 leading-none">Total</p><p className="text-lg font-bold text-slate-800 leading-tight">{stats.total}</p></div>
-          </div>
-          <div className="bg-emerald-50 border border-emerald-100/60 rounded-2xl px-4 py-2.5 shadow-ambient flex items-center gap-2.5">
-            <div className="w-2 h-2 rounded-full bg-emerald-400" />
-            <div><p className="text-xs text-emerald-600 leading-none">Confirmed</p><p className="text-lg font-bold text-emerald-700 leading-tight">{stats.confirmed}</p></div>
-          </div>
-          <div className="bg-indigo-50 border border-indigo-100/60 rounded-2xl px-4 py-2.5 shadow-ambient flex items-center gap-2.5">
-            <div className="w-2 h-2 rounded-full bg-indigo-400" />
-            <div><p className="text-xs text-indigo-500 leading-none">Completed</p><p className="text-lg font-bold text-indigo-700 leading-tight">{stats.completed}</p></div>
-          </div>
-          <div className="bg-rose-50 border border-rose-100/60 rounded-2xl px-4 py-2.5 shadow-ambient flex items-center gap-2.5">
-            <div className="w-2 h-2 rounded-full bg-rose-400" />
-            <div><p className="text-xs text-rose-500 leading-none">Cancelled</p><p className="text-lg font-bold text-rose-700 leading-tight">{stats.cancelled}</p></div>
-          </div>
-          <button type="button" onClick={exportCsv} className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-semibold text-sm shadow-sm hover:border-indigo-300 hover:text-indigo-600 hover:shadow-indigo-500/10 transition-all duration-200">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-            {exporting ? 'Exporting...' : 'Export CSV'}
-          </button>
-        </div>
-      </div>
-
-      {nextRide && (
-        <div className="mb-8 rounded-2xl bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-5 shadow-lg shadow-indigo-500/20 relative overflow-hidden">
-          <div className="absolute inset-0 shimmer opacity-60 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-40 bg-white/5 rounded-l-[3rem]" />
-          <p className="text-xs font-bold uppercase tracking-widest text-white/60 mb-2">Next Ride</p>
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 relative z-10">
-            <div>
-              <p className="text-xl font-bold flex items-center gap-2">{nextRide.pickup?.address}<span className="text-white/50 font-normal">→</span>{nextRide.dropoff?.address}</p>
-              <p className="text-sm text-white/70 mt-1">{nextRide.selection?.cabType || 'Cab'} {nextRide.selection?.carModel ? `· ${nextRide.selection.carModel}` : ''}</p>
+    <div className="min-h-screen bg-[#faf8ff]">
+      <div className="mx-auto max-w-7xl px-6 pb-14 pt-24 lg:px-8">
+        <div className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-2xl">
+            <div className="mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 text-[#5382ff] shadow-sm">
+              <CalendarBadgeIcon />
             </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <div className="px-3 py-1.5 rounded-full bg-white/15 border border-white/20 text-sm font-semibold backdrop-blur-sm">{formatDate(nextRide.schedule?.pickupDate, nextRide.schedule?.pickupTime)}</div>
-              <span className={`px-3 py-1.5 rounded-full text-sm font-semibold ${STATUS_CONFIG[nextRide.status]?.badge || 'bg-white/20 text-white'}`}>{nextRide.status}</span>
-            </div>
+            <h1 className="text-4xl font-black tracking-tight text-[#1E1B4B]">Your Bookings</h1>
+            <p className="mt-2 text-base text-slate-600">Manage your intercity journeys and travel history.</p>
           </div>
-        </div>
-      )}
 
-      <div className="flex gap-2 mb-6 p-1.5 bg-slate-100 rounded-2xl w-fit">
-        {tabs.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={`relative px-5 py-2 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center gap-2 ${activeTab === tab ? 'bg-white text-indigo-600 shadow-md' : 'text-slate-500 hover:text-slate-800'}`}
-          >
-            {TAB_LABELS[tab]}
-            {grouped[tab]?.length > 0 && <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${activeTab === tab ? 'bg-indigo-100 text-indigo-600' : 'bg-slate-200 text-slate-500'}`}>{grouped[tab].length}</span>}
-          </button>
-        ))}
-      </div>
+          <div className="flex w-full max-w-2xl flex-col gap-3 lg:items-end">
+            <div className="grid w-full gap-3 sm:grid-cols-[minmax(0,1fr)_220px_auto]">
+              <div className="relative">
+                <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                  <SearchIcon />
+                </div>
+                <input
+                  className="w-full rounded-2xl border border-indigo-100/70 bg-white py-3.5 pl-11 pr-4 text-sm text-slate-700 shadow-[0_10px_30px_rgba(30,27,75,0.06)] outline-none transition-all focus:border-[#5382ff] focus:ring-4 focus:ring-[#5382ff]/10"
+                  placeholder="Search by route, ID, or date..."
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+              </div>
+              <select
+                className="rounded-2xl border border-indigo-100/70 bg-white px-4 py-3.5 text-sm font-medium text-slate-700 shadow-[0_10px_30px_rgba(30,27,75,0.06)] outline-none transition-all focus:border-[#5382ff] focus:ring-4 focus:ring-[#5382ff]/10"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="ALL">All Status</option>
+                <option value="PENDING">Pending</option>
+                <option value="CONFIRMED">Confirmed</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="CANCELLED">Cancelled</option>
+              </select>
+              <button
+                type="button"
+                onClick={exportCsv}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#1E1B4B] px-5 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:bg-[#17153d]"
+              >
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                {exporting ? 'Exporting...' : 'Export CSV'}
+              </button>
+            </div>
 
-      <div className="flex flex-col md:flex-row gap-3 mb-6">
-        <div className="relative flex-1">
-          <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-4.35-4.35M17 11A6 6 0 1111 5a6 6 0 016 6z" /></svg>
-          <input className="w-full pl-10 pr-4 py-3 rounded-xl bg-white border border-slate-100/60 shadow-ambient focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-300 transition-all" placeholder="Search across all tabs by route, cab, booking ID or location..." value={query} onChange={(e) => setQuery(e.target.value)} />
-        </div>
-        <select className="px-4 py-3 rounded-xl bg-white border border-slate-100/60 shadow-ambient focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-300 text-slate-700 transition-all" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-          <option value="ALL">All Status</option>
-          <option value="PENDING">Pending</option>
-          <option value="CONFIRMED">Confirmed</option>
-          <option value="COMPLETED">Completed</option>
-          <option value="CANCELLED">Cancelled</option>
-        </select>
-      </div>
-
-      <Alert type="error" message={error} />
-
-      <div key={activeTab} className="space-y-4 mt-4 animate-slide-up-fade">
-        {loading && [...Array(3)].map((_, index) => (
-          <div key={`booking-skeleton-${index}`} className="relative flex rounded-2xl overflow-hidden bg-white border border-slate-100 shadow-sm">
-            <div className="w-1.5 shrink-0 bg-slate-200" />
-            <div className="flex-1 p-5 space-y-4">
-              <div className="h-5 w-1/2 rounded-full bg-slate-200 animate-pulse" />
-              <div className="h-4 w-1/3 rounded-full bg-slate-200 animate-pulse" />
-              <div className="h-4 w-1/4 rounded-full bg-slate-200 animate-pulse" />
+            <div className="flex flex-wrap gap-3 text-sm">
+              <div className="rounded-2xl border border-white/70 bg-white px-4 py-3 shadow-[0_10px_30px_rgba(30,27,75,0.06)]">
+                <p className="text-slate-400">Total Bookings</p>
+                <p className="mt-1 text-xl font-bold text-[#1E1B4B]">{stats.total}</p>
+              </div>
+              <div className="rounded-2xl border border-emerald-100 bg-emerald-50/80 px-4 py-3 shadow-[0_10px_30px_rgba(16,185,129,0.08)]">
+                <p className="text-emerald-600">Confirmed</p>
+                <p className="mt-1 text-xl font-bold text-emerald-700">{stats.confirmed}</p>
+              </div>
+              <div className="rounded-2xl border border-indigo-100 bg-indigo-50/80 px-4 py-3 shadow-[0_10px_30px_rgba(83,130,255,0.08)]">
+                <p className="text-indigo-500">Completed</p>
+                <p className="mt-1 text-xl font-bold text-indigo-700">{stats.completed}</p>
+              </div>
+              <div className="rounded-2xl border border-rose-100 bg-rose-50/80 px-4 py-3 shadow-[0_10px_30px_rgba(244,63,94,0.08)]">
+                <p className="text-rose-500">Cancelled</p>
+                <p className="mt-1 text-xl font-bold text-rose-700">{stats.cancelled}</p>
+              </div>
             </div>
           </div>
-        ))}
+        </div>
 
-        {!loading && filtered.map((booking, i) => {
-          const cfg = STATUS_CONFIG[booking.status] || STATUS_CONFIG.PENDING;
-          return (
-            <div key={booking._id} className={`relative flex rounded-2xl overflow-hidden border border-slate-100/60 shadow-ambient hover:shadow-elevated hover:border-indigo-100/60 transition-all duration-300 stagger-in ${cfg.tint}`} style={{ animationDelay: `${i * 50}ms` }}>
-              <div className={`w-1.5 shrink-0 ${cfg.bar}`} />
-              <div className="flex-1 p-5">
-                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-bold text-slate-900 text-base">{booking.pickup?.address}<span className="mx-1.5 text-slate-400">→</span>{booking.dropoff?.address}</p>
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold ${cfg.badge} ${recentStatusIds.includes(booking._id) ? 'status-pulse' : ''}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${cfg.dot}`} />
-                        {booking.status}
-                      </span>
-                    </div>
-                    <p className="text-sm text-slate-500 flex items-center gap-1.5">{formatDate(booking.schedule?.pickupDate, booking.schedule?.pickupTime)}<span className="mx-1 text-slate-300">·</span><span className="font-medium text-slate-600">{booking.tripType?.replace('_', ' ')}</span></p>
-                    <p className="text-sm text-slate-500 flex items-center gap-1.5">{booking.selection?.cabType || 'N/A'}{booking.selection?.carModel ? ` · ${booking.selection.carModel}` : ''}</p>
-                    <div className="flex items-center gap-2">
-                      <p className="text-xs text-slate-400 font-mono">#{truncateBookingId(booking._id)}</p>
-                      <button type="button" onClick={() => copyBookingId(booking._id)} className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 transition-colors">{copiedId === booking._id ? 'Copied' : 'Copy ID'}</button>
-                    </div>
+        {nextRide && (
+          <div className="relative mb-8 overflow-hidden rounded-3xl bg-gradient-to-r from-[#1E1B4B] via-[#283277] to-[#5382ff] p-6 text-white shadow-[0_24px_60px_rgba(30,27,75,0.28)]">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_30%),linear-gradient(120deg,transparent,rgba(255,255,255,0.12),transparent)]" />
+            <div className="relative flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.28em] text-white/60">Next Ride</p>
+                <p className="mt-3 text-2xl font-bold">
+                  {nextRide.pickup?.address} <span className="mx-2 text-white/50">→</span> {nextRide.dropoff?.address}
+                </p>
+                <p className="mt-2 text-sm text-white/70">
+                  {(nextRide.selection?.cabType || 'Cab')}{nextRide.selection?.carModel ? ` · ${nextRide.selection.carModel}` : ''}
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold backdrop-blur-sm">
+                  {formatDate(nextRide.schedule?.pickupDate, nextRide.schedule?.pickupTime)}
+                </div>
+                <span className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${STATUS_CONFIG[nextRide.status]?.badge || 'bg-white/20 text-white'}`}>
+                  <span className={`h-2 w-2 rounded-full ${STATUS_CONFIG[nextRide.status]?.dot || 'bg-white'}`} />
+                  {STATUS_CONFIG[nextRide.status]?.label || nextRide.status}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <div className="mb-6 flex flex-col gap-4">
+          <div className="inline-flex w-fit rounded-2xl bg-indigo-100/80 p-1.5 shadow-inner">
+            {tabs.map((tab) => (
+              <button
+                key={tab}
+                type="button"
+                onClick={() => setActiveTab(tab)}
+                className={`rounded-xl px-5 py-2.5 text-sm font-semibold transition-all duration-200 ${activeTab === tab ? 'bg-white text-[#1E1B4B] shadow-[0_8px_20px_rgba(30,27,75,0.12)]' : 'text-slate-500 hover:text-slate-700'}`}
+              >
+                <span>{TAB_LABELS[tab]}</span>
+                {grouped[tab]?.length > 0 && (
+                  <span className={`ml-2 rounded-full px-2 py-0.5 text-xs ${activeTab === tab ? 'bg-indigo-100 text-indigo-600' : 'bg-white/60 text-slate-500'}`}>
+                    {grouped[tab].length}
+                  </span>
+                )}
+              </button>
+            ))}
+          </div>
+
+          <Alert type="error" message={error} />
+        </div>
+
+        <div key={activeTab} className="mt-2 grid gap-5 lg:grid-cols-2">
+          {loading && [...Array(4)].map((_, index) => (
+            <div key={`booking-skeleton-${index}`} className="overflow-hidden rounded-3xl border border-indigo-100/60 bg-white shadow-[0_16px_45px_rgba(30,27,75,0.06)]">
+              <div className="flex">
+                <div className="w-1.5 shrink-0 bg-slate-200" />
+                <div className="flex-1 p-6">
+                  <div className="mb-5 flex items-center justify-between">
+                    <div className="h-7 w-28 animate-pulse rounded-full bg-slate-200" />
+                    <div className="h-5 w-24 animate-pulse rounded-full bg-slate-200" />
                   </div>
-
-                  <div className="text-right shrink-0">
-                    <p className="text-xs uppercase tracking-widest text-slate-400">Fare</p>
-                    <p className="text-2xl font-black text-indigo-600 leading-tight">
-                      {booking.status === 'PENDING' && (booking.fare?.totalAmount == null || booking.fare?.totalAmount === 0) ? 'Pending' : `₹${booking.fare?.totalAmount ?? '—'}`}
-                    </p>
+                  <div className="space-y-3">
+                    <div className="h-5 w-4/5 animate-pulse rounded-full bg-slate-200" />
+                    <div className="h-4 w-2/5 animate-pulse rounded-full bg-slate-200" />
+                    <div className="h-20 animate-pulse rounded-2xl bg-slate-100" />
                   </div>
                 </div>
               </div>
             </div>
-          );
-        })}
+          ))}
+
+          {!loading && filtered.map((booking, i) => {
+            const cfg = STATUS_CONFIG[booking.status] || STATUS_CONFIG.PENDING;
+            return (
+              <div
+                key={booking._id}
+                className={`group overflow-hidden rounded-3xl border border-indigo-100/70 bg-white shadow-[0_16px_45px_rgba(30,27,75,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-[0_24px_60px_rgba(30,27,75,0.12)] stagger-in ${cfg.tint}`}
+                style={{ animationDelay: `${i * 60}ms` }}
+              >
+                <div className="flex min-h-full">
+                  <div className={`w-1 shrink-0 sm:w-1.5 ${cfg.bar}`} />
+                  <div className="flex flex-1 flex-col p-6">
+                    <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+                      <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold uppercase tracking-wide ${cfg.badge} ${recentStatusIds.includes(booking._id) ? 'status-pulse' : ''}`}>
+                        <span className={`h-2 w-2 rounded-full ${cfg.dot}`} />
+                        {cfg.label}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono text-xs text-slate-500">{truncateBookingId(booking._id)}</span>
+                        <button
+                          type="button"
+                          onClick={() => copyBookingId(booking._id)}
+                          className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-500 transition-colors hover:bg-indigo-50 hover:text-indigo-600"
+                        >
+                          {copiedId === booking._id ? 'Copied' : 'Copy'}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="mb-5 flex items-start gap-4">
+                      <div className="flex flex-col items-center pt-1">
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-indigo-600">
+                          <RouteIcon />
+                        </span>
+                        <span className="my-1 h-8 w-px bg-slate-200" />
+                        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                          <RouteIcon destination />
+                        </span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">Journey</p>
+                        <div className="mt-2 space-y-3">
+                          <div>
+                            <p className="text-lg font-semibold text-[#1E1B4B]">{booking.pickup?.address || 'Pickup not provided'}</p>
+                            <p className="text-xs text-slate-400">Pickup</p>
+                          </div>
+                          <div>
+                            <p className="text-lg font-semibold text-[#1E1B4B]">{booking.dropoff?.address || 'Dropoff not provided'}</p>
+                            <p className="text-xs text-slate-400">Destination</p>
+                          </div>
+                        </div>
+                      </div>
+                      <span className="rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-indigo-600">
+                        {(booking.tripType || 'ONE_WAY').replace('_', ' ')}
+                      </span>
+                    </div>
+
+                    <div className="grid gap-3 rounded-2xl border border-indigo-100/70 bg-white/75 p-4 backdrop-blur-sm sm:grid-cols-2">
+                      <div className="flex items-start gap-3">
+                        <span className="mt-0.5 rounded-xl bg-indigo-50 p-2 text-indigo-600">
+                          <ClockIcon />
+                        </span>
+                        <div>
+                          <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Date & Time</p>
+                          <p className="mt-1 text-sm font-semibold text-slate-700">{formatDate(booking.schedule?.pickupDate, booking.schedule?.pickupTime)}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-3">
+                        <span className="mt-0.5 rounded-xl bg-indigo-50 p-2 text-indigo-600">
+                          <CarIcon />
+                        </span>
+                        <div>
+                          <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-400">Cab Category</p>
+                          <p className="mt-1 text-sm font-semibold text-slate-700">
+                            {booking.selection?.cabType || 'Cab not assigned'}
+                            {booking.selection?.carModel ? ` · ${booking.selection.carModel}` : ''}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 flex flex-col gap-4 border-t border-slate-100/80 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
+                          {booking.status === 'PENDING' ? 'Estimated Fare' : 'Total Fare'}
+                        </p>
+                        <p className="mt-1 text-3xl font-black tracking-tight text-[#1E1B4B]">{formatFare(booking)}</p>
+                      </div>
+                      <button
+                        type="button"
+                        className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-200 hover:scale-[1.02] ${cfg.actionClass}`}
+                      >
+                        {cfg.action}
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
 
         {!loading && filtered.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <div className="w-20 h-20 rounded-full bg-indigo-50 flex items-center justify-center mb-5">
-              <svg className="w-10 h-10 text-indigo-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10l2 1m8-1l2 1m-2-1V6m2 10V6a1 1 0 00-1-1h-1" />
-              </svg>
+          <div className="mt-8 overflow-hidden rounded-[28px] bg-[linear-gradient(135deg,#eef2ff_0%,#f6f8ff_48%,#ffffff_100%)] p-8 text-center shadow-[0_18px_50px_rgba(30,27,75,0.08)]">
+            <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full bg-white text-indigo-300 shadow-[0_18px_40px_rgba(83,130,255,0.14)]">
+              <EmptyStateIcon />
             </div>
-            <p className="text-lg font-bold text-slate-700">No bookings here</p>
-            <p className="text-sm text-slate-400 mt-1 max-w-xs">
-              {activeTab === 'present' ? 'You have no rides scheduled for today.' : activeTab === 'planned' ? 'No upcoming rides. Book one now!' : 'Your completed and cancelled rides will appear here.'}
+            <h2 className="mt-6 text-2xl font-bold tracking-tight text-[#1E1B4B]">
+              {activeTab === 'present' ? 'No bookings yet today' : activeTab === 'planned' ? 'No upcoming journeys yet' : 'No past trips found'}
+            </h2>
+            <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-slate-500">
+              {activeTab === 'present'
+                ? "It looks like you haven't scheduled any trips for today. Why not plan a quick getaway or book your commute now?"
+                : activeTab === 'planned'
+                  ? 'Your next intercity journey will show up here once booked. Start planning a smooth ride now.'
+                  : 'Your completed and cancelled rides will appear here once you have travel history with Safar Express.'}
             </p>
-            <Link to="/" className="mt-5 inline-flex items-center justify-center rounded-xl bg-indigo-600 px-5 py-3 font-semibold text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-700 transition-colors">Book a Ride</Link>
+            <Link
+              to="/"
+              className="mt-6 inline-flex items-center justify-center gap-2 rounded-2xl bg-[#5382ff] px-5 py-3 font-semibold text-white shadow-[0_16px_40px_rgba(83,130,255,0.24)] transition-all duration-200 hover:scale-[1.02] hover:bg-[#3d72ff]"
+            >
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v14m-7-7h14" />
+              </svg>
+              Book a Ride
+            </Link>
           </div>
         )}
       </div>

@@ -142,15 +142,7 @@ export function RegisterPage() {
                 <label className="text-sm font-bold text-slate-700 block">
                   {isPhone ? 'Phone Number' : 'Email Address'}
                 </label>
-                <div className="segmented-control segmented-control-2 flex bg-slate-100 rounded-xl p-1 gap-1 mb-3" style={{ '--segment-active': mode === 'email' ? 0 : 1 }}>
-                  <button
-                    type="button"
-                    onClick={() => switchMode('email')}
-                    className={`segmented-option flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${mode === 'email' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
-                  >
-                    <Mail className="w-3.5 h-3.5" />
-                    Email
-                  </button>
+                <div className="segmented-control segmented-control-2 flex bg-slate-100 rounded-xl p-1 gap-1 mb-3" style={{ '--segment-active': mode === 'phone' ? 0 : 1 }}>
                   <button
                     type="button"
                     onClick={() => switchMode('phone')}
@@ -158,6 +150,14 @@ export function RegisterPage() {
                   >
                     <Phone className="w-3.5 h-3.5" />
                     Phone
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => switchMode('email')}
+                    className={`segmented-option flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${mode === 'email' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    Email
                   </button>
                 </div>
                 <div className="relative group">

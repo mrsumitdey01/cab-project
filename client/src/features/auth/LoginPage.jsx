@@ -141,15 +141,7 @@ export function LoginPage() {
             )}
 
             {/* Email / Phone Toggle */}
-            <div className="segmented-control segmented-control-2 flex bg-slate-100 rounded-xl p-1 gap-1 mb-6" style={{ '--segment-active': mode === 'email' ? 0 : 1 }}>
-              <button
-                type="button"
-                onClick={() => switchMode('email')}
-                className={`segmented-option flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${mode === 'email' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
-              >
-                <Mail className="w-4 h-4" />
-                Email
-              </button>
+            <div className="segmented-control segmented-control-2 flex bg-slate-100 rounded-xl p-1 gap-1 mb-6" style={{ '--segment-active': mode === 'phone' ? 0 : 1 }}>
               <button
                 type="button"
                 onClick={() => switchMode('phone')}
@@ -157,6 +149,14 @@ export function LoginPage() {
               >
                 <Phone className="w-4 h-4" />
                 Phone
+              </button>
+              <button
+                type="button"
+                onClick={() => switchMode('email')}
+                className={`segmented-option flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 ${mode === 'email' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-700'}`}
+              >
+                <Mail className="w-4 h-4" />
+                Email
               </button>
             </div>
 
