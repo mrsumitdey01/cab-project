@@ -14,8 +14,6 @@ const STATUS_CONFIG = {
     badge: 'bg-emerald-100 text-emerald-700',
     dot: 'bg-emerald-500',
     tint: 'bg-emerald-50/70',
-    action: 'View Details',
-    actionClass: 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-500/20',
   },
   COMPLETED: {
     label: 'Completed',
@@ -23,8 +21,6 @@ const STATUS_CONFIG = {
     badge: 'bg-indigo-100 text-indigo-700',
     dot: 'bg-indigo-500',
     tint: 'bg-indigo-50/70',
-    action: 'View Details',
-    actionClass: 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-500/20',
   },
   CANCELLED: {
     label: 'Cancelled',
@@ -32,8 +28,6 @@ const STATUS_CONFIG = {
     badge: 'bg-rose-100 text-rose-700',
     dot: 'bg-rose-500',
     tint: 'bg-rose-50/70',
-    action: 'View Details',
-    actionClass: 'border border-slate-200 bg-white text-slate-700 hover:border-indigo-200 hover:text-indigo-600',
   },
   PENDING: {
     label: 'Pending',
@@ -41,8 +35,6 @@ const STATUS_CONFIG = {
     badge: 'bg-amber-100 text-amber-700',
     dot: 'bg-amber-400',
     tint: 'bg-amber-50/80',
-    action: 'Pay Now',
-    actionClass: 'border border-amber-200 bg-white text-amber-700 hover:border-amber-300 hover:bg-amber-50',
   },
 };
 
@@ -500,22 +492,13 @@ export function BookingPage() {
                       </div>
                     </div>
 
-                    <div className="mt-5 flex flex-col gap-4 border-t border-slate-100/80 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="mt-5 border-t border-slate-100/80 pt-5">
                       <div>
                         <p className="text-xs font-bold uppercase tracking-[0.22em] text-slate-400">
                           {booking.status === 'PENDING' ? 'Estimated Fare' : 'Total Fare'}
                         </p>
                         <p className="mt-1 text-3xl font-black tracking-tight text-[#1E1B4B]">{formatFare(booking)}</p>
                       </div>
-                      <button
-                        type="button"
-                        className={`inline-flex items-center justify-center gap-2 rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-200 hover:scale-[1.02] ${cfg.actionClass}`}
-                      >
-                        {cfg.action}
-                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                        </svg>
-                      </button>
                     </div>
                   </div>
                 </div>
