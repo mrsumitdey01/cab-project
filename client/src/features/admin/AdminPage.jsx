@@ -14,16 +14,47 @@ import {
   createAdminRoute,
   getAdminCabs,
   getAdminRoutes,
+  getAdminSiteContent,
   getAuditLogs,
   getBookingAlerts,
   getCorporateEnquiries,
   getHealthSummary,
   listBookings,
+  updateAdminSiteContent,
   updateBookingStatus,
 } from '../../shared/api/endpoints';
 import { Alert } from '../../shared/ui/Alert';
 
 const tabs = ['present', 'planned', 'past'];
+const DEFAULT_SITE_CONTENT = {
+  footer: {
+    description: "India's premier intercity travel platform, bridging the gap between comfort and affordability.",
+    phone: '1800-SAFAR-EXP',
+    email: 'support@safarexpress.in',
+    address: 'Safar Express HQ, 24 Horizon Towers, Connaught Place, New Delhi 110001',
+    whatsapp: '919999999999',
+    twitter: 'https://x.com/safarexpress',
+    quickLinks: [
+      { label: 'Book a Ride', to: '/' },
+      { label: 'Ride History', to: '/bookings' },
+      { label: 'Partner with Us', to: '#corporate' },
+      { label: 'Corporate Travel', to: '#corporate' },
+    ],
+    legalLinks: [
+      { label: 'Privacy Policy', to: '/privacy' },
+      { label: 'Terms of Service', to: '/terms' },
+      { label: 'Refund Policy', to: '/terms' },
+      { label: 'Safety Guidelines', to: '/terms' },
+    ],
+  },
+  popularRoutes: [
+    { from: 'Delhi', to: 'Noida', price: 899, image: '', icon: 'city', blurb: 'Fast business commute' },
+  ],
+};
+
+function createEmptyPopularRoute() {
+  return { from: '', to: '', price: '', image: '', icon: 'city', blurb: '' };
+}
 
 function parsePickupDateTime(booking) {
   const dateValue = booking?.schedule?.pickupDate;
@@ -87,6 +118,7 @@ export function AdminPage() {
   const [cabs, setCabs] = useState([]);
   const [bookings, setBookings] = useState([]);
   const [corporateEnquiries, setCorporateEnquiries] = useState([]);
+  const [siteContent, setSiteContent] = useState(DEFAULT_SITE_CONTENT);
   const [routeForm, setRouteForm] = useState({ fromHub: '', toHub: '', flatRate: '' });
   const [cabForm, setCabForm] = useState({ cabType: '', carModel: '', multiplier: '', availableFrom: '', availableTo: '' });
   const [routeModalOpen, setRouteModalOpen] = useState(false);
@@ -101,10 +133,11 @@ export function AdminPage() {
   const [auditPage, setAuditPage] = useState(1);
   const [auditMeta, setAuditMeta] = useState({ page: 1, pageSize: 50, total: 0 });
   const [bookingMeta, setBookingMeta] = useState({ page: 1, pageSize: 100, total: 0 });
+  const [savingSiteContent, setSavingSiteContent] = useState(false);
 
   const load = useCallback(async () => {
     try {
-      const [healthData, auditData, alerts, routesData, cabsData, bookingsData, corporateEnquiriesData] = await Promise.all([
+      const [healthData, auditData, alerts, routesData, cabsData, bookingsData, corporateEnquiriesData, siteContentData] = await Promise.all([
         getHealthSummary(),
         getAuditLogs(auditPage, 50),
         getBookingAlerts(since),
@@ -112,6 +145,7 @@ export function AdminPage() {
         getAdminCabs(),
         listBookings({ q: query, page: 1, pageSize: 100 }),
         getCorporateEnquiries(),
+        getAdminSiteContent(),
       ]);
       setHealth(healthData);
       setLogs(auditData.logs);
@@ -122,6 +156,7 @@ export function AdminPage() {
       setBookings(bookingsData.bookings || []);
       setBookingMeta(bookingsData.meta || { page: 1, pageSize: 100, total: (bookingsData.bookings || []).length });
       setCorporateEnquiries(corporateEnquiriesData || []);
+      setSiteContent(siteContentData || DEFAULT_SITE_CONTENT);
     } catch (err) {
       setError(err?.response?.data?.error?.detail || 'Failed to load admin data.');
     }
@@ -265,6 +300,86 @@ export function AdminPage() {
     }
   }
 
+  function handleSiteFooterChange(field, value) {
+    setSiteContent((prev) => ({
+      ...prev,
+      footer: {
+        ...prev.footer,
+        [field]: value,
+      },
+    }));
+  }
+
+  function handleSiteLinkChange(section, index, field, value) {
+    setSiteContent((prev) => ({
+      ...prev,
+      footer: {
+        ...prev.footer,
+        [section]: prev.footer[section].map((item, itemIndex) => (
+          itemIndex === index ? { ...item, [field]: value } : item
+        )),
+      },
+    }));
+  }
+
+  function handlePopularRouteChange(index, field, value) {
+    setSiteContent((prev) => ({
+      ...prev,
+      popularRoutes: prev.popularRoutes.map((route, routeIndex) => (
+        routeIndex === index ? { ...route, [field]: value } : route
+      )),
+    }));
+  }
+
+  async function handlePopularRouteImage(index, file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      handlePopularRouteChange(index, 'image', reader.result);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function addPopularRoute() {
+    setSiteContent((prev) => ({
+      ...prev,
+      popularRoutes: [...prev.popularRoutes, createEmptyPopularRoute()],
+    }));
+  }
+
+  function removePopularRoute(index) {
+    setSiteContent((prev) => ({
+      ...prev,
+      popularRoutes: prev.popularRoutes.filter((_, routeIndex) => routeIndex !== index),
+    }));
+  }
+
+  async function handleSaveSiteContent(e) {
+    e.preventDefault();
+    setSavingSiteContent(true);
+    setError('');
+    setSuccess('');
+    try {
+      const payload = {
+        footer: {
+          ...siteContent.footer,
+          quickLinks: siteContent.footer.quickLinks.filter((item) => item.label && item.to),
+          legalLinks: siteContent.footer.legalLinks.filter((item) => item.label && item.to),
+        },
+        popularRoutes: siteContent.popularRoutes
+          .filter((item) => item.from && item.to && item.price !== '')
+          .map((item) => ({ ...item, price: Number(item.price) })),
+      };
+      const saved = await updateAdminSiteContent(payload);
+      setSiteContent(saved || payload);
+      setSuccess('Site content updated.');
+    } catch (err) {
+      setError(err?.response?.data?.error?.detail || 'Failed to save site content.');
+    } finally {
+      setSavingSiteContent(false);
+    }
+  }
+
   const groupedLogs = useMemo(() => {
     const map = { present: [], planned: [], past: [] };
     logs.forEach((log) => {
@@ -370,7 +485,7 @@ export function AdminPage() {
       {/* ── Sticky Nav ── */}
       <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm px-6">
         <div className="max-w-7xl mx-auto flex gap-6 overflow-x-auto hide-scrollbar">
-          {['Overview', 'Bookings', 'Corporate Leads', 'Routes & Cabs', 'System Health', 'Audit Logs'].map((tab) => (
+          {['Overview', 'Bookings', 'Site Content', 'Corporate Leads', 'Routes & Cabs', 'System Health', 'Audit Logs'].map((tab) => (
             <a key={tab} href={`#section-${tab.toLowerCase().replace(/ /g, '-')}`} className="py-4 text-sm font-bold text-slate-500 hover:text-indigo-600 whitespace-nowrap transition-colors border-b-2 border-transparent hover:border-indigo-600">
               {tab}
             </a>
@@ -750,6 +865,86 @@ export function AdminPage() {
                 </tbody>
               </table>
             </div>
+          </div>
+          <div id="section-site-content" className="max-w-7xl mx-auto mb-8 pt-4">
+            <h2 className="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2">
+              <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
+              Site Content Customization
+            </h2>
+            <form onSubmit={handleSaveSiteContent} className="space-y-6">
+              <div className="grid grid-cols-1 xl:grid-cols-[1.2fr_1fr] gap-6">
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
+                  <div>
+                    <p className="text-sm font-bold text-slate-800">Footer Content</p>
+                    <p className="text-xs text-slate-500 mt-1">Control phone, email, office address, and footer links shown on the public site.</p>
+                  </div>
+                  <textarea className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" rows="3" value={siteContent.footer.description} onChange={(e) => handleSiteFooterChange('description', e.target.value)} placeholder="Footer description" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input className="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" value={siteContent.footer.phone} onChange={(e) => handleSiteFooterChange('phone', e.target.value)} placeholder="Phone number" />
+                    <input className="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" value={siteContent.footer.email} onChange={(e) => handleSiteFooterChange('email', e.target.value)} placeholder="Support email" />
+                    <input className="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" value={siteContent.footer.whatsapp} onChange={(e) => handleSiteFooterChange('whatsapp', e.target.value)} placeholder="WhatsApp number" />
+                    <input className="rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" value={siteContent.footer.twitter} onChange={(e) => handleSiteFooterChange('twitter', e.target.value)} placeholder="Twitter / X URL" />
+                  </div>
+                  <textarea className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" rows="3" value={siteContent.footer.address} onChange={(e) => handleSiteFooterChange('address', e.target.value)} placeholder="Office address" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Quick Links</p>
+                      {siteContent.footer.quickLinks.map((item, index) => (
+                        <div key={`quick-link-${index}`} className="grid grid-cols-2 gap-3">
+                          <input className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" value={item.label} onChange={(e) => handleSiteLinkChange('quickLinks', index, 'label', e.target.value)} placeholder="Label" />
+                          <input className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" value={item.to} onChange={(e) => handleSiteLinkChange('quickLinks', index, 'to', e.target.value)} placeholder="Path or #corporate" />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="space-y-3">
+                      <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Legal Links</p>
+                      {siteContent.footer.legalLinks.map((item, index) => (
+                        <div key={`legal-link-${index}`} className="grid grid-cols-2 gap-3">
+                          <input className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" value={item.label} onChange={(e) => handleSiteLinkChange('legalLinks', index, 'label', e.target.value)} placeholder="Label" />
+                          <input className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" value={item.to} onChange={(e) => handleSiteLinkChange('legalLinks', index, 'to', e.target.value)} placeholder="Path" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-6 space-y-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-bold text-slate-800">Popular Routes Cards</p>
+                      <p className="text-xs text-slate-500 mt-1">Add route copy, pricing, icon name, and upload or paste an image.</p>
+                    </div>
+                    <button type="button" onClick={addPopularRoute} className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors">Add Route</button>
+                  </div>
+                  <div className="space-y-4 max-h-[700px] overflow-y-auto pr-1">
+                    {siteContent.popularRoutes.map((route, index) => (
+                      <div key={`popular-route-${index}`} className="rounded-2xl border border-slate-200 p-4 space-y-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <p className="text-sm font-bold text-slate-800">Route Card {index + 1}</p>
+                          {siteContent.popularRoutes.length > 1 && (
+                            <button type="button" onClick={() => removePopularRoute(index)} className="text-xs font-semibold text-rose-600 hover:text-rose-700">Remove</button>
+                          )}
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <input className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" value={route.from} onChange={(e) => handlePopularRouteChange(index, 'from', e.target.value)} placeholder="From" />
+                          <input className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" value={route.to} onChange={(e) => handlePopularRouteChange(index, 'to', e.target.value)} placeholder="To" />
+                          <input className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" type="number" value={route.price} onChange={(e) => handlePopularRouteChange(index, 'price', e.target.value)} placeholder="Starting price" />
+                          <input className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" value={route.icon} onChange={(e) => handlePopularRouteChange(index, 'icon', e.target.value)} placeholder="Icon tag" />
+                        </div>
+                        <input className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" value={route.blurb} onChange={(e) => handlePopularRouteChange(index, 'blurb', e.target.value)} placeholder="Short blurb" />
+                        <input className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" value={route.image} onChange={(e) => handlePopularRouteChange(index, 'image', e.target.value)} placeholder="Image URL or data URI" />
+                        <input type="file" accept="image/*" className="block w-full text-xs text-slate-500 file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:font-semibold file:text-slate-700 hover:file:bg-slate-200" onChange={(e) => handlePopularRouteImage(index, e.target.files?.[0])} />
+                        {route.image ? <img src={route.image} alt={`${route.from} to ${route.to}`} className="h-28 w-full rounded-xl object-cover border border-slate-200" /> : null}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <button type="submit" disabled={savingSiteContent} className="rounded-xl bg-indigo-600 px-5 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-500/20 transition-colors hover:bg-indigo-700 disabled:opacity-60">
+                  {savingSiteContent ? 'Saving...' : 'Save Site Content'}
+                </button>
+              </div>
+            </form>
           </div>
           {/* ── Modals ── */}
           <div id="section-corporate-leads" className="max-w-7xl mx-auto mb-8 pt-4">

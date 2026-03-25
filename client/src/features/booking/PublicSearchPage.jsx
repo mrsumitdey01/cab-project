@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { CalendarDays, Clock, ShieldCheck, Headphones, BadgeCheck, Sparkles, LocateFixed } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { searchTrips, createPublicBooking, createBooking } from '../../shared/api/endpoints';
+import { searchTrips, createPublicBooking, createBooking, getSiteContent } from '../../shared/api/endpoints';
 import { Alert } from '../../shared/ui/Alert';
 import { useAuth } from '../../shared/contexts/AuthContext';
 import { getWarmState, warmBackend } from '../../shared/api/warmup';
@@ -9,6 +9,12 @@ import { useWarmup } from '../../shared/contexts/WarmupContext';
 import { AutocompleteDropdown } from '../../components/AutocompleteDropdown';
 
 const TRIP_TYPES = ['ONE_WAY', 'ROUND_TRIP', 'HOURLY'];
+const FALLBACK_POPULAR_ROUTES = [
+  { from: 'Delhi', to: 'Noida', price: 899, icon: 'city', blurb: 'Fast business commute', image: 'https://images.unsplash.com/photo-1514565131-fce0801e5785?auto=format&fit=crop&w=1200&q=80' },
+  { from: 'Delhi', to: 'Agra', price: 2499, icon: 'monument', blurb: 'Weekend heritage escape', image: 'https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=1200&q=80' },
+  { from: 'Gurgaon', to: 'IGI Airport', price: 1199, icon: 'airport', blurb: 'Reliable airport transfer', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=80' },
+  { from: 'Jaipur', to: 'Delhi', price: 3299, icon: 'city', blurb: 'Premium intercity route', image: 'https://images.unsplash.com/photo-1599661046827-dacde6976548?auto=format&fit=crop&w=1200&q=80' },
+];
 
 export function PublicSearchPage() {
   const navigate = useNavigate();
@@ -34,6 +40,7 @@ export function PublicSearchPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [siteContent, setSiteContent] = useState(null);
 
   /** Parse backend validation errors into a human-readable string */
   function parseApiError(err) {
@@ -61,13 +68,17 @@ export function PublicSearchPage() {
   const contactBarRef = useRef(null);
   const [showFloatingWhatsApp, setShowFloatingWhatsApp] = useState(false);
 
-  const popularRoutes = [
-    { label: 'Delhi → Noida Express', pickup: 'Delhi', dropoff: 'Noida' },
-    { label: 'Mumbai → Airport Shuttle', pickup: 'Mumbai', dropoff: 'Mumbai Airport' },
-    { label: 'Bengaluru → Whitefield', pickup: 'Bengaluru', dropoff: 'Whitefield' },
-    { label: 'Hyderabad → Gachibowli', pickup: 'Hyderabad', dropoff: 'Gachibowli' },
-    { label: 'Gurgaon → IGI Airport', pickup: 'Gurgaon', dropoff: 'IGI Airport' },
-  ];
+  const popularRoutes = siteContent?.popularRoutes || FALLBACK_POPULAR_ROUTES;
+
+  useEffect(() => {
+    let active = true;
+    getSiteContent().then((data) => {
+      if (active) setSiteContent(data);
+    }).catch(() => {});
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (bookingFormOpen) {
@@ -107,16 +118,18 @@ export function PublicSearchPage() {
   }
 
   function handlePopularRoute(route) {
-    const fromLoc = { id: `popular-from-${route.pickup}`, name: route.pickup, hub: route.pickup, keywords: [] };
-    const toLoc = { id: `popular-to-${route.dropoff}`, name: route.dropoff, hub: route.dropoff, keywords: [] };
+    const pickup = route.pickup || route.from;
+    const dropoff = route.dropoff || route.to;
+    const fromLoc = { id: `popular-from-${pickup}`, name: pickup, hub: pickup, keywords: [] };
+    const toLoc = { id: `popular-to-${dropoff}`, name: dropoff, hub: dropoff, keywords: [] };
     setSelectedFrom(fromLoc);
     setSelectedTo(toLoc);
-    setFromQuery(route.pickup);
-    setToQuery(route.dropoff);
+    setFromQuery(pickup);
+    setToQuery(dropoff);
     setFormData((prev) => ({
       ...prev,
-      pickup: { address: route.pickup },
-      dropoff: { address: route.dropoff },
+      pickup: { address: pickup },
+      dropoff: { address: dropoff },
     }));
   }
 
@@ -179,7 +192,7 @@ export function PublicSearchPage() {
         dropoff: { address: nextTo?.name || toQuery.trim() },
       });
       setResults(data);
-      const routeLabel = `${nextFrom?.name || formData.pickup.address} → ${nextTo?.name || formData.dropoff.address}`;
+      const routeLabel = `${nextFrom?.name || formData.pickup.address} ? ${nextTo?.name || formData.dropoff.address}`;
       const defaultCab = data.cabs?.[0] || null;
       setSelectedRoute({ label: routeLabel });
       setSelectedCab(defaultCab);
@@ -295,7 +308,7 @@ export function PublicSearchPage() {
 
           <div ref={contactBarRef} className="w-full flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 relative z-10">
             <span className="text-sm font-semibold text-slate-200 bg-black/30 backdrop-blur-md py-1.5 px-4 rounded-full shadow-sm border border-white/10">
-              ⚡ Reach out to us instantly:
+              ? Reach out to us instantly:
             </span>
 
             <div className="flex gap-3">
@@ -494,30 +507,36 @@ export function PublicSearchPage() {
           </div>
         </div>
 
-        <div className="mt-16">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-slate-900">Popular Routes</h2>
-            <span className="text-sm font-medium text-slate-500 px-3 py-1 bg-slate-100 rounded-full">Tap to pre-fill</span>
+        <div className="mt-20">
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <div>
+              <h2 className="text-3xl font-black tracking-tight text-slate-900">Popular Routes</h2>
+              <p className="mt-1 text-sm text-indigo-500/80">Most traveled intercity destinations this month.</p>
+            </div>
+            <span className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500">
+              View All
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+            </span>
           </div>
-          <div className="flex overflow-x-auto gap-4 pb-6 pt-2 snap-x scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            {popularRoutes.map((route, index) => (
+          <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+            {popularRoutes.map((route) => (
               <button
-                key={route.label}
+                key={`${route.from || route.pickup}-${route.to || route.dropoff}`}
                 type="button"
                 onClick={() => handlePopularRoute(route)}
-                className="group min-w-[240px] text-left border border-slate-100/60 bg-white rounded-2xl p-5 shadow-ambient hover:border-blue-400 focus:ring-4 focus:ring-blue-100 feature-card-hover transition-all duration-300 cursor-pointer"
+                className="group overflow-hidden rounded-2xl border border-slate-200/70 bg-white text-left shadow-[0_16px_40px_rgba(15,23,42,0.06)] transition-all duration-300 hover:-translate-y-1 hover:border-blue-200 hover:shadow-[0_24px_56px_rgba(15,23,42,0.12)]"
               >
-                <div className="flex items-center justify-between mb-2">
-                  <p className="font-bold text-slate-800 text-lg">{route.label}</p>
-                  <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
-                    <span className="text-slate-400 group-hover:text-blue-600 group-hover:translate-x-1 transition-all">→</span>
+                <div className="relative h-44 overflow-hidden">
+                  <img src={route.image} alt={`${route.from || route.pickup} to ${route.to || route.dropoff}`} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/60 via-slate-900/10 to-transparent" />
+                  <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white">
+                    <p className="text-sm font-semibold">{route.blurb || 'Tap to pre-fill route'}</p>
+                    <span className="rounded-full bg-white/15 px-2.5 py-1 text-xs font-bold backdrop-blur-sm">{route.icon || 'city'}</span>
                   </div>
                 </div>
-                <div className="mt-2 flex items-center justify-between gap-3">
-                  <p className="text-xs text-slate-400 font-medium">Tap to pre-fill route</p>
-                  <span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
-                    {['45 mins', '1h 20m', '55 mins', '40 mins', '35 mins'][index]}
-                  </span>
+                <div className="p-5">
+                  <p className="text-lg font-bold text-slate-900">{route.from || route.pickup} <span className="mx-2 text-slate-300">→</span> {route.to || route.dropoff}</p>
+                  <p className="mt-4 text-xs font-black uppercase tracking-[0.22em] text-indigo-600">Starts at ₹{route.price}</p>
                 </div>
               </button>
             ))}
@@ -526,7 +545,7 @@ export function PublicSearchPage() {
       </div>
 
       <a
-        href="https://wa.me/919999999999"
+        href={`https://wa.me/${siteContent?.footer?.whatsapp || '919999999999'}`}
         target="_blank"
         rel="noreferrer"
         className={`fixed bottom-6 right-6 z-50 group transition-all duration-300 ${showFloatingWhatsApp ? 'opacity-100 scale-100' : 'opacity-0 scale-90 pointer-events-none'
@@ -731,3 +750,4 @@ export function PublicSearchPage() {
     </div >
   );
 }
+

@@ -329,103 +329,76 @@ export function AppRoutes() {
             <div className="space-y-5">
               <SafarExpressLogo light orbitingCar={false} />
               <p className="max-w-sm text-sm leading-7 text-slate-400">{footer.description}</p>
-              <a
-                href="tel:+919999999999"
-                className="inline-flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/30 text-blue-300 hover:bg-blue-500/20 hover:border-blue-400 hover:text-white transition-all duration-200 text-sm font-semibold"
-              >
-                <svg className="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                </svg>
-                Call Us · 9999999999
-              </a>
+              <div className="flex items-center gap-3">
+                <a
+                  href={footer.twitter}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 text-slate-300 transition-colors hover:border-[#5382ff] hover:text-white"
+                  aria-label="Safar Express on X"
+                >
+                  <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2H21l-6.01 6.868L22 22h-5.54l-4.34-5.658L7.17 22H4.41l6.43-7.35L2 2h5.68l3.92 5.11L18.244 2zm-.97 18h1.53L6.85 3.9H5.2L17.274 20z" /></svg>
+                </a>
+                <a
+                  href={`mailto:${footer.email}`}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-700 text-slate-300 transition-colors hover:border-[#5382ff] hover:text-white"
+                  aria-label="Email Safar Express"
+                >
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.9} d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                </a>
+              </div>
             </div>
 
             {/* Quick Links */}
             <div>
-              <p className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-5">Quick Links</p>
+              <p className="mb-5 text-xs font-bold uppercase tracking-[0.24em] text-blue-300/80">Quick Links</p>
               <ul className="space-y-3 text-sm">
-                {[
-                  { label: 'Search Rides', to: '/' },
-                  { label: 'My Bookings', to: '/bookings' },
-                ].map(({ label, to }) => (
-                  <li key={to}>
-                    <Link
-                      to={to}
-                      className="group flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors duration-200"
-                    >
-                      <svg className="w-3 h-3 text-blue-500 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                      </svg>
-                      <span className="relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-white after:transition-all after:duration-200 group-hover:after:w-full">
-                        {label}
-                      </span>
-                    </Link>
+                {footer.quickLinks.map((item) => (
+                  <li key={`${item.label}-${item.to}`}>
+                    {item.to === '#corporate' ? (
+                      <button onClick={() => setIsCorporateModalOpen(true)} className="text-slate-400 transition-colors hover:text-white">
+                        {item.label}
+                      </button>
+                    ) : (
+                      <Link to={item.to} className="text-slate-400 transition-colors hover:text-white">
+                        {item.label}
+                      </Link>
+                    )}
                   </li>
                 ))}
-                <li>
-                  <button
-                    onClick={() => setIsCorporateModalOpen(true)}
-                    className="group flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors duration-200"
-                  >
-                    <svg className="w-3 h-3 text-blue-500 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                    </svg>
-                    <span className="relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-white after:transition-all after:duration-200 group-hover:after:w-full">
-                      Corporate Partnerships
-                    </span>
-                  </button>
-                </li>
               </ul>
             </div>
 
             {/* Legal */}
             <div>
-              <p className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-5">Legal</p>
+              <p className="mb-5 text-xs font-bold uppercase tracking-[0.24em] text-blue-300/80">Legal</p>
               <ul className="space-y-3 text-sm">
-                {[
-                  { label: 'Privacy Policy', to: '/privacy' },
-                  { label: 'Terms of Service', to: '/terms' },
-                ].map(({ label, to }) => (
-                  <li key={to}>
-                    <Link
-                      to={to}
-                      className="group flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors duration-200"
-                    >
-                      <svg className="w-3 h-3 text-blue-500 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                      </svg>
-                      <span className="relative after:absolute after:bottom-0 after:left-0 after:h-px after:w-0 after:bg-white after:transition-all after:duration-200 group-hover:after:w-full">
-                        {label}
-                      </span>
+                {footer.legalLinks.map((item) => (
+                  <li key={`${item.label}-${item.to}`}>
+                    <Link to={item.to} className="text-slate-400 transition-colors hover:text-white">
+                      {item.label}
                     </Link>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Why Choose Us */}
             <div>
-              <p className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-5">Why Choose Us</p>
-              <ul className="space-y-3 text-sm text-slate-400">
-                {['Transparent flat-rate pricing', 'Verified & background-checked drivers', '24/7 live support', 'GPS-tracked every ride', 'Sanitized cabs'].map((item) => (
-                  <li key={item} className="flex items-start gap-2">
-                    <svg className="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                    </svg>
-                    {item}
-                  </li>
-                ))}
-              </ul>
+              <p className="mb-5 text-xs font-bold uppercase tracking-[0.24em] text-blue-300/80">Contact</p>
+              <div className="space-y-3 text-sm text-slate-300">
+                <a href={`tel:${footer.phone}`} className="block transition-colors hover:text-white">{footer.phone}</a>
+                <a href={`mailto:${footer.email}`} className="block break-all transition-colors hover:text-white">{footer.email}</a>
+                <div className="rounded-2xl border border-slate-800 bg-white/5 p-4 text-slate-400">
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-slate-500">Office</p>
+                  <p className="mt-2 leading-6">{footer.address}</p>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Bottom legal bar */}
-          <div className="mt-12 pt-6 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-            <span>© {new Date().getFullYear()} Safar Express. All rights reserved.</span>
-            <div className="flex gap-4">
-              <Link to="/privacy" className="hover:text-slate-300 transition-colors">Privacy</Link>
-              <Link to="/terms" className="hover:text-slate-300 transition-colors">Terms</Link>
-            </div>
+          <div className="mt-12 flex flex-col gap-3 border-t border-slate-800 pt-6 text-xs text-slate-500 md:flex-row md:items-center md:justify-between">
+            <span>© 2024 SAFAR EXPRESS. ALL RIGHTS RESERVED.</span>
+            <span>MADE WITH ❤️ IN INDIA</span>
           </div>
         </div>
       </footer>
@@ -601,3 +574,4 @@ export function AppRoutes() {
     </div>
   );
 }
+
