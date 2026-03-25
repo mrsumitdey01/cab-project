@@ -57,6 +57,9 @@ export function RegisterPage() {
   }
 
   const isPhone = mode === 'phone';
+  const accentClasses = isPhone 
+    ? { text: 'group-focus-within:text-emerald-500', ring: 'focus:ring-emerald-500/20 focus:border-emerald-500' }
+    : { text: 'group-focus-within:text-blue-500', ring: 'focus:ring-blue-500/20 focus:border-blue-500' };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col p-4 sm:p-6 lg:p-8 pt-28 lg:pt-32 relative overflow-hidden">
@@ -158,11 +161,11 @@ export function RegisterPage() {
                   </button>
                 </div>
                 <div className="relative group">
-                  <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-${isPhone ? 'emerald' : 'blue'}-500 transition-colors`}>
+                  <div className={`absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 transition-colors ${accentClasses.text}`}>
                     {isPhone ? <Phone className="h-5 w-5" /> : <Mail className="h-5 w-5" />}
                   </div>
                   <input
-                    className={`block w-full pl-11 pr-4 py-3.5 bg-slate-50 border rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:bg-white transition-all outline-none font-medium text-base focus-ring-consistent ${identifierError ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20' : `border-slate-200 focus:ring-${isPhone ? 'emerald' : 'blue'}-500/20 focus:border-${isPhone ? 'emerald' : 'blue'}-500`}`}
+                    className={`block w-full pl-11 pr-4 py-3.5 bg-slate-50 border rounded-xl text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:bg-white transition-all outline-none font-medium text-base focus-ring-consistent ${identifierError ? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20' : `border-slate-200 ${accentClasses.ring}`}`}
                     placeholder={isPhone ? 'Enter your phone number' : 'Enter your email'}
                     type={isPhone ? 'tel' : 'email'}
                     value={isPhone ? form.phone : form.email}
