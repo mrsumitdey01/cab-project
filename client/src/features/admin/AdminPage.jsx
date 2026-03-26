@@ -212,7 +212,7 @@ export function AdminPage() {
 
   useEffect(() => {
     function updateActiveSection() {
-      const scrollPosition = window.scrollY + 180;
+      const scrollPosition = window.scrollY + 260;
       let currentSection = ADMIN_SECTION_IDS[0];
 
       ADMIN_SECTION_IDS.forEach((sectionId) => {
@@ -545,7 +545,7 @@ export function AdminPage() {
       </div>
 
       {/* ── Sticky Nav ── */}
-      <div className="sticky top-0 z-40 border-b border-slate-200/80 bg-[linear-gradient(180deg,rgba(250,248,255,0.96),rgba(255,255,255,0.88))] px-6 py-4 shadow-[0_10px_30px_rgba(15,23,42,0.06)] backdrop-blur-xl">
+      <div className="sticky top-20 z-40 border-b border-slate-200/80 bg-[linear-gradient(180deg,rgba(250,248,255,0.96),rgba(255,255,255,0.88))] px-6 py-4 shadow-[0_10px_30px_rgba(15,23,42,0.06)] backdrop-blur-xl">
         <div className="mx-auto grid max-w-7xl gap-3 lg:grid-cols-3">
           {ADMIN_NAV_GROUPS.map((group) => (
             (() => {
@@ -575,7 +575,7 @@ export function AdminPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-6 space-y-8" id="section-overview">
+      <div className="max-w-7xl mx-auto scroll-mt-44 p-6 space-y-8" id="section-overview">
         {/* ── Premium Stat Cards ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           <div className="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm flex items-start gap-4 hover:shadow-md transition-shadow">
@@ -682,7 +682,7 @@ export function AdminPage() {
         </div>
       </div>
 
-      <div id="section-system-health" className="max-w-7xl mx-auto mb-8 pt-8 px-6">
+      <div id="section-system-health" className="max-w-7xl mx-auto mb-8 scroll-mt-44 pt-8 px-6">
         <h2 className="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2">
           <svg className="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
           System Health
@@ -747,7 +747,7 @@ export function AdminPage() {
         </div>
       </div>
 
-      <div id="section-analytics" className="max-w-7xl mx-auto mb-8 pt-4">
+      <div id="section-analytics" className="max-w-7xl mx-auto mb-8 scroll-mt-44 pt-4">
         <h2 className="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2">
           <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
           Revenue Analytics
@@ -789,7 +789,7 @@ export function AdminPage() {
         </div>
       </div>
 
-      <div id="section-routes-&-cabs" className="max-w-7xl mx-auto mb-8 pt-4">
+      <div id="section-routes-&-cabs" className="max-w-7xl mx-auto mb-8 scroll-mt-44 pt-4">
         <h2 className="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2">
           <svg className="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>
           Configure
@@ -806,7 +806,7 @@ export function AdminPage() {
         </div>
       </div>
 
-      <div id="section-bookings" className="max-w-7xl mx-auto mb-8 pt-4">
+      <div id="section-bookings" className="max-w-7xl mx-auto mb-8 scroll-mt-44 pt-4">
         <h2 className="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2">
           <svg className="w-5 h-5 text-rose-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
           Bookings Log
@@ -948,7 +948,7 @@ export function AdminPage() {
               </table>
             </div>
           </div>
-          <div id="section-site-content" className="max-w-7xl mx-auto mb-8 pt-4">
+          <div id="section-site-content" className="max-w-7xl mx-auto mb-8 scroll-mt-44 pt-4">
             <h2 className="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2">
               <svg className="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
               Site Content Customization
@@ -1029,7 +1029,7 @@ export function AdminPage() {
             </form>
           </div>
           {/* ── Modals ── */}
-          <div id="section-corporate-leads" className="max-w-7xl mx-auto mb-8 pt-4">
+          <div id="section-corporate-leads" className="max-w-7xl mx-auto mb-8 scroll-mt-44 pt-4">
             <h2 className="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2">
               <svg className="w-5 h-5 text-violet-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M6 7V5a2 2 0 012-2h8a2 2 0 012 2v2m-1 4H7m2 0v6m6-6v6" /></svg>
               Corporate Partnership Leads
@@ -1242,7 +1242,7 @@ export function AdminPage() {
             </div>
           )}
 
-          <div className="max-w-7xl mx-auto px-6 mb-8 pt-4" id="section-audit-logs">
+          <div className="max-w-7xl mx-auto px-6 mb-8 scroll-mt-44 pt-4" id="section-audit-logs">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div>
                 <h2 className="text-xl font-bold text-slate-800 mb-5 flex items-center gap-2">
