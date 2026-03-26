@@ -26,6 +26,47 @@ import {
 import { Alert } from '../../shared/ui/Alert';
 
 const tabs = ['present', 'planned', 'past'];
+const ADMIN_NAV_GROUPS = [
+  {
+    title: 'Booking Ops',
+    tone: {
+      shell: 'border-indigo-100 bg-gradient-to-br from-white via-indigo-50/70 to-blue-50/80',
+      title: 'text-indigo-500',
+      chip: 'border-indigo-100 bg-white/90 text-slate-700 hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700',
+    },
+    links: [
+      { label: 'Overview', href: '#section-overview' },
+      { label: 'Bookings', href: '#section-bookings' },
+      { label: 'Corporate Leads', href: '#section-corporate-leads' },
+      { label: 'Routes & Cabs', href: '#section-routes-&-cabs' },
+    ],
+  },
+  {
+    title: 'Health & Insights',
+    tone: {
+      shell: 'border-emerald-100 bg-gradient-to-br from-white via-emerald-50/60 to-cyan-50/70',
+      title: 'text-emerald-500',
+      chip: 'border-emerald-100 bg-white/90 text-slate-700 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700',
+    },
+    links: [
+      { label: 'System Health', href: '#section-system-health' },
+      { label: 'Revenue Analytics', href: '#section-analytics' },
+      { label: 'Audit Logs', href: '#section-audit-logs' },
+    ],
+  },
+  {
+    title: 'Site Customization',
+    tone: {
+      shell: 'border-violet-100 bg-gradient-to-br from-white via-violet-50/65 to-fuchsia-50/70',
+      title: 'text-violet-500',
+      chip: 'border-violet-100 bg-white/90 text-slate-700 hover:border-violet-200 hover:bg-violet-50 hover:text-violet-700',
+    },
+    links: [
+      { label: 'Site Content', href: '#section-site-content' },
+    ],
+  },
+];
+const ADMIN_SECTION_IDS = ADMIN_NAV_GROUPS.flatMap((group) => group.links.map((link) => link.href.replace('#', '')));
 const DEFAULT_SITE_CONTENT = {
   footer: {
     description: "India's premier intercity travel platform, bridging the gap between comfort and affordability.",
@@ -134,6 +175,7 @@ export function AdminPage() {
   const [auditMeta, setAuditMeta] = useState({ page: 1, pageSize: 50, total: 0 });
   const [bookingMeta, setBookingMeta] = useState({ page: 1, pageSize: 100, total: 0 });
   const [savingSiteContent, setSavingSiteContent] = useState(false);
+  const [activeSection, setActiveSection] = useState('section-overview');
 
   const load = useCallback(async () => {
     try {
@@ -167,6 +209,26 @@ export function AdminPage() {
     const interval = setInterval(load, 15000);
     return () => clearInterval(interval);
   }, [load]);
+
+  useEffect(() => {
+    function updateActiveSection() {
+      const scrollPosition = window.scrollY + 180;
+      let currentSection = ADMIN_SECTION_IDS[0];
+
+      ADMIN_SECTION_IDS.forEach((sectionId) => {
+        const element = document.getElementById(sectionId);
+        if (element && element.offsetTop <= scrollPosition) {
+          currentSection = sectionId;
+        }
+      });
+
+      setActiveSection(currentSection);
+    }
+
+    updateActiveSection();
+    window.addEventListener('scroll', updateActiveSection, { passive: true });
+    return () => window.removeEventListener('scroll', updateActiveSection);
+  }, []);
 
   async function exportBookingsCsv() {
     setExportingBookings(true);
@@ -483,12 +545,32 @@ export function AdminPage() {
       </div>
 
       {/* ── Sticky Nav ── */}
-      <div className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm px-6">
-        <div className="max-w-7xl mx-auto flex gap-6 overflow-x-auto hide-scrollbar">
-          {['Overview', 'Bookings', 'Site Content', 'Corporate Leads', 'Routes & Cabs', 'System Health', 'Audit Logs'].map((tab) => (
-            <a key={tab} href={`#section-${tab.toLowerCase().replace(/ /g, '-')}`} className="py-4 text-sm font-bold text-slate-500 hover:text-indigo-600 whitespace-nowrap transition-colors border-b-2 border-transparent hover:border-indigo-600">
-              {tab}
-            </a>
+      <div className="sticky top-0 z-40 border-b border-slate-200/80 bg-[linear-gradient(180deg,rgba(250,248,255,0.96),rgba(255,255,255,0.88))] px-6 py-4 shadow-[0_10px_30px_rgba(15,23,42,0.06)] backdrop-blur-xl">
+        <div className="mx-auto grid max-w-7xl gap-3 lg:grid-cols-3">
+          {ADMIN_NAV_GROUPS.map((group) => (
+            (() => {
+              const groupIsActive = group.links.some((link) => link.href === `#${activeSection}`);
+              return (
+            <div
+              key={group.title}
+              className={`relative overflow-hidden rounded-2xl border p-4 shadow-[0_14px_34px_rgba(15,23,42,0.06)] transition-all duration-300 ${group.tone.shell} ${groupIsActive ? 'ring-2 ring-offset-2 ring-offset-[#faf8ff] ring-[#5382ff]/25 shadow-[0_18px_40px_rgba(83,130,255,0.12)]' : ''}`}
+            >
+              <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+              <p className={`mb-3 text-xs font-black uppercase tracking-[0.24em] ${group.tone.title}`}>{group.title}</p>
+              <div className="flex flex-wrap gap-2">
+                {group.links.map((link) => (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    className={`rounded-xl border px-3 py-2 text-sm font-semibold transition-all hover:-translate-y-0.5 hover:shadow-sm ${link.href === `#${activeSection}` ? 'border-[#5382ff]/30 bg-[#5382ff] text-white shadow-[0_10px_24px_rgba(83,130,255,0.28)]' : group.tone.chip}`}
+                  >
+                    {link.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+              );
+            })()
           ))}
         </div>
       </div>
