@@ -15,6 +15,13 @@ const FALLBACK_POPULAR_ROUTES = [
   { from: 'Gurgaon', to: 'IGI Airport', price: 1199, icon: 'airport', blurb: 'Reliable airport transfer', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=80' },
   { from: 'Jaipur', to: 'Delhi', price: 3299, icon: 'city', blurb: 'Premium intercity route', image: 'https://images.unsplash.com/photo-1599661046827-dacde6976548?auto=format&fit=crop&w=1200&q=80' },
 ];
+const INITIAL_SITE_CONTENT = {
+  heroVariant: 'cinematic',
+  popularRoutes: FALLBACK_POPULAR_ROUTES,
+  footer: {
+    whatsapp: '919999999999',
+  },
+};
 
 export function PublicSearchPage() {
   const navigate = useNavigate();
@@ -41,7 +48,7 @@ export function PublicSearchPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [siteContent, setSiteContent] = useState(null);
+  const [siteContent, setSiteContent] = useState(INITIAL_SITE_CONTENT);
 
   /** Parse backend validation errors into a human-readable string */
   function parseApiError(err) {
