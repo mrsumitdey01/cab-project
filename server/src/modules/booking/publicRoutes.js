@@ -80,9 +80,12 @@ function createPublicRouter(_config) {
         siteContent = siteContent.toObject();
       }
 
+      const payload = buildSiteContentPayload(siteContent);
+
       return success(res, {
-        footer: buildSiteContentPayload(siteContent).footer,
-        popularRoutes: buildSiteContentPayload(siteContent).popularRoutes,
+        heroVariant: payload.heroVariant,
+        footer: payload.footer,
+        popularRoutes: payload.popularRoutes,
       });
     } catch (err) {
       return next(err);

@@ -1,4 +1,5 @@
 const DEFAULT_SITE_CONTENT = {
+  heroVariant: 'classic',
   footer: {
     description: "India's premier intercity travel platform, bridging the gap between comfort and affordability.",
     phone: '1800-SAFAR-EXP',
@@ -57,6 +58,7 @@ const DEFAULT_SITE_CONTENT = {
 
 function buildSiteContentPayload(input = {}) {
   return {
+    heroVariant: input.heroVariant === 'cinematic' ? 'cinematic' : DEFAULT_SITE_CONTENT.heroVariant,
     footer: {
       ...DEFAULT_SITE_CONTENT.footer,
       ...(input.footer || {}),

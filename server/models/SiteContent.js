@@ -16,6 +16,11 @@ const linkSchema = new mongoose.Schema({
 
 const siteContentSchema = new mongoose.Schema({
   key: { type: String, required: true, unique: true, default: 'primary' },
+  heroVariant: {
+    type: String,
+    enum: ['classic', 'cinematic'],
+    default: 'classic',
+  },
   footer: {
     description: { type: String, trim: true, default: '' },
     phone: { type: String, trim: true, default: '' },

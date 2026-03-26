@@ -68,6 +68,7 @@ const ADMIN_NAV_GROUPS = [
 ];
 const ADMIN_SECTION_IDS = ADMIN_NAV_GROUPS.flatMap((group) => group.links.map((link) => link.href.replace('#', '')));
 const DEFAULT_SITE_CONTENT = {
+  heroVariant: 'classic',
   footer: {
     description: "India's premier intercity travel platform, bridging the gap between comfort and affordability.",
     phone: '1800-SAFAR-EXP',
@@ -198,7 +199,17 @@ export function AdminPage() {
       setBookings(bookingsData.bookings || []);
       setBookingMeta(bookingsData.meta || { page: 1, pageSize: 100, total: (bookingsData.bookings || []).length });
       setCorporateEnquiries(corporateEnquiriesData || []);
-      setSiteContent(siteContentData || DEFAULT_SITE_CONTENT);
+      setSiteContent({
+        ...DEFAULT_SITE_CONTENT,
+        ...(siteContentData || {}),
+        footer: {
+          ...DEFAULT_SITE_CONTENT.footer,
+          ...(siteContentData?.footer || {}),
+          quickLinks: siteContentData?.footer?.quickLinks || DEFAULT_SITE_CONTENT.footer.quickLinks,
+          legalLinks: siteContentData?.footer?.legalLinks || DEFAULT_SITE_CONTENT.footer.legalLinks,
+        },
+        popularRoutes: siteContentData?.popularRoutes || DEFAULT_SITE_CONTENT.popularRoutes,
+      });
     } catch (err) {
       setError(err?.response?.data?.error?.detail || 'Failed to load admin data.');
     }
@@ -372,6 +383,13 @@ export function AdminPage() {
     }));
   }
 
+  function toggleHeroVariant() {
+    setSiteContent((prev) => ({
+      ...prev,
+      heroVariant: prev.heroVariant === 'cinematic' ? 'classic' : 'cinematic',
+    }));
+  }
+
   function handleSiteLinkChange(section, index, field, value) {
     setSiteContent((prev) => ({
       ...prev,
@@ -423,6 +441,7 @@ export function AdminPage() {
     setSuccess('');
     try {
       const payload = {
+        heroVariant: siteContent.heroVariant === 'cinematic' ? 'cinematic' : 'classic',
         footer: {
           ...siteContent.footer,
           quickLinks: siteContent.footer.quickLinks.filter((item) => item.label && item.to),
@@ -959,6 +978,24 @@ export function AdminPage() {
                   <div>
                     <p className="text-sm font-bold text-slate-800">Footer Content</p>
                     <p className="text-xs text-slate-500 mt-1">Control phone, email, office address, and footer links shown on the public site.</p>
+                  </div>
+                  <div className="rounded-2xl border border-indigo-100 bg-indigo-50/70 p-4">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-sm font-bold text-slate-800">Homepage Hero Style</p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          Toggle between the existing hero and the new cinematic car hero.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={toggleHeroVariant}
+                        className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${siteContent.heroVariant === 'cinematic' ? 'bg-[#1E1B4B] text-white shadow-lg shadow-indigo-500/20 hover:bg-[#17153d]' : 'bg-white text-slate-700 border border-slate-200 hover:border-indigo-200 hover:text-indigo-700'}`}
+                      >
+                        <span className={`h-2.5 w-2.5 rounded-full ${siteContent.heroVariant === 'cinematic' ? 'bg-emerald-400' : 'bg-slate-300'}`} />
+                        {siteContent.heroVariant === 'cinematic' ? 'Cinematic Hero On' : 'Classic Hero On'}
+                      </button>
+                    </div>
                   </div>
                   <textarea className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20" rows="3" value={siteContent.footer.description} onChange={(e) => handleSiteFooterChange('description', e.target.value)} placeholder="Footer description" />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
