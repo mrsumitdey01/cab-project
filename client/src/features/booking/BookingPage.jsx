@@ -169,7 +169,6 @@ export function BookingPage() {
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
-  const [exporting, setExporting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [copiedId, setCopiedId] = useState('');
   const [recentStatusIds, setRecentStatusIds] = useState([]);
@@ -249,32 +248,6 @@ export function BookingPage() {
     setTimeout(() => setCopiedId(''), 1500);
   }
 
-  async function exportCsv() {
-    setExporting(true);
-    try {
-      const header = ['Booking ID', 'Status', 'Pickup', 'Dropoff', 'Pickup Date', 'Pickup Time', 'Cab Type', 'Car Model', 'Fare'];
-      const rows = bookings.map((b) => [
-        b._id, b.status,
-        b.pickup?.address || '', b.dropoff?.address || '',
-        b.schedule?.pickupDate || '', b.schedule?.pickupTime || '',
-        b.selection?.cabType || '', b.selection?.carModel || '',
-        b.fare?.totalAmount ?? '',
-      ]);
-      const csv = [header, ...rows].map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `safar-express-bookings-${new Date().toISOString().slice(0, 10)}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-    } finally {
-      setExporting(false);
-    }
-  }
-
   return (
     <div className="min-h-screen bg-[#faf8ff]">
       <div className="mx-auto max-w-7xl px-6 pb-14 pt-24 lg:px-8">
@@ -288,7 +261,7 @@ export function BookingPage() {
           </div>
 
           <div className="flex w-full max-w-2xl flex-col gap-3 lg:items-end">
-            <div className="grid w-full gap-3 sm:grid-cols-[minmax(0,1fr)_220px_auto]">
+            <div className="grid w-full gap-3 sm:grid-cols-[minmax(0,1fr)_220px]">
               <div className="relative">
                 <div className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                   <SearchIcon />
@@ -311,16 +284,6 @@ export function BookingPage() {
                 <option value="COMPLETED">Completed</option>
                 <option value="CANCELLED">Cancelled</option>
               </select>
-              <button
-                type="button"
-                onClick={exportCsv}
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#1E1B4B] px-5 py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:scale-[1.02] hover:bg-[#17153d]"
-              >
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                {exporting ? 'Exporting...' : 'Export CSV'}
-              </button>
             </div>
 
             <div className="flex flex-wrap gap-3 text-sm">
