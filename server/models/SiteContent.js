@@ -19,7 +19,7 @@ const siteContentSchema = new mongoose.Schema({
   heroVariant: {
     type: String,
     enum: ['classic', 'cinematic'],
-    default: 'classic',
+    default: 'cinematic',
   },
   footer: {
     description: { type: String, trim: true, default: '' },

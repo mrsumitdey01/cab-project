@@ -68,7 +68,7 @@ const ADMIN_NAV_GROUPS = [
 ];
 const ADMIN_SECTION_IDS = ADMIN_NAV_GROUPS.flatMap((group) => group.links.map((link) => link.href.replace('#', '')));
 const DEFAULT_SITE_CONTENT = {
-  heroVariant: 'classic',
+  heroVariant: 'cinematic',
   footer: {
     description: "India's premier intercity travel platform, bridging the gap between comfort and affordability.",
     phone: '1800-SAFAR-EXP',
@@ -441,7 +441,7 @@ export function AdminPage() {
     setSuccess('');
     try {
       const payload = {
-        heroVariant: siteContent.heroVariant === 'cinematic' ? 'cinematic' : 'classic',
+        heroVariant: siteContent.heroVariant === 'classic' ? 'classic' : 'cinematic',
         footer: {
           ...siteContent.footer,
           quickLinks: siteContent.footer.quickLinks.filter((item) => item.label && item.to),
@@ -984,7 +984,7 @@ export function AdminPage() {
                       <div>
                         <p className="text-sm font-bold text-slate-800">Homepage Hero Style</p>
                         <p className="mt-1 text-xs text-slate-500">
-                          Toggle between the existing hero and the new cinematic car hero.
+                          Cinematic hero is the default. Use the toggle only if you want to switch back to the classic hero.
                         </p>
                       </div>
                       <button
@@ -993,7 +993,7 @@ export function AdminPage() {
                         className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${siteContent.heroVariant === 'cinematic' ? 'bg-[#1E1B4B] text-white shadow-lg shadow-indigo-500/20 hover:bg-[#17153d]' : 'bg-white text-slate-700 border border-slate-200 hover:border-indigo-200 hover:text-indigo-700'}`}
                       >
                         <span className={`h-2.5 w-2.5 rounded-full ${siteContent.heroVariant === 'cinematic' ? 'bg-emerald-400' : 'bg-slate-300'}`} />
-                        {siteContent.heroVariant === 'cinematic' ? 'Cinematic Hero On' : 'Classic Hero On'}
+                        {siteContent.heroVariant === 'cinematic' ? 'Switch to Classic Hero' : 'Switch to Cinematic Hero'}
                       </button>
                     </div>
                   </div>
