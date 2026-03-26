@@ -993,7 +993,7 @@ export function AdminPage() {
                         className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${siteContent.heroVariant === 'cinematic' ? 'bg-[#1E1B4B] text-white shadow-lg shadow-indigo-500/20 hover:bg-[#17153d]' : 'bg-white text-slate-700 border border-slate-200 hover:border-indigo-200 hover:text-indigo-700'}`}
                       >
                         <span className={`h-2.5 w-2.5 rounded-full ${siteContent.heroVariant === 'cinematic' ? 'bg-emerald-400' : 'bg-slate-300'}`} />
-                        {siteContent.heroVariant === 'cinematic' ? 'Switch to Classic Hero' : 'Switch to Cinematic Hero'}
+                        {siteContent.heroVariant === 'cinematic' ? 'Classic Hero On' : 'Cinematic Hero On'}
                       </button>
                     </div>
                   </div>
