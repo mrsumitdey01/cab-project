@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { CalendarDays, Clock, ShieldCheck, Headphones, BadgeCheck, Sparkles, LocateFixed } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { searchTrips, createPublicBooking, createBooking, getSiteContent } from '../../shared/api/endpoints';
 import { Alert } from '../../shared/ui/Alert';
 import { useAuth } from '../../shared/contexts/AuthContext';
@@ -18,6 +18,7 @@ const FALLBACK_POPULAR_ROUTES = [
 
 export function PublicSearchPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { isAuthenticated } = useAuth();
   const [formData, setFormData] = useState({
     tripType: TRIP_TYPES[0],
@@ -79,6 +80,29 @@ export function PublicSearchPage() {
       active = false;
     };
   }, []);
+
+  useEffect(() => {
+    const route = location.state?.popularRoute;
+    if (!route) return;
+    const pickup = route.pickup || route.from;
+    const dropoff = route.dropoff || route.to;
+    if (!pickup || !dropoff) return;
+
+    const fromLoc = { id: `popular-from-${pickup}`, name: pickup, hub: pickup, keywords: [] };
+    const toLoc = { id: `popular-to-${dropoff}`, name: dropoff, hub: dropoff, keywords: [] };
+
+    setSelectedFrom(fromLoc);
+    setSelectedTo(toLoc);
+    setFromQuery(pickup);
+    setToQuery(dropoff);
+    setFormData((prev) => ({
+      ...prev,
+      pickup: { address: pickup },
+      dropoff: { address: dropoff },
+    }));
+
+    navigate(location.pathname, { replace: true, state: {} });
+  }, [location.pathname, location.state, navigate]);
 
   useEffect(() => {
     if (bookingFormOpen) {
@@ -513,10 +537,13 @@ export function PublicSearchPage() {
               <h2 className="text-3xl font-black tracking-tight text-slate-900">Popular Routes</h2>
               <p className="mt-1 text-sm text-indigo-500/80">Most traveled intercity destinations this month.</p>
             </div>
-            <span className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500">
+            <Link
+              to="/popular-destinations"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition-colors hover:text-indigo-700"
+            >
               View All
               <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-            </span>
+            </Link>
           </div>
           <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
             {popularRoutes.map((route) => (

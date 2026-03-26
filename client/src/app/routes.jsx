@@ -3,6 +3,7 @@ import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from
 import { LoginPage } from '../features/auth/LoginPage';
 import { RegisterPage } from '../features/auth/RegisterPage';
 import { BookingPage } from '../features/booking/BookingPage';
+import { PopularDestinationsPage } from '../features/booking/PopularDestinationsPage';
 import { PublicSearchPage } from '../features/booking/PublicSearchPage';
 import { AdminPage } from '../features/admin/AdminPage';
 import { PrivacyPolicyPage } from '../features/legal/PrivacyPolicyPage';
@@ -296,6 +297,7 @@ export function AppRoutes() {
       <div className="flex-1">
         <Routes>
           <Route path="/" element={<PublicSearchPage />} />
+          <Route path="/popular-destinations" element={<PopularDestinationsPage />} />
           <Route path="/privacy" element={<PrivacyPolicyPage />} />
           <Route path="/terms" element={<TermsOfServicePage />} />
           <Route path="/login" element={isAuthenticated ? <Navigate to={user?.role === 'admin' ? '/admin' : '/bookings'} replace /> : <LoginPage />} />
